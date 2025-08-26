@@ -99,6 +99,7 @@ import RoutePricing from "../Pages/Customer/RoutePricing";
 import VehicleReport from "../Pages/Reports/VehicelReport";
 import OfficialProduct from "../Pages/Purchase/OfficialProducts";
 import OfficialProductForm from "../Pages/Purchase/OfficialProductForm";
+import Bill from "../Pages/Billing/Bill";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -651,25 +652,29 @@ export const router = createBrowserRouter([
         element: <TripReport />,
       },
       // billing
+      // {
+      //   path: "/tramessy/billing/Yamaha",
+      //   element: <Yamaha />,
+      // },
+      // {
+      //   path: "/tramessy/billing/Hatim",
+      //   element: <Hatim />,
+      // },
+      // {
+      //   path: "/tramessy/billing/HatimPubail",
+      //   element: <HatimPubail />,
+      // },
+      // {
+      //   path: "/tramessy/billing/Suzuki",
+      //   element: <Suzuki />,
+      // },
+      // {
+      //   path: "/tramessy/billing/Honda",
+      //   element: <Honda />,
+      // },
       {
-        path: "/tramessy/billing/Yamaha",
-        element: <Yamaha />,
-      },
-      {
-        path: "/tramessy/billing/Hatim",
-        element: <Hatim />,
-      },
-      {
-        path: "/tramessy/billing/HatimPubail",
-        element: <HatimPubail />,
-      },
-      {
-        path: "/tramessy/billing/Suzuki",
-        element: <Suzuki />,
-      },
-      {
-        path: "/tramessy/billing/Honda",
-        element: <Honda />,
+        path: "/tramessy/billing/bill",
+        element: <Bill />,
       },
       // Account
       {
