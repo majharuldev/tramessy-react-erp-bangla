@@ -34,9 +34,8 @@ const Login = () => {
         {/* form */}
         <div className="flex items-center justify-center md:w-1/2 bg-white rounded-xl py-7 md:p-8">
           <div className="bg-white shadow-lg p-5 md:p-7 rounded-md border md:border-none border-gray-200">
-            <h2 className="text-3xl font-extrabold text-center text-[#11375B] mb-1">
-              Admin{" "}
-              <span className="font-semibold text-red-500">MS Trading</span>
+            <h2 className="text-3xl font-semibold text-center text-[#11375B] mb-1">
+              Tramessy
             </h2>
             <p className="text-sm text-center text-primary mb-6">
               Please Login!

@@ -3,8 +3,8 @@ import { FaFilter, FaUserSecret, FaFilePdf, FaPrint, FaFileExcel } from "react-i
 import * as XLSX from "xlsx";
 import axios from "axios";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import jsPDF  from "jspdf";
+import autoTable from "jspdf-autotable";
 import { useReactToPrint } from "react-to-print";
 import Pagination from "../../components/Shared/Pagination";
 
@@ -82,61 +82,111 @@ const PurchaseReport = () => {
   };
 
   // Export to PDF
+  // const exportPdf = () => {
+  //   const doc = new jsPDF();
+  //   const title = "Purchase Report";
+    
+  //   // Add title
+  //   doc.setFontSize(16);
+  //   doc.text(title, 14, 16);
+    
+  //   // Add summary information
+  //   doc.setFontSize(10);
+  //   doc.text(`Total Purchases: ${filteredPurchases.length}`, 14, 26);
+  //   doc.text(`Total Amount: ${totalAmount.toLocaleString()} ৳`, 14, 32);
+  //   doc.text(`Top Supplier: ${topSupplier}`, 14, 38);
+  //   doc.text(`Top Category: ${topCategory}`, 14, 44);
+    
+  //   // Add table
+  //   const headers = [
+  //     "#", 
+  //     "Date", 
+  //     "Supplier", 
+  //     "Category", 
+  //     "Item", 
+  //     "Qty", 
+  //     "Unit Price", 
+  //     "Total"
+  //   ];
+    
+  //   const data = filteredPurchases.map((p, i) => [
+  //     i + 1,
+  //     p.date,
+  //     p.supplier_name,
+  //     p.category,
+  //     p.item_name,
+  //     p.quantity,
+  //     p.unit_price,
+  //     p.purchase_amount ?? (p.quantity * p.unit_price)
+  //   ]);
+    
+  //   doc.autoTable({
+  //     head: [headers],
+  //     body: data,
+  //     startY: 50,
+  //     styles: {
+  //       fontSize: 8,
+  //       cellPadding: 2,
+  //       halign: 'center'
+  //     },
+  //     headStyles: {
+  //       fillColor: [17, 55, 91],
+  //       textColor: 255
+  //     }
+  //   });
+    
+  //   doc.save('purchase_report.pdf');
+  // };
+
   const exportPdf = () => {
-    const doc = new jsPDF();
-    const title = "Purchase Report";
-    
-    // Add title
-    doc.setFontSize(16);
-    doc.text(title, 14, 16);
-    
-    // Add summary information
-    doc.setFontSize(10);
-    doc.text(`Total Purchases: ${filteredPurchases.length}`, 14, 26);
-    doc.text(`Total Amount: ${totalAmount.toLocaleString()} ৳`, 14, 32);
-    doc.text(`Top Supplier: ${topSupplier}`, 14, 38);
-    doc.text(`Top Category: ${topCategory}`, 14, 44);
-    
-    // Add table
-    const headers = [
-      "#", 
-      "Date", 
-      "Supplier", 
-      "Category", 
-      "Item", 
-      "Qty", 
-      "Unit Price", 
-      "Total"
-    ];
-    
-    const data = filteredPurchases.map((p, i) => [
-      i + 1,
-      p.date,
-      p.supplier_name,
-      p.category,
-      p.item_name,
-      p.quantity,
-      p.unit_price,
-      p.purchase_amount ?? (p.quantity * p.unit_price)
-    ]);
-    
-    doc.autoTable({
-      head: [headers],
-      body: data,
-      startY: 50,
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-        halign: 'center'
-      },
-      headStyles: {
-        fillColor: [17, 55, 91],
-        textColor: 255
-      }
-    });
-    
-    doc.save('purchase_report.pdf');
-  };
+  const doc = new jsPDF();
+  const title = "Purchase Report";
+
+  // Add title
+  doc.setFontSize(16);
+  doc.text(title, 14, 16);
+
+  // Add summary information
+  doc.setFontSize(10);
+  doc.text(`Total Purchases: ${filteredPurchases.length}`, 14, 26);
+  doc.text(`Total Amount: ${totalAmount.toLocaleString()} ৳`, 14, 32);
+  doc.text(`Top Supplier: ${topSupplier}`, 14, 38);
+  doc.text(`Top Category: ${topCategory}`, 14, 44);
+
+  // Add table
+  const headers = [
+    ["#", "Date", "Supplier", "Category", "Item", "Qty", "Unit Price", "Total"]
+  ];
+
+  const data = filteredPurchases.map((p, i) => [
+    i + 1,
+    p.date,
+    p.supplier_name,
+    p.category,
+    p.item_name,
+    p.quantity,
+    p.unit_price,
+    p.purchase_amount ?? (p.quantity * p.unit_price)
+  ]);
+
+  autoTable(doc, {
+    head: headers,
+    body: data,
+    startY: 50,
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+      halign: "center"
+    },
+    headStyles: {
+      fillColor: [17, 55, 91],
+      textColor: 255
+    }
+  });
+
+  doc.save("purchase_report.pdf");
+};
+
 
     // Simple print function
  const handlePrint = () => {
@@ -330,6 +380,18 @@ const totalAmountOverall = filteredPurchases.reduce(
               className="border rounded px-3 py-1"
             />
           </div>
+           {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-9 top-[17rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
         </div>
 
         {/* Table */}

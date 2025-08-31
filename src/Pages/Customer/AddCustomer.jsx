@@ -50,7 +50,7 @@ const AddCustomer = () => {
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
         Add Customer information
       </h3>
-      <div className="mx-auto p-6 bg-gray-100 rounded-md shadow">
+      <div className="mx-auto p-6 rounded-md shadow">
         <FormProvider {...methods} className="">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="md:flex justify-between gap-3">

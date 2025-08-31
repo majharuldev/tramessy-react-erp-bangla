@@ -9,8 +9,26 @@ import { useNavigate } from "react-router-dom";
 const AddRentVehicleForm = () => {
   const navigate = useNavigate();
   const methods = useForm();
-  const { handleSubmit, reset } = methods;
-
+  const { handleSubmit, reset, watch } = methods;
+const selectedCategory = watch("vehicle_category");
+const vehicleSizes = {
+  pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
+  covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
+  open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
+  trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
+  freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
+  car: ["4 Seater", "7 Seater"],
+  micro_bus: ["12 Seater", "14 Seater"],
+  bus: ["30 Seater", "40 Seater", "50 Seater"],
+};
+// সিলেক্ট করা ক্যাটাগরির জন্য সাইজ লিস্ট বানানো
+  const sizeOptions =
+    selectedCategory && vehicleSizes[selectedCategory]
+      ? vehicleSizes[selectedCategory].map((size) => ({
+          value: size.toLowerCase().replace(" ", "_"),
+          label: size,
+        }))
+      : [];
   const generateRefId = useRefId();
   const onSubmit = async (data) => {
     try {
@@ -43,12 +61,12 @@ const AddRentVehicleForm = () => {
   };
 
   return (
-    <div className="mt-10">
+    <div className="mt-10 p-2">
       <Toaster position="top-center" reverseOrder={false} />
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
         Rent Vehicle Information
       </h3>
-      <div className="mx-auto p-6 bg-gray-100 rounded-md shadow">
+      <div className="mx-auto p-6  rounded-md shadow">
         <FormProvider {...methods} className="">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             {/* Trip & Destination Section */}
@@ -71,40 +89,36 @@ const AddRentVehicleForm = () => {
               </div>
 
               <div className="md:flex justify-between gap-3">
-                <div className="w-full">
-                  <SelectField
-                    name="vehicle_category"
-                    label="Vehicle Category"
-                    required
-                    options={[
-                      { value: "", label: "Select Vehicle category..." },
-                      { value: "Pickup", label: "Pickup" },
-                      { value: "Covered Van", label: "Covered Van" },
-                      { value: "Open Truck", label: "Open Truck" },
-                    ]}
-                  />
-                </div>
-                <div className="w-full relative">
-                  <SelectField
-                    name="vehicle_size_capacity"
-                    label="Vehicle Size/Capacity"
-                    required
-                    options={[
-                      { value: "", label: "Select Vehicle size..." },
-                      { value: "4 Ton", label: "4 Ton" },
-                      { value: "3 Ton", label: "3 Ton" },
-                      { value: "22 Ton", label: "22 Ton" },
-                      { value: "7 Feet", label: "7 Feet" },
-                      { value: "9 Feet", label: "9 Feet" },
-                      { value: "12 Feet", label: "12 Feet" },
-                      { value: "14 Feet", label: "14 Feet" },
-                      { value: "16 Feet", label: "16 Feet" },
-                      { value: "18 Feet", label: "18 Feet" },
-                      { value: "20 Feet", label: "20 Feet" },
-                      { value: "23 Feet", label: "23 Feet" },
-                    ]}
-                  />
-                </div>
+                 <div className="w-full relative">
+              <SelectField
+                name="vehicle_category"
+                label="Vehicle Category"
+                required
+                options={[
+                  // { value: "", label: "Select Vehicle category..." },
+                  { value: "pickup", label: "Pickup" },
+                  { value: "covered_van", label: "Covered Van" },
+                  { value: "open_truck", label: "Open Truck" },
+                  { value: "trailer", label: "Trailer" },
+                  { value: "freezer_van", label: "Freezer Van" },
+                  { value: "car", label: "Car" },
+                  { value: "bus", label: "Bus" },
+                  { value: "micro_bus", label: "Micro Bus" },
+                ]}
+           
+              />
+            </div>
+            <div className="relative w-full">
+        <SelectField
+          name="vehicle_size_capacity"
+          label="Vehicle Size/Capacity"
+          required
+          options={[
+            { value: "", label: "Select Vehicle size..." },
+            ...sizeOptions,
+          ]}
+        />
+      </div>
               </div>
             </div>
 

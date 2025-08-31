@@ -204,16 +204,14 @@ const HelperList = () => {
   };
 
   // search
-  const filteredHelper = helper.filter((Helper) => {
+  const filteredHelper = helper.filter((h) => {
     const term = searchTerm.toLowerCase();
     return (
-      Helper.Helper_name?.toLowerCase().includes(term) ||
-      Helper.Helper_mobile?.toLowerCase().includes(term) ||
-      Helper.nid?.toLowerCase().includes(term) ||
-      Helper.emergency_contact?.toLowerCase().includes(term) ||
-      Helper.address?.toLowerCase().includes(term) ||
-      Helper.license?.toLowerCase().includes(term) ||
-      Helper.status?.toLowerCase().includes(term)
+      h.helper_name?.toLowerCase().includes(term) ||
+    h.phone?.toLowerCase().includes(term) ||
+    h.address?.toLowerCase().includes(term) ||
+    h.salary?.toString().toLowerCase().includes(term) ||
+    h.status?.toLowerCase().includes(term)
     );
   });
   // pagination

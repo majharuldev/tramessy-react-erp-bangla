@@ -135,12 +135,12 @@ const PaymentList = () => {
       dt.item_name,
       dt.quantity,
       dt.unit_price,
-      dt.total,
+      dt.total_amount,
       dt.pay_amount,
-      parseFloat(dt.total) - parseFloat(dt.pay_amount),
+      parseFloat(dt.total_amount) - parseFloat(dt.pay_amount),
       parseFloat(dt.pay_amount) === 0
         ? "Unpaid"
-        : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
+        : parseFloat(dt.pay_amount) >= parseFloat(dt.total_amount)
         ? "Paid"
         : "Partial",
     ]);
@@ -166,13 +166,13 @@ const PaymentList = () => {
         <td>${dt.item_name}</td>
         <td>${dt.quantity}</td>
         <td>${dt.unit_price}</td>
-        <td>${dt.total}</td>
+        <td>${dt.total_amount}</td>
         <td>${dt.pay_amount}</td>
-        <td>${parseFloat(dt.total) - parseFloat(dt.pay_amount)}</td>
+        <td>${parseFloat(dt.total_amount) - parseFloat(dt.pay_amount)}</td>
         <td>${
           parseFloat(dt.pay_amount) === 0
             ? "Unpaid"
-            : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
+            : parseFloat(dt.pay_amount) >= parseFloat(dt.total_amount)
             ? "Paid"
             : "Partial"
         }</td>
@@ -405,6 +405,18 @@ const PaymentList = () => {
               placeholder="Search list..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-5 top-[5.8rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
         {showFilter && (

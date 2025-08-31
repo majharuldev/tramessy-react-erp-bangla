@@ -608,23 +608,23 @@ export const router = createBrowserRouter([
       // Reports
       {
         path: "/tramessy/Reports/Employee-Report",
-        element: <EmployeeReport />,
+        element: <AdminRoute><EmployeeReport /></AdminRoute>,
       },
       {
         path: "/tramessy/Reports/Driver-Report",
-        element: <DriverReport />,
+        element: <AdminRoute><DriverReport /></AdminRoute>,
       },
       {
         path: "/tramessy/Reports/vehicle-report",
-        element: <VehicleReport/>,
+        element: <AdminRoute><VehicleReport/></AdminRoute>,
       },
       {
         path: "/tramessy/Reports/Fuel-Report",
-        element: <FuelReport />,
+        element: <AdminRoute><FuelReport /></AdminRoute>,
       },
       {
         path: "/tramessy/Reports/Purchase-Report",
-        element: <PurchaseReport />,
+        element: <AdminRoute><PurchaseReport /></AdminRoute>,
       },
       {
         path: "/tramessy/Reports/Inventory-Report",
@@ -632,73 +632,73 @@ export const router = createBrowserRouter([
       },
       {
         path: "/tramessy/Reports/Trip-Report",
-        element: <TripReport />,
+        element: <AdminRoute><TripReport /></AdminRoute>,
       },
       // billing
       {
         path: "/tramessy/billing/bill",
-        element: <Bill />,
+        element: <AdminRoute><Bill /></AdminRoute>,
       },
       // Account
       {
         path: "/tramessy/account/CashDispatch",
-        element: <CashDispatch />,
+        element: <AdminRoute><CashDispatch /></AdminRoute>,
       },
       {
         path: "/tramessy/account/CashDispatchForm",
-        element: <CashDispatchForm />,
+        element: <AdminRoute><CashDispatchForm /></AdminRoute>,
       },
       {
         path: "/tramessy/account/update-CashDispatch/:id",
-        element: <CashDispatchForm />,
+        element: <AdminRoute><CashDispatchForm /></AdminRoute>,
       },
       {
         path: "/tramessy/account/PaymentList",
-        element: <PaymentList />,
+        element: <AdminRoute><PaymentList /></AdminRoute>,
       },
       {
         path: "/tramessy/account/PaymentReceive",
-        element: <PaymentReceive />,
+        element: <AdminRoute><PaymentReceive /></AdminRoute>,
       },
       {
         path: "/tramessy/account/PaymentReceiveForm",
-        element: <PaymentReceiveForm />,
+        element: <AdminRoute><PaymentReceiveForm /></AdminRoute>,
       },
       {
         path: "/tramessy/account/update-PaymentReceiveForm/:id",
-        element: <PaymentReceiveForm />,
+        element: <AdminRoute><PaymentReceiveForm /></AdminRoute>,
       },
       {
         path: "/tramessy/account/vendor-payment",
-        element: <VendorPayment />,
+        element: <AdminRoute><VendorPayment /></AdminRoute>,
       },
       {
         path: "/tramessy/account/add-vendor-payment",
-        element: <VendorPaymentForm />,
+        element: <AdminRoute><VendorPaymentForm /></AdminRoute>,
       },
       {
         path: "/tramessy/account/update-vendor-payment/:id",
-        element: <VendorPaymentForm />,
+        element: <AdminRoute><VendorPaymentForm /></AdminRoute>,
       },
       {
         path: "/tramessy/account/CustomerLedger",
-        element: <CustomerLedger />,
+        element: <AdminRoute><CustomerLedger /></AdminRoute>,
       },
       {
         path: "/tramessy/account/SupplierLedger",
-        element: <SupplierLedger />,
+        element: <AdminRoute><SupplierLedger /></AdminRoute>,
       },
       {
         path: "/tramessy/account/DriverLedger",
-        element: <DriverLedger />,
+        element: <AdminRoute><DriverLedger /></AdminRoute>,
       },
       {
         path: "/tramessy/account/VendorLedger",
-        element: <VendorLedger />,
+        element: <AdminRoute><VendorLedger /></AdminRoute>,
       },
       {
         path: "/tramessy/account/OfficeLedger",
-        element: <OfficeLedger />,
+        element: <AdminRoute><OfficeLedger /></AdminRoute>,
       },
     ],
   },

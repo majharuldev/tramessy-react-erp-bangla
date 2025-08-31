@@ -56,12 +56,12 @@ const UpdateVendorForm = () => {
   };
 
   return (
-    <div className="mt-10">
+    <div className="mt-10 p-2">
       <Toaster />
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
         Update Vendor Form
       </h3>
-      <div className="mx-auto p-6 bg-gray-100 rounded-md shadow">
+      <div className="mx-auto p-6  rounded-md shadow">
         <FormProvider {...methods} className="">
           <form onSubmit={handleSubmit(onSubmit)}>
             {/*  */}

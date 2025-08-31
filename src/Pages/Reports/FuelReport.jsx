@@ -306,6 +306,18 @@ export default function FuelReport() {
               className="border border-gray-300 rounded-md outline-none text-sm py-2 pl-10 pr-5 w-full md:w-64"
             />
           </div>
+           {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-9 top-[6.7rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
         </div>
 
         {/* Conditional Filter Section */}

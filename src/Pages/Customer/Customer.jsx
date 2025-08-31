@@ -32,6 +32,20 @@ const Customer = () => {
         setLoading(false);
       });
   }, []);
+
+  // filtered search
+  const [searchTerm, setSearchTerm] = useState("");
+   //  search filter
+  const filteredCustomers = customer.filter((c) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      c.customer_name?.toLowerCase().includes(term) ||
+      c.mobile?.toLowerCase().includes(term) ||
+      c.email?.toLowerCase().includes(term) ||
+      c.address?.toLowerCase().includes(term) ||
+      c.status?.toLowerCase().includes(term)
+    );
+  });
   // delete by id
   const handleDelete = async (id) => {
     try {
@@ -65,8 +79,8 @@ const Customer = () => {
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCustomer = customer.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(customer.length / itemsPerPage);
+  const currentCustomer = filteredCustomers.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
   };
@@ -78,7 +92,7 @@ const Customer = () => {
     setCurrentPage(number);
   };
   return (
-    <main className=" md:p-2">
+    <main className=" p-2">
       <Toaster />
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-8 border border-gray-200">
         {/* Header */}
@@ -93,6 +107,35 @@ const Customer = () => {
                 <FaPlus /> Add Customer
               </button>
             </Link>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          {/* search */}
+          <div className="mt-3 md:mt-0 ">
+            <span className="text-primary font-semibold pr-3">Search: </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by  ..."
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-9 top-[6.5rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
 

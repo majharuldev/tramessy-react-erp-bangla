@@ -94,6 +94,16 @@ const DriverLedger = () => {
     ),
   ].sort();
 
+  // helper function
+const toNumber = (val) => {
+  if (val === null || val === undefined) return 0;
+  if (typeof val === "string") {
+    if (val.trim().toLowerCase() === "null" || val.trim() === "") return 0;
+  }
+  const num = Number(val);
+  return isNaN(num) ? 0 : num;
+};
+
   // Filter by driver and month
   const filteredDriver = driver.filter((d) => {
     const matchesDriver = selectedDriver
@@ -144,16 +154,16 @@ const DriverLedger = () => {
       driver_adv = 0,
     } = item;
     const totalExpense =
-      Number(labor) +
-      Number(parking_cost) +
-      Number(night_guard) +
-      Number(toll_cost) +
-      Number(feri_cost) +
-      Number(police_cost) +
-      Number(chada) +
-      Number(callan_cost) +
-    Number(others_cost) +
-    Number(fuel_cost);
+      toNumber(labor) +
+      toNumber(parking_cost) +
+      toNumber(night_guard) +
+      toNumber(toll_cost) +
+      toNumber(feri_cost) +
+      toNumber(police_cost) +
+      toNumber(chada) +
+      toNumber(callan_cost) +
+    toNumber(others_cost) +
+    toNumber(fuel_cost);
     runningBalance += Number(driver_adv) - totalExpense;
     return {
       ...item,
@@ -166,8 +176,8 @@ const DriverLedger = () => {
   const calculateFooterTotals = () => {
     return rowsWithBalance.reduce(
       (acc, item) => {
-        acc.commission += Number(item.driver_commission || 0);
-        acc.advance += Number(item.driver_adv || 0);
+        acc.commission += toNumber(item.driver_commission || 0);
+        acc.advance += toNumber(item.driver_adv || 0);
         acc.totalExpense += item.totalExpense;
         acc.balance = item.balance; // Last balance will be the final balance
         return acc;
@@ -196,7 +206,7 @@ const DriverLedger = () => {
     balance -= footerTotals.commission;
     // Deduct helper salary if a helper is selected
     if (selectedHelper) {
-      balance -= Number(currentHelperSalary); // Use currentHelperSalary
+      balance -= toNumber(currentHelperSalary); // Use currentHelperSalary
     }
     return balance;
   };
@@ -494,7 +504,7 @@ const DriverLedger = () => {
         </div>
         {/* Month Filter Section */}
         {showFilter && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+          <div className="flex  gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
             <div className="w-full">
               <div className="relative w-full">
                 <label className="text-primary text-sm font-semibold">
@@ -569,6 +579,19 @@ const DriverLedger = () => {
                 <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
               </div>
             </div>
+            <div className="w-xs mt-7">
+              <button
+                 onClick={() => {
+    setSelectedDriver("");
+    setSelectedHelper("");
+    setSelectedMonth("");   
+    setShowFilter(false);    
+  }}
+                className="w-full bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                 Clear
+              </button>
+            </div>
           </div>
         )}
         {/* TADA Summary */}
@@ -634,15 +657,15 @@ const DriverLedger = () => {
                   <td className="border px-2 py-1">{item.date}</td>
                   <td className="border px-2 py-1">{item.load_point}</td>
                   <td className="border px-2 py-1">{item.unload_point}</td>
-                  <td className="border px-2 py-1">{item.driver_commission}</td>
-                  <td className="border px-2 py-1">{item.driver_adv}</td>
-                  <td className="border px-2 py-1">{item.labor}</td>
-                  <td className="border px-2 py-1">{item.parking_cost}</td>
-                  <td className="border px-2 py-1">{item.night_guard}</td>
-                  <td className="border px-2 py-1">{item.toll_cost}</td>
-                  <td className="border px-2 py-1">{item.feri_cost}</td>
-                  <td className="border px-2 py-1">{item.police_cost}</td>
-                  <td className="border px-2 py-1">{item.chada}</td>
+                  <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.driver_adv)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.labor)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.parking_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.night_guard)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.toll_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.feri_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.police_cost)}</td>
+                  <td className="border px-2 py-1">{toNumber(item.chada)}</td>
                   {/* <td className="border px-2 py-1">{item.fuel_cost}</td> */}
 <td className="border px-2 py-1">{item.callan_cost}</td>
 <td className="border px-2 py-1">{item.others_cost}</td>

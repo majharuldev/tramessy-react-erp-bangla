@@ -261,13 +261,13 @@ totals.due = totals.rent  - totals.rec_amount;
       Total 
     </td>
     <td className="border border-black px-2 py-1 text-right">
-      ৳{totals.rent?.toFixed(2)}
+      ৳{totals.rent}
     </td>
     <td className="border border-black px-2 py-1 text-right">
-      ৳{totals.rec_amount?.toFixed(2)}
+      ৳{totals.rec_amount}
     </td>
     <td className="border border-black px-2 py-1 text-right">
-      ৳{totals.due?.toFixed(2)}
+      ৳{totals.due}
     </td>
   </tr>
                 <tr>
@@ -319,13 +319,13 @@ totals.due = totals.rent  - totals.rec_amount;
             {item.driver_name || <span className="flex justify-center items-center">--</span>}
           </td>
           <td className="border px-2 py-1">
-            {billAmount ? billAmount?.toFixed(2) : "--"}
+            {billAmount ? billAmount : "--"}
           </td>
           <td className="border px-2 py-1">
-            {receivedAmount ? receivedAmount?.toFixed(2) : "--"}
+            {receivedAmount ? receivedAmount : "--"}
           </td>
           <td className="border px-2 py-1">
-            {cumulativeDue?.toFixed(2)}
+            {cumulativeDue}
           </td>
         </tr>
       );

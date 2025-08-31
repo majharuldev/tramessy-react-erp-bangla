@@ -163,7 +163,7 @@ const CashDispatch = () => {
                 >
                   <td className="p-2 font-bold">{indexOfFirstItem + i + 1}</td>
                   {dt.date ? format(parseISO(dt.date), "dd-MMMM-yyyy") : ""}
-                  <td className="p-2">{dt.branch}</td>
+                  <td className="p-2">{dt.branch_name}</td>
                   <td className="p-2">{dt.person_name}</td>
                   <td className="p-2">{dt.type}</td>
                   <td className="p-2">{dt.amount}</td>

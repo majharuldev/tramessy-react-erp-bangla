@@ -231,6 +231,11 @@ setIsSubmitting(true);
   }
 // print
   const printTable = () => {
+    // hide specific column
+    const actionColumns = document.querySelectorAll(".action_column");
+    actionColumns.forEach((col) => {
+      col.style.display = "none";
+    });
     const content = printRef.current.innerHTML
     const win = window.open("", "", "width=900,height=650")
     win.document.write(`
@@ -251,6 +256,10 @@ setIsSubmitting(true);
     win.focus()
     win.print()
     win.close()
+    // fallback: just in case (immediate reset)
+  actionColumns.forEach((col) => {
+    col.style.display = "";
+  });
   }
 
   // pagination
@@ -341,6 +350,18 @@ setIsSubmitting(true);
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-12 top-[11.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
 
@@ -389,7 +410,7 @@ setIsSubmitting(true);
                 <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Category</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Remarks</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold w-24">Action</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -430,7 +451,7 @@ setIsSubmitting(true);
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
                     <td className="px-3 py-3 text-sm">{item.remarks}</td>
-                    <td className="px-3 py-3 text-sm">
+                    <td className="px-3 py-3 text-sm action_column">
                       <button
                         onClick={() => showModal(item)}
                         className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors"

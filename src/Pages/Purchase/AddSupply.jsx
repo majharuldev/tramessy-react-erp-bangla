@@ -52,7 +52,7 @@ const AddSupply = () => {
       <FormProvider {...methods} className="">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6 bg-gray-100 rounded-md shadow space-y-4"
+          className="mx-auto p-6 rounded-md shadow space-y-4"
         >
           {/*  */}
           <div className="md:flex justify-between gap-3">
@@ -77,7 +77,10 @@ const AddSupply = () => {
               />
             </div>
             <div className="w-full">
-              <InputField name="business_name" label="Business Name" required />
+              <InputField name="business_name" label="Supplier Name" required />
+            </div>
+             <div className="w-full">
+              <InputField name="business_category" label="Business Category" required />
             </div>
             <div className="w-full">
               <InputField name="phone" label="Phone" type="number" required />
@@ -91,7 +94,7 @@ const AddSupply = () => {
             <div className="w-full">
               <InputField
                 name="due_amount"
-                label="Due Balance"
+                label="Opening Balance"
                 type="number"
                 required
               />

@@ -115,6 +115,10 @@ const RentList = () => {
     WinPrint.focus();
     WinPrint.print();
     WinPrint.close();
+    // fallback: just in case (immediate reset)
+  actionColumns.forEach((col) => {
+    col.style.display = "";
+  });
   };
   // delete by id
   const handleDelete = async (id) => {
@@ -151,16 +155,12 @@ const RentList = () => {
     const term = searchTerm.toLowerCase();
     const fuelDate = dt.date_time;
     const matchesSearch =
-      dt.date_time?.toLowerCase().includes(term) ||
-      dt.vehicle_number?.toLowerCase().includes(term) ||
-      dt.driver_name?.toLowerCase().includes(term) ||
-      dt.trip_id_invoice_no?.toLowerCase().includes(term) ||
-      dt.pump_name_address?.toLowerCase().includes(term) ||
-      String(dt.capacity).includes(term) ||
-      dt.type?.toLowerCase().includes(term) ||
-      String(dt.quantity).includes(term) ||
-      dt.price?.toLowerCase().includes(term) ||
-      dt.total_price?.toLowerCase().includes(term);
+      dt.vendor_name?.toLowerCase().includes(term) ||
+    dt.vehicle_name_model?.toLowerCase().includes(term) ||
+    dt.vehicle_category?.toLowerCase().includes(term) ||
+    dt.vehicle_size_capacity?.toLowerCase().includes(term) ||
+    dt.registration_number?.toLowerCase().includes(term) ||
+    dt.status?.toLowerCase().includes(term)
     const matchesDateRange =
       (!startDate || new Date(fuelDate) >= new Date(startDate)) &&
       (!endDate || new Date(fuelDate) <= new Date(endDate));
@@ -195,12 +195,12 @@ const RentList = () => {
             All Rent Vehicle
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
-            <button
+            {/* <button
               onClick={() => setShowFilter((prev) => !prev)} // Toggle filter
               className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
               <FaFilter /> Filter
-            </button>
+            </button> */}
             <Link to="/tramessy/AddRentVehicleForm">
               <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Add

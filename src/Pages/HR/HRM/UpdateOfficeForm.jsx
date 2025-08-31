@@ -45,7 +45,7 @@ const UpdateOfficeForm = () => {
     }
   };
   return (
-    <div className="mt-10">
+    <div className="mt-10 p-2">
       <Toaster position="top-center" reverseOrder={false} />
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
         Office Form
@@ -53,7 +53,7 @@ const UpdateOfficeForm = () => {
       <FormProvider {...methods} className="">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-3 mx-auto bg-gray-100 rounded-md shadow"
+          className="space-y-3 mx-auto rounded-md shadow"
         >
           {/* Trip & Destination Section */}
           <div className="border border-gray-300 p-3 md:p-5 rounded-b-md">

@@ -109,6 +109,7 @@ useEffect(() => {
         paid_to: "",
         pay_amount: "",
         payment_category: "",
+        branch_name: data?.branch_name || "",
         remarks: "",
       })
       setEditingId(null)
@@ -251,6 +252,11 @@ setIsSubmitting(true);
   }
 // print
   const printTable = () => {
+    // hide specific column
+    const actionColumns = document.querySelectorAll(".action_column");
+    actionColumns.forEach((col) => {
+      col.style.display = "none";
+    });
     const content = printRef.current.innerHTML
     const win = window.open("", "", "width=900,height=650")
     win.document.write(`
@@ -271,6 +277,10 @@ setIsSubmitting(true);
     win.focus()
     win.print()
     win.close()
+    // fallback: just in case (immediate reset)
+  actionColumns.forEach((col) => {
+    col.style.display = "";
+  });
   }
 
   // pagination
@@ -368,7 +378,7 @@ setIsSubmitting(true);
           setSearchTerm("");
           setCurrentPage(1);
         }}
-        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+        className="absolute right-12 top-[11.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
       >
         ✕
       </button>
@@ -416,11 +426,12 @@ setIsSubmitting(true);
               <tr className="">
                 <th className="px-3 py-3 text-left text-sm font-semibold w-16">SL</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Date</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">Branch</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Paid To</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Category</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Remarks</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold w-24">Action</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -456,11 +467,12 @@ setIsSubmitting(true);
                   <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-3 py-3 text-sm">{index + 1}</td>
                     <td className="px-3 py-3 text-sm">{item.date}</td>
+                    <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
                     <td className="px-3 py-3 text-sm">{item.remarks}</td>
-                    <td className="px-3 py-3 text-sm">
+                    <td className="px-3 py-3 text-sm action_column">
                       <button
                         onClick={() => showModal(item)}
                         className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors"
@@ -513,23 +525,14 @@ setIsSubmitting(true);
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Paid To <span className="text-red-500">*</span></label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.paid_to}
-                      onChange={(e) => setFormData({ ...formData, paid_to: e.target.value })}
-                      disabled={employeesLoading}
-                    >
-                       <option value="">
-    {employeesLoading ? "Loading..." : "Select Employee"}
-  </option>
-
-  {!employeesLoading &&
-    employees.map((employee) => (
-      <option key={employee.id} value={employee.full_name}>
-        {employee.full_name}
-      </option>
-    ))}
-                    </select>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                    value={formData.paid_to} 
+                    onChange={(e) => setFormData({ ...formData, paid_to: e.target.value })} 
+                    disabled={employeesLoading} > 
+                    <option value=""> {employeesLoading ? "Loading..." : "Select Employee"} 
+                      </option> 
+                      {!employeesLoading && employees.map((employee) => ( <option key={employee.id} value={employee.full_name}> 
+                        {employee.full_name} </option> ))} </select>
                     {errors.paid_to && <p className="text-red-500 text-xs mt-1">{errors.paid_to}</p>}
                   </div>
              

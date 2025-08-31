@@ -217,15 +217,19 @@ const exportPDF = () => {
   const actionIndex = Array.from(table.querySelector("thead tr").children).findIndex(
     (th) => th.innerText.trim() === "Action"
   );
+ const billIndex = Array.from(table.querySelector("thead tr").children).findIndex(
+    (th) => th.innerText.trim() === "Bill Image"
+  );
 
   // Action header remove
   if (actionIndex > -1) {
     table.querySelectorAll("tr").forEach((row) => {
       row.children[actionIndex]?.remove();
+       row.children[billIndex]?.remove();
     });
   }
 
-  const printWindow = window.open("", "_blank");
+  const printWindow = window.open("", "", "width=900,height=650");
   printWindow.document.write(`
     <html>
       <head>
@@ -276,7 +280,7 @@ const exportPDF = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-primary flex items-center gap-3">
             <FaUserSecret className="text-primary text-2xl" />
-            Purchase List
+            Maintenance List
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
@@ -327,6 +331,18 @@ const exportPDF = () => {
               placeholder="Search by Product ..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
           </div>
         </div>
         {/* Conditional Filter Section */}

@@ -242,8 +242,10 @@ const TripList = () => {
   //     return true; // no filter applied
   //   }
   // });
+// Sort trips by date descending (latest first)
+const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const filteredTrips = trip.filter((trip) => {
+  const filteredTrips = sortedTrips.filter((trip) => {
   const tripDate = new Date(trip.date);
   const start = startDate ? new Date(startDate) : null;
   const end = endDate ? new Date(endDate) : null;

@@ -20,6 +20,7 @@ const UpdateSupplyForm = () => {
     due_amount,
     business_name,
     contact_person_name,
+    business_category,
     status,
   } = updateDriverLoaderData.data;
   const methods = useForm({ defaultValues: { status } });
@@ -63,7 +64,7 @@ const UpdateSupplyForm = () => {
       <FormProvider {...methods} className="">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6 bg-gray-100 rounded-md shadow space-y-4"
+          className="mx-auto p-6 rounded-md shadow space-y-4"
         >
           {/*  */}
           <div className="md:flex justify-between gap-3">
@@ -90,8 +91,15 @@ const UpdateSupplyForm = () => {
             <div className="w-full">
               <InputField
                 name="business_name"
-                label="Business Name"
+                label="Supplier Name"
                 defaultValue={business_name}
+              />
+            </div>
+            <div className="w-full">
+              <InputField
+                name="business_category"
+                label="Business Category"
+                defaultValue={business_category}
               />
             </div>
             <div className="w-full">
@@ -110,7 +118,7 @@ const UpdateSupplyForm = () => {
             <div className="w-full">
               <InputField
                 name="due_amount"
-                label="Due Balance"
+                label="Opening Balance"
                 defaultValue={due_amount}
               />
             </div>

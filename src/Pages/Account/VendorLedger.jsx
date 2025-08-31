@@ -45,6 +45,17 @@ const VendorLedger = () => {
       });
   }, []);
 
+  // helper function
+const toNumber = (val) => {
+  if (val === null || val === undefined) return 0;
+  if (typeof val === "string") {
+    if (val.trim().toLowerCase() === "null" || val.trim() === "") return 0;
+  }
+  const num = Number(val);
+  return isNaN(num) ? 0 : num;
+};
+
+
   const selectedVendorInfo = vendorList.find(
     (v) => v.vendor_name === selectedVendor
   );
@@ -89,9 +100,9 @@ const VendorLedger = () => {
   // Calculate running balance for filtered data
   let currentRunningBalance = openingBalance;
   const rowsWithRunningBalance = filteredVendors.map((item) => {
-    const tripRent = Number(item.trip_rent || 0);
-    const advance = Number(item.advance || 0);
-    const payAmount = Number(item.pay_amount || 0);
+    const tripRent = toNumber(item.trip_rent || 0);
+    const advance = toNumber(item.advance || 0);
+    const payAmount = toNumber(item.pay_amount || 0);
 
     // Calculate the net effect of this transaction on the balance
     const transactionEffect = tripRent - advance - payAmount;
@@ -108,9 +119,9 @@ const VendorLedger = () => {
   // Calculate totals for filtered data
   const totals = rowsWithRunningBalance.reduce(
     (acc, item) => {
-      acc.rent += Number(item.trip_rent || 0);
-      acc.advance += Number(item.advance || 0);
-      acc.pay_amount += Number(item.pay_amount || 0);
+      acc.rent += toNumber(item.trip_rent || 0);
+      acc.advance += toNumber(item.advance || 0);
+      acc.pay_amount += toNumber(item.pay_amount || 0);
       return acc;
     },
     { rent: 0, advance: 0, pay_amount: 0 }
@@ -151,10 +162,10 @@ const VendorLedger = () => {
         Unload: item.unload_point || "--",
         Vehicle: item.vehicle_no || "--",
         Driver: item.driver_name || "--",
-        "Trip Rent": item.trip_rent ? Number(item.trip_rent).toFixed(2) : "--",
-        Advance: item.advance ? Number(item.advance).toFixed(2) : "--",
-        "Pay Amount": item.pay_amount ? Number(item.pay_amount).toFixed(2) : "--",
-        Due: item.running_balance.toFixed(2),
+        "Trip Rent": item.trip_rent ? toNumber(item.trip_rent) : "--",
+        Advance: item.advance ? toNumber(item.advance) : "--",
+        "Pay Amount": item.pay_amount ? toNumber(item.pay_amount) : "--",
+        Due: item.running_balance,
       });
     });
 
@@ -166,10 +177,10 @@ const VendorLedger = () => {
       Unload: "",
       Vehicle: "",
       Driver: "",
-      "Trip Rent": totals.rent.toFixed(2),
-      Advance: totals.advance.toFixed(2),
-      "Pay Amount": totals.pay_amount.toFixed(2),
-      Due: grandDue.toFixed(2),
+      "Trip Rent": totals.rent,
+      Advance: totals.advance,
+      "Pay Amount": totals.pay_amount,
+      Due: grandDue,
     });
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
@@ -216,10 +227,10 @@ const VendorLedger = () => {
         item.unload_point || "--",
         item.vehicle_no || "--",
         item.driver_name || "--",
-        item.trip_rent ? Number(item.trip_rent).toFixed(2) : "--",
-        item.advance ? Number(item.advance).toFixed(2) : "--",
-        item.pay_amount ? Number(item.pay_amount).toFixed(2) : "--",
-        item.running_balance.toFixed(2),
+        item.trip_rent ? toNumber(item.trip_rent) : "--",
+        item.advance ? toNumber(item.advance) : "--",
+        item.pay_amount ? toNumber(item.pay_amount) : "--",
+        item.running_balance,
       ];
     });
 
@@ -232,10 +243,10 @@ const VendorLedger = () => {
       "",
       "",
       "",
-      totals.rent.toFixed(2),
-      totals.advance.toFixed(2),
-      totals.pay_amount.toFixed(2),
-      grandDue.toFixed(2),
+      totals.rent,
+      totals.advance,
+      totals.pay_amount,
+      grandDue,
     ]);
 
     autoTable(doc, {
@@ -313,8 +324,6 @@ const VendorLedger = () => {
     printWindow.document.close();
     printWindow.print();
   };
-
-  console.log(openingBalance, "Opening Balance");
 
   return (
     <div className="md:p-2">
@@ -409,6 +418,18 @@ const VendorLedger = () => {
   </select>
   <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
 </div>
+<div className=" mt-7">
+              <button
+                 onClick={() => {
+    setSelectedVendor("");  
+    setSelectedMonth("");   
+    setShowFilter(false);    
+  }}
+                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                 Clear
+              </button>
+            </div>
             </div>
           )}
         </div>
@@ -419,14 +440,14 @@ const VendorLedger = () => {
                 <td colSpan={7} className="border px-2 py-1 text-right">
                   TOTAL:
                 </td>
-                <td className="border px-2 py-1">{totals.rent.toFixed(2)}</td>
-                <td className="border px-2 py-1">{totals.advance.toFixed(2)}</td>
-                <td className="border px-2 py-1">{totals.pay_amount.toFixed(2)}</td>
+                <td className="border px-2 py-1">{totals.rent}</td>
+                <td className="border px-2 py-1">{totals.advance}</td>
+                <td className="border px-2 py-1">{totals.pay_amount}</td>
                 <td className="border px-2 py-1">
                   <span className={grandDue < 0 ? "text-red-500" : ""}>
                     {grandDue < 0
-                      ? `(${Math.abs(grandDue).toFixed(2)})`
-                      : grandDue.toFixed(2)}
+                      ? `(${Math.abs(grandDue)})`
+                      : grandDue}
                   </span>
                   {selectedVendor && (
                     <p className="text-xs text-gray-600 font-normal">
@@ -492,21 +513,21 @@ const VendorLedger = () => {
                       )}
                     </td>
                     <td className="border px-2 py-1">
-                      {item.trip_rent ? Number(item.trip_rent).toFixed(2) : "--"}
+                      {item.trip_rent ? toNumber(item.trip_rent) : "--"}
                     </td>
                     <td className="border px-2 py-1">
-                      {item.advance ? Number(item.advance).toFixed(2) : "--"}
+                      {item.advance ? toNumber(item.advance) : "--"}
                     </td>
                     <td className="border px-2 py-1">
-                      {item.pay_amount ? Number(item.pay_amount).toFixed(2) : "--"}
+                      {item.pay_amount ? toNumber(item.pay_amount) : "--"}
                     </td>
                     <td className="border px-2 py-1">
                       <span
                         className={item.running_balance < 0 ? "text-red-500" : ""}
                       >
                         {item.running_balance < 0
-                          ? `(${Math.abs(item.running_balance).toFixed(2)})`
-                          : item.running_balance.toFixed(2)}
+                          ? `(${Math.abs(item.running_balance)})`
+                          : item.running_balance}
                       </span>
                     </td>
                   </tr>

@@ -29,7 +29,7 @@ const AddEmployee = () => {
   }));
   // preview image
   const [previewImage, setPreviewImage] = useState(null);
-  const generateRefId = useRefId();
+  // const generateRefId = useRefId();
   const onSubmit = async (data) => {
     console.log("add fuel data", data);
     try {
@@ -37,7 +37,7 @@ const AddEmployee = () => {
       for (const key in data) {
         formData.append(key, data[key]);
       }
-      formData.append("ref_id", generateRefId());
+      // formData.append("ref_id", generateRefId());
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/employee/create`,
         formData
@@ -61,7 +61,7 @@ const AddEmployee = () => {
     }
   };
   return (
-    <div className="mt-10">
+    <div className="mt-10 p-2">
       <Toaster position="top-center" reverseOrder={false} />
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
         Add Employee Information
@@ -69,7 +69,7 @@ const AddEmployee = () => {
       <FormProvider {...methods} className="">
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mx-auto p-6 bg-gray-100 rounded-md shadow space-y-4"
+          className="mx-auto p-6  rounded-md shadow space-y-4"
         >
           {/* Row 1: Full Name, Email, Mobile */}
           <div className="md:flex justify-between gap-3">

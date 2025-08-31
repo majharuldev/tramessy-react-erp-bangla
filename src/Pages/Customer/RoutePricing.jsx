@@ -12,6 +12,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable"; 
 import Pagination from "../../components/Shared/Pagination";
+import { SelectField } from "../../components/Form/FormFields";
 
 const RoutePricing = () => {
   const [routePricing, setRoutePricing] = useState([]);
@@ -24,6 +25,8 @@ const RoutePricing = () => {
 
   const [formData, setFormData] = useState({
     customer_name: "",
+    vehicle_category: "",
+    vehicle_size: "",
     load_point: "",
     unload_point: "",
     rate: "",
@@ -70,9 +73,10 @@ const RoutePricing = () => {
  // Reset form & close modal
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ load_point: "", unload_point: "", rate: "" });
+    setFormData({ customer_name: "", vehicle_category: "", load_point: "", vehicle_size:"", unload_point: "", rate: "" });
     setEditId(null);
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -109,6 +113,9 @@ const RoutePricing = () => {
 
    const handleEdit = (item) => {
     setFormData({
+      customer_name: item.customer_name,
+      vehicle_category: item.vehicle_category,
+      vehicle_size: item.vehicle_size,
       load_point: item.load_point,
       unload_point: item.unload_point,
       rate: item.rate
@@ -134,6 +141,7 @@ const exportTripsToPDF = () => {
     body: routePricing.map((dt, index) => [
       index + 1,
       dt.customer_name || "-",
+      dt.vehicle_size,
       dt.load_point,
       dt.unload_point,
       dt.rate,
@@ -141,7 +149,6 @@ const exportTripsToPDF = () => {
   });
   doc.save("RoutePricing.pdf");
 };
-
 
   //  Print
 
@@ -180,13 +187,16 @@ const printTripsTable = () => {
     styles: { halign: "center" },
   });
 
-  // ✅ Save না করে সরাসরি Print Dialog ওপেন
+  //  Save না করে সরাসরি Print Dialog ওপেন
   doc.autoPrint();
   window.open(doc.output("bloburl"), "_blank");
 };
 
 
   const filteredData = routePricing.filter(item =>
+    item.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.vehicle_category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.vehicle_size?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.load_point?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.unload_point?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.rate?.toString().includes(searchTerm)
@@ -281,6 +291,8 @@ const printTripsTable = () => {
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Customer</th>
+                 <th className="p-2">Vehicle Category</th>
+                <th className="p-2">Size</th>
                 <th className="p-2">Load Point</th>
                 <th className="p-2">Unload Point</th>
                 <th className="p-2">Rate</th>
@@ -299,6 +311,8 @@ const printTripsTable = () => {
                 <tr key={index} className="hover:bg-gray-50 border border-gray-200">
                   <td className="p-2 font-bold">{indexOfFirstItem + index + 1}</td>
                   <td className="p-2">{dt.customer_name}</td>
+                  <td className="p-2">{dt.vehicle_category}</td>
+                  <td className="p-2">{dt.vehicle_size}</td>
                   <td className="p-2">{dt.load_point}</td>
                   <td className="p-2">{dt.unload_point}</td>
                   <td className="p-2">{dt.rate}</td>
@@ -330,7 +344,7 @@ const printTripsTable = () => {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="relative bg-white rounded-lg shadow-lg p-6 w-full max-w-md border border-gray-300">
+          <div className="relative bg-white rounded-lg shadow-lg p-6 w-full max-w-lg border border-gray-300">
             <button onClick={closeModal} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
               <IoMdClose className="text-2xl" />
             </button>
@@ -338,43 +352,79 @@ const printTripsTable = () => {
               {editId ? "Update Route Pricing" : "Add Route Pricing"}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+              <div className="flex gap-2">
+                <div className="w-full">
                 <label className="block text-gray-700 text-sm font-medium mb-1">Customer</label>
                 <CreatableSelect
                   options={customers.map(c => ({ value: c.customer_name, label: c.customer_name }))}
-                  value={formData.customer ? { value: formData.customer_name, label: formData.customer_name} : null}
+                  value={formData.customer_name ? { value: formData.customer_name, label: formData.customer_name} : null}
                   onChange={selected => setFormData(prev => ({ ...prev, customer_name: selected?.value || "" }))}
                   isClearable
                   placeholder="Select or type customer"
-                  className="focus:!ring-2 focus:!ring-primary"
+                  className="focus:!outline-none focus:!ring-2 focus:!ring-primary"
                 />
               </div>
-
-              <div>
+              <div className="relative w-full">
+  <label className="block text-gray-700 text-sm font-medium mb-1">
+    Vehicle Category
+  </label>
+  <select
+    name="vehicle_category"
+    value={formData.vehicle_category}
+  onChange={(e) =>
+    setFormData((prev) => ({ ...prev, vehicle_category: e.target.value }))
+  }
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+    required
+  >
+   <option value="">Select Vehicle Category...</option>
+    <option value="pickup">Pickup</option>
+    <option value="covered_van">Covered Van</option>
+    <option value="open_truck">Open Truck</option>
+    <option value="trailer">Trailer</option>
+    <option value="freezer_van">Freezer Van</option>
+  </select>
+</div>
+              </div>
+              <div className="flex gap-2">
+                <div className="w-full">
                 <label className="block text-gray-700 text-sm font-medium mb-1">Load Point</label>
                 <CreatableSelect
                   options={customers.map(c => ({ value: c.customer_name, label: c.customer_name }))}
                   value={formData.load_point ? { value: formData.load_point, label: formData.load_point } : null}
                   onChange={selected => setFormData(prev => ({ ...prev, load_point: selected?.value || "" }))}
                   isClearable
-                  placeholder="Select or type load point"
+                  placeholder="Select or type load"
                   className="focus:!ring-2 focus:!ring-primary"
                 />
               </div>
 
-              <div>
+              <div className="w-full">
                 <label className="block text-gray-700 text-sm font-medium mb-1">Unload Point</label>
                 <CreatableSelect
                   options={unloadpoints.map(c => ({ value: c.name, label: c.name }))}
                   value={formData.unload_point ? { value: formData.unload_point, label: formData.unload_point } : null}
                   onChange={selected => setFormData(prev => ({ ...prev, unload_point: selected?.value || "" }))}
                   isClearable
-                  placeholder="Select or type unload point"
+                  placeholder="Select or type unload"
                   className="focus:!ring-2 focus:!ring-primary"
                 />
               </div>
+              </div>             
 
-              <div>
+              <div className="flex gap-2">
+                <div className="w-full">
+                <label className="block text-gray-700 text-sm font-medium mb-1">Vehicle Size</label>
+                <input
+                  type="text"
+                  name="vehicle_size"
+                  value={formData.vehicle_size}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Enter 1 Ton/7 Feet"
+                />
+              </div>
+                <div className="w-full">
                 <label className="block text-gray-700 text-sm font-medium mb-1">Rate</label>
                 <input
                   type="number"
@@ -384,6 +434,7 @@ const printTripsTable = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                   placeholder="Enter price"
                 />
+              </div>
               </div>
               {/* <div>
                 <label className="block text-gray-700 text-sm font-medium mb-1">Vat</label>

@@ -12,6 +12,8 @@ import Pagination from "../../components/Shared/Pagination";
 const SupplierList = () => {
   const [supply, setSupply] = useState([]);
   const [loading, setLoading] = useState(true);
+   // search state
+  const [searchTerm, setSearchTerm] = useState("");
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSupplyId, setSelectedSupplyId] = useState(null);
@@ -35,6 +37,18 @@ const SupplierList = () => {
         setLoading(false);
       });
   }, []);
+
+  // filtered
+   const filteredSupply = supply.filter((dt) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      dt.business_name?.toLowerCase().includes(term) ||
+      dt.phone?.toLowerCase().includes(term) ||
+      dt.address?.toLowerCase().includes(term) ||
+      dt.status?.toLowerCase().includes(term)
+    );
+  });
+
   // delete by id
   const handleDelete = async (id) => {
     try {
@@ -86,8 +100,8 @@ const SupplierList = () => {
   const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentSupplier = supply.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(supply.length / itemsPerPage);
+  const currentSupplier = filteredSupply.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredSupply.length / itemsPerPage);
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
   };
@@ -116,13 +130,42 @@ const SupplierList = () => {
             </Link>
           </div>
         </div>
+        <div className="flex justify-end">
+          {/* search */}
+          <div className="mt-3 md:mt-0 ">
+            <span className="text-primary font-semibold pr-3">Search: </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by  ..."
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-7 top-[6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
+          </div>
+        </div>
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-primary text-white capitalize text-xs">
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Date</th>
-                <th className="p-2">Business Name</th>
+                <th className="p-2">Supplier</th>
+                <th className="p-2">Business Category</th>
                 <th className="p-2">Phone</th>
                 <th className="p-2">Address</th>
                 <th className="p-2">Opening Balance</th>
@@ -147,6 +190,7 @@ const SupplierList = () => {
                   </td>
                   <td className="p-2">{dt.date}</td>
                   <td className="p-2">{dt.business_name}</td>
+                  <td className="p-2">{dt.business_category}</td>
                   <td className="p-2">{dt.phone}</td>
                   <td className="p-2">{dt.address}</td>
                   <td className="p-2">{dt.due_amount}</td>

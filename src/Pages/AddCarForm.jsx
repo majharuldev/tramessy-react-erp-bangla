@@ -7,10 +7,11 @@ import BtnSubmit from "../components/Button/BtnSubmit";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import useRefId from "../hooks/useRef";
 import { useNavigate } from "react-router-dom";
+
 const AddCarForm = () => {
   const navigate = useNavigate();
   const methods = useForm();
-  const { handleSubmit, register, reset, control } = methods;
+  const { handleSubmit, register, reset, control, watch } = methods;
   const registrationDateRef = useRef(null);
   const taxDateRef = useRef(null);
   const roadPermitRef = useRef(null);
@@ -29,6 +30,26 @@ const AddCarForm = () => {
     value: driver.driver_name,
     label: driver.driver_name,
   }));
+
+   const selectedCategory = watch("vehicle_category");
+const vehicleSizes = {
+  pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
+  covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
+  open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
+  trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
+  freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
+  car: ["4 Seater", "7 Seater"],
+  micro_bus: ["12 Seater", "14 Seater"],
+  bus: ["30 Seater", "40 Seater", "50 Seater"],
+};
+// সিলেক্ট করা ক্যাটাগরির জন্য সাইজ লিস্ট বানানো
+  const sizeOptions =
+    selectedCategory && vehicleSizes[selectedCategory]
+      ? vehicleSizes[selectedCategory].map((size) => ({
+          value: size.toLowerCase().replace(" ", "_"),
+          label: size,
+        }))
+      : [];
 
   // post vehicle
   const generateRefId = useRefId();
@@ -69,7 +90,7 @@ const AddCarForm = () => {
           Add Vehicle Information
         </h3>
 
-        <div className="mx-auto p-6 bg-gray-100 rounded-md shadow">
+        <div className="mx-auto p-6  rounded-md shadow">
           {/* Vehicle & Driver Name */}
           <div className="md:flex justify-between gap-3">
             <div className="w-full">
@@ -95,23 +116,39 @@ const AddCarForm = () => {
                 required
                 options={[
                   // { value: "", label: "Select Vehicle category..." },
-                  { value: "Pickup", label: "Pickup" },
-                  { value: "Covered Van", label: "Covered Van" },
-                  { value: "Open Truck", label: "Open Truck" },
+                  { value: "pickup", label: "Pickup" },
+                  { value: "covered_van", label: "Covered Van" },
+                  { value: "open_truck", label: "Open Truck" },
+                  { value: "trailer", label: "Trailer" },
+                  { value: "freezer_van", label: "Freezer Van" },
+                  { value: "car", label: "Car" },
+                  { value: "bus", label: "Bus" },
+                  { value: "micro_bus", label: "Micro Bus" },
                 ]}
+           
               />
             </div>
 
-            <div className="relative mt-2 md:mt-0 w-full">
+            {/* <div className="relative mt-2 md:mt-0 w-full">
               <SelectField
                 name="vehicle_size"
                 label="Vehicle Size/Capacity"
                 required
                 options={[
                   { value: "", label: "Select Vehicle size..." },
-                  { value: "4 Ton", label: "4 Ton" },
+                  { value: "1 Ton", label: "1 Ton" },
+                  { value: "2 Ton", label: "2 Ton" },
                   { value: "3 Ton", label: "3 Ton" },
-                  { value: "22 Ton", label: "22 Ton" },
+                  { value: "4 Ton", label: "4 Ton" },
+                  { value: "5 Ton", label: "5 Ton" },
+                  { value: "6 Ton", label: "6 Ton" },
+                  { value: "7 Ton", label: "7 Ton" },
+                  { value: "8 Ton", label: "8 Ton" },
+                  { value: "9 Ton", label: "9 Ton" },
+                  { value: "10 Ton", label: "10 Ton" },
+                  { value: "12 Ton", label: "12 Ton" },
+                  { value: "15 Ton", label: "15 Ton" },
+                  { value: "30 Ton", label: "30 Ton" },
                   { value: "7 Feet", label: "7 Feet" },
                   { value: "9 Feet", label: "9 Feet" },
                   { value: "12 Feet", label: "12 Feet" },
@@ -120,9 +157,22 @@ const AddCarForm = () => {
                   { value: "18 Feet", label: "18 Feet" },
                   { value: "20 Feet", label: "20 Feet" },
                   { value: "23 Feet", label: "23 Feet" },
+                  { value: "40 Feet", label: "40 Feet" },
+                  { value: "3xl", label: "3xl" },
                 ]}
               />
-            </div>
+            </div> */}
+            <div className="relative w-full">
+        <SelectField
+          name="vehicle_size"
+          label="Vehicle Size/Capacity"
+          required
+          options={[
+            { value: "", label: "Select Vehicle size..." },
+            ...sizeOptions,
+          ]}
+        />
+      </div>
             <div className="w-full">
               <InputField name="fuel_capacity" label="Fuel Capacity" required />
             </div>
@@ -255,7 +305,7 @@ const AddCarForm = () => {
             <div className="relative w-full">
               <InputField
                 name="registration_date"
-                label="Registration Date"
+                label="Registration Date Exp."
                 type="date"
                 required
                 inputRef={(e) => {
@@ -297,7 +347,7 @@ const AddCarForm = () => {
             <div className="w-full">
               <InputField
                 name="road_permit_date"
-                label="Road Permit Date"
+                label="Road Permit Date Exp."
                 type="date"
                 required
                 inputRef={(e) => {
