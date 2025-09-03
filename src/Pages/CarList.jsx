@@ -491,6 +491,22 @@ const CarList = () => {
                   <p>{selectedCar.insurance_date}</p>
                 </li>
               </ul>
+               <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">KPL</p>{" "}
+                  <p>{selectedCar.kpl}</p>
+                </li>
+                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                  <p className="w-48">Engine No</p>{" "}
+                  <p>{selectedCar.engine_no}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary font-semibold text-sm px-3 py-2">
+                  <p className="w-48">Chasis No</p>{" "}
+                  <p>{selectedCar.chasis_no}</p>
+                </li>
+              </ul>
               <div className="flex justify-end mt-10">
                 <button
                   onClick={() => setViewModalOpen(false)}

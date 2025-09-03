@@ -31,36 +31,35 @@ const AddCarForm = () => {
     label: driver.driver_name,
   }));
 
-   const selectedCategory = watch("vehicle_category");
-const vehicleSizes = {
-  pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
-  covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
-  open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
-  trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
-  freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
-  car: ["4 Seater", "7 Seater"],
-  micro_bus: ["12 Seater", "14 Seater"],
-  bus: ["30 Seater", "40 Seater", "50 Seater"],
-};
-// সিলেক্ট করা ক্যাটাগরির জন্য সাইজ লিস্ট বানানো
+  const selectedCategory = watch("vehicle_category");
+  const vehicleSizes = {
+    pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
+    covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
+    open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
+    trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
+    freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
+    car: ["4 Seater", "7 Seater"],
+    micro_bus: ["12 Seater", "14 Seater"],
+    bus: ["30 Seater", "40 Seater", "50 Seater"],
+  };
+  // সিলেক্ট করা ক্যাটাগরির জন্য সাইজ লিস্ট বানানো
   const sizeOptions =
     selectedCategory && vehicleSizes[selectedCategory]
       ? vehicleSizes[selectedCategory].map((size) => ({
-          value: size.toLowerCase().replace(" ", "_"),
-          label: size,
-        }))
+        value: size.toLowerCase().replace(" ", "_"),
+        label: size,
+      }))
       : [];
 
   // post vehicle
-  const generateRefId = useRefId();
+  // const generateRefId = useRefId();
   const onSubmit = async (data) => {
-    console.log("add car data", data);
     try {
       const formData = new FormData();
       for (const key in data) {
         formData.append(key, data[key]);
       }
-      formData.append("ref_id", generateRefId());
+      // formData.append("ref_id", generateRefId());
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/vehicle/create`,
         formData
@@ -106,6 +105,27 @@ const vehicleSizes = {
               />
             </div>
           </div>
+          {/* vehicle engine no & chasis no */}
+          <div className="md:flex justify-between gap-3">
+            <div className="w-full">
+              <InputField name="engine_no" label="Enginee No" required />
+            </div>
+            <div className="relative mt-2 md:mt-0 w-full">
+              <InputField
+                name="chasis_no"
+                label="Chasis No"
+                required={true}
+              />
+            </div>
+            <div className="relative mt-2 md:mt-0 w-full">
+              <InputField
+              type="number"
+                name="kpl"
+                label="KPL"
+                required={true}
+              />
+            </div>
+          </div>
 
           {/* Category & Size */}
           <div className="md:flex justify-between gap-3">
@@ -125,7 +145,7 @@ const vehicleSizes = {
                   { value: "bus", label: "Bus" },
                   { value: "micro_bus", label: "Micro Bus" },
                 ]}
-           
+
               />
             </div>
 
@@ -163,16 +183,16 @@ const vehicleSizes = {
               />
             </div> */}
             <div className="relative w-full">
-        <SelectField
-          name="vehicle_size"
-          label="Vehicle Size/Capacity"
-          required
-          options={[
-            { value: "", label: "Select Vehicle size..." },
-            ...sizeOptions,
-          ]}
-        />
-      </div>
+              <SelectField
+                name="vehicle_size"
+                label="Vehicle Size/Capacity"
+                required
+                options={[
+                  { value: "", label: "Select Vehicle size..." },
+                  ...sizeOptions,
+                ]}
+              />
+            </div>
             <div className="w-full">
               <InputField name="fuel_capacity" label="Fuel Capacity" required />
             </div>

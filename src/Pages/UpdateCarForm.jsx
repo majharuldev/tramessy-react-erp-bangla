@@ -25,6 +25,9 @@ const UpdateCarForm = () => {
     status,
     fuel_capacity,
     insurance_date,
+    engine_no,
+    chasis_no,
+    kpl
   } = updateCarLoaderData.data;
 
   const methods = useForm({
@@ -34,6 +37,9 @@ const UpdateCarForm = () => {
       vehicle_size,
       registration_serial,
       registration_zone,
+      engine_no,
+      chasis_no,
+      kpl,
       status,
     },
   });
@@ -135,6 +141,27 @@ const vehicleSizes = {
               />
             </div>
           </div>
+           {/* vehicle engine no & chasis no */}
+          <div className="md:flex justify-between gap-3">
+            <div className="w-full">
+              <InputField name="engine_no" label="Engine No" defaultValue={engine_no} />
+            </div>
+            <div className="relative mt-2 md:mt-0 w-full">
+              <InputField
+                name="chasis_no"
+                label="Chasis No"
+                defaultValue={chasis_no}
+              />
+            </div>
+            <div className="relative mt-2 md:mt-0 w-full">
+              <InputField
+                name="kpl"
+                label="KPL"
+                type="number"
+                defaultValue={kpl}
+              />
+            </div>
+          </div>
 
           {/* Category & Size */}
           <div className="md:flex justify-between gap-3">
@@ -142,7 +169,6 @@ const vehicleSizes = {
               <SelectField
                 name="vehicle_category"
                 label="Vehicle Category"
-                required
                 options={[
                   // { value: "", label: "Select Vehicle category..." },
                   { value: "pickup", label: "Pickup" },
@@ -161,7 +187,6 @@ const vehicleSizes = {
         <SelectField
           name="vehicle_size"
           label="Vehicle Size/Capacity"
-          required
           options={[
             { value: "", label: "Select Vehicle size..." },
             ...sizeOptions,

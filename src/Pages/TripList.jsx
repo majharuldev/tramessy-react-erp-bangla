@@ -38,6 +38,9 @@ const TripList = () => {
 
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState("");
+  // Transport type filter
+  const [transportType, setTransportType] = useState("");
+
 
   useEffect(() => {
     // Fetch customers data
@@ -229,46 +232,39 @@ const TripList = () => {
       toast.error("Can't get trip details");
     }
   };
-  // Filter by date
-  // const filteredTrips = trip.filter((trip) => {
-  //   const tripDate = new Date(trip.date);
-  //   const start = startDate ? new Date(startDate) : null;
-  //   const end = endDate ? new Date(endDate) : null;
-  //   if (start && end) {
-  //     return tripDate >= start && tripDate <= end;
-  //   } else if (start) {
-  //     return tripDate.toDateString() === start.toDateString();
-  //   } else {
-  //     return true; // no filter applied
-  //   }
-  // });
-// Sort trips by date descending (latest first)
-const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+
+  // Sort trips by date descending (latest first)
+  const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const filteredTrips = sortedTrips.filter((trip) => {
-  const tripDate = new Date(trip.date);
-  const start = startDate ? new Date(startDate) : null;
-  const end = endDate ? new Date(endDate) : null;
+    const tripDate = new Date(trip.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
 
-  const matchesDate =
-    (start && end && tripDate >= start && tripDate <= end) ||
-    (start && tripDate.toDateString() === start.toDateString()) ||
-    (!start && !end);
+    const matchesDate =
+      (start && end && tripDate >= start && tripDate <= end) ||
+      (start && tripDate.toDateString() === start.toDateString()) ||
+      (!start && !end);
 
-  const matchesCustomer =
-    !selectedCustomer || trip.customer?.toLowerCase() === selectedCustomer.toLowerCase();
+    const matchesCustomer =
+      !selectedCustomer || trip.customer?.toLowerCase() === selectedCustomer.toLowerCase();
+    const matchesTransportType =
+      !transportType || trip.transport_type === transportType;
 
-  return matchesDate && matchesCustomer;
-});
+    return matchesDate && matchesCustomer && matchesTransportType;
+  });
 
   // search
   const filteredTripList = filteredTrips.filter((dt) => {
     const term = searchTerm.toLowerCase();
     return (
       dt.customer?.toLowerCase().includes(term) ||
+      dt.trip_id?.toLowerCase().includes(term) ||
       dt.date?.toLowerCase().includes(term) ||
       dt.driver_name?.toLowerCase().includes(term) ||
       dt.driver_mobile?.toLowerCase().includes(term) ||
+      dt.vehicle_no?.toLowerCase().includes(term) ||
       dt.registration_number?.toLowerCase().includes(term) ||
       dt.registration_serial?.toLowerCase().includes(term) ||
       dt.registration_zone?.toLowerCase().includes(term) ||
@@ -336,6 +332,7 @@ const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date)
           <div className="mt-3 md:mt-0">
             <span className="text-primary font-semibold pr-3">Search: </span>
             <input
+            value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
@@ -344,18 +341,18 @@ const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date)
               placeholder="Search..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
-             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         {/* Conditional Filter Section */}
@@ -381,19 +378,32 @@ const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date)
               />
             </div>
             <select
-  value={selectedCustomer}
-  onChange={(e) => {setSelectedCustomer(e.target.value)
-    setCurrentPage(1);
-  }}
-  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
->
-  <option value="">Select Customer</option>
-  {customers.map((c) => (
-    <option key={c.id} value={c.customer_name}>
-      {c.customer_name}
-    </option>
-  ))}
-</select>
+              value={selectedCustomer}
+              onChange={(e) => {
+                setSelectedCustomer(e.target.value)
+                setCurrentPage(1);
+              }}
+              className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+            >
+              <option value="">Select Customer</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.customer_name}>
+                  {c.customer_name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={transportType}
+              onChange={(e) => {
+                setTransportType(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+            >
+              <option value="">All Transport</option>
+              <option value="own_transport">Own Transport</option>
+              <option value="vendor_transport">Vendor Transport</option>
+            </select>
 
             <div className="w-xs">
               <button
@@ -402,10 +412,11 @@ const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date)
                   setEndDate("");
                   setSelectedCustomer("");
                   setShowFilter(false);
+                  setTransportType("")
                 }}
                 className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                 Clear
+                Clear
               </button>
             </div>
           </div>
@@ -418,86 +429,99 @@ const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date)
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Date</th>
+                <th className="p-2">TripId</th>
                 <th className="p-2">Customer</th>
+                <th className="p-2">Transport Type</th>
+                <th className="p-2">Vehicle No</th>
                 <th className="p-2">DriverInfo</th>
                 <th className="p-2">Trip&Destination</th>
-                <th className="p-2">Trip Rent</th>
-                <th className="p-2">Trip Cost</th>
-                {/* <th className="p-2">TotalProfit</th> */}
+                <th className="p-2">TripRent</th>
+                <th className="p-2">TripCost</th>
+                <th className="p-2">Profit</th>
                 <th className="p-2 action_column">Action</th>
               </tr>
             </thead>
             <tbody className="text-primary">
               {
                 currentTrip.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No trip found
-                  </td>
+                  <tr>
+                    <td colSpan="8" className="text-center p-4 text-gray-500">
+                      No trip found
+                    </td>
                   </tr>)
-              :(currentTrip?.map((dt, index) => {
-                return (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 transition-all border-b border-gray-300"
-                  >
-                    <td className="p-2 font-bold">
-                      {indexOfFirstItem + index + 1}
-                    </td>
-                    <td className="p-2">{dt?.date}</td>
-                    <td className="p-2">
-                      <p>{dt.customer}</p>
-                      {/* <p>Mobile: {dt.driver_mobile}</p>
+                  : (currentTrip?.map((dt, index) => {
+                    const totalRent = parseFloat(dt.total_rent || 0);
+                    const demurrage = parseFloat(dt.d_total || 0);
+                    const totalExpenses = parseFloat(dt.total_exp || 0);
+                    const totalProfit = (totalRent + demurrage) - totalExpenses;
+                    return (
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 transition-all border-b border-gray-300"
+                      >
+                        <td className="p-2 font-bold">
+                          {indexOfFirstItem + index + 1}
+                        </td>
+                        <td className="p-2">{dt?.date}</td>
+                        <td className="p-2">{dt?.trip_id}</td>
+                        <td className="p-2">
+                          <p>{dt.customer}</p>
+                          {/* <p>Mobile: {dt.driver_mobile}</p>
                       <p>Commission: {dt.driver_commission}</p> */}
-                    </td>
-                    <td className="p-2">
-                      <p>Name: {dt.driver_name}</p>
-                      <p>Mobile: {dt.driver_mobile}</p>
-                      <p>Commission: {dt.driver_commission}</p>
-                    </td>
-                    <td className="p-2">
-                      <p>Load Point: {dt.load_point}</p>
-                      <p>Unload Point: {dt.unload_point}</p>
-                    </td>
-                    
-                    <td className="p-2">{dt.total_rent}</td>
-                    <td className="p-2">{dt.total_exp}</td>
-                    {/* <td className="p-2">
+                        </td>
+                        <td className="p-2">
+                          <p>{dt?.vehicle_no}</p>
+                        </td>
+                        <td className="p-2 capitalize">
+                          {dt.transport_type?.replace("_", " ")}
+                        </td>
+                        <td className="p-2">
+                          <p>{dt.driver_name}</p>
+                        </td>
+                        <td className="p-2">
+                          <p>Load: {dt.load_point}</p>
+                          <p>Unload: {dt.unload_point}</p>
+                        </td>
+
+                        <td className="p-2">{dt.total_rent}</td>
+                        <td className="p-2">{dt.total_exp}</td>
+                        {/* <td className="p-2">
                       {parseFloat(dt.total_rent || 0) -
                         parseFloat(dt.total_exp || 0)}
                     </td> */}
-                    <td className="p-2 action_column">
-                      <div className="flex gap-1">
-                        <Link to={`/tramessy/UpdateTripForm/${dt.id}`}>
-                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                            <FaPen className="text-[12px]" />
-                          </button>
-                        </Link>
-                        <button
-                          onClick={() => handleView(dt.id)}
-                          className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                        >
-                          <FaEye className="text-[12px]" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              }))}
+                        <td className="p-2">{totalProfit}</td>
+                        <td className="p-2 action_column">
+                          <div className="flex gap-1">
+                            <Link to={`/tramessy/UpdateTripForm/${dt.id}`}>
+                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                                <FaPen className="text-[12px]" />
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => handleView(dt.id)}
+                              className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                            >
+                              <FaEye className="text-[12px]" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }))}
             </tbody>
           </table>
         </div>
         {/* pagination */}
-     {currentTrip.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+        {currentTrip.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
-      
+
       {/* Delete Modal */}
       <div className="flex justify-center items-center">
         {isOpen && (
@@ -632,7 +656,7 @@ const sortedTrips = [...trip].sort((a, b) => new Date(b.date) - new Date(a.date)
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Advance</p> <p>{selectedTrip.advance}</p>
-                </li>               
+                </li>
               </ul>
               <div className="flex justify-end mt-10">
                 <button
