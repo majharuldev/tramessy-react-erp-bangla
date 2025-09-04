@@ -431,9 +431,9 @@ const TripList = () => {
                 <th className="p-2">Date</th>
                 <th className="p-2">TripId</th>
                 <th className="p-2">Customer</th>
-                <th className="p-2">Transport Type</th>
-                <th className="p-2">Vehicle No</th>
-                <th className="p-2">DriverInfo</th>
+                <th className="p-2">TransportType</th>
+                <th className="p-2">VehicleNo</th>
+                <th className="p-2">Driver</th>
                 <th className="p-2">Trip&Destination</th>
                 <th className="p-2">TripRent</th>
                 <th className="p-2">TripCost</th>
@@ -469,11 +469,11 @@ const TripList = () => {
                           {/* <p>Mobile: {dt.driver_mobile}</p>
                       <p>Commission: {dt.driver_commission}</p> */}
                         </td>
-                        <td className="p-2">
-                          <p>{dt?.vehicle_no}</p>
-                        </td>
                         <td className="p-2 capitalize">
                           {dt.transport_type?.replace("_", " ")}
+                        </td>
+                        <td className="p-2">
+                          <p>{dt?.vehicle_no}</p>
                         </td>
                         <td className="p-2">
                           <p>{dt.driver_name}</p>
