@@ -91,7 +91,7 @@ const SupplierLedger = () => {
         });
     }
   }, [selectedSupplier, supplies]);
-
+console.log(supplies, "suo")
     //  Excel Export
   const exportExcel = () => {
     const tableData = ledgerWithBalance.map((item, index) => ({
@@ -259,8 +259,8 @@ const closingBalance =
             >
               <option value="">Select supplier</option>
               {supplies.map((supply, idx) => (
-                <option key={idx} value={supply.business_name}>
-                  {supply.business_name} 
+                <option key={idx} value={supply.supplier_name}>
+                  {supply.supplier_name} 
                   {/* (Due: {supply.due_amount}) */}
                 </option>
               ))}
@@ -284,6 +284,9 @@ const closingBalance =
               <tr>
                 <th className="border border-gray-700 px-2 py-1">SL.</th>
                 <th className="border border-gray-700 px-2 py-1">Date</th>
+                <th className="border border-gray-700 px-2 py-1">
+                  Supplier
+                </th>
                 <th className="border border-gray-700 px-2 py-1">
                   Particulars
                 </th>
@@ -310,6 +313,9 @@ const closingBalance =
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
                     {dt.date}
+                  </td>
+                  <td className="border border-gray-700 px-2 py-1">
+                    {dt.supplier_name}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
                     {dt.remarks}
