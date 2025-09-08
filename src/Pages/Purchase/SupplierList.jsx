@@ -42,6 +42,7 @@ const SupplierList = () => {
    const filteredSupply = supply.filter((dt) => {
     const term = searchTerm.toLowerCase();
     return (
+      dt.date?.toLowerCase().includes(term) ||
       dt.supplier_name?.toLowerCase().includes(term) ||
       dt.phone?.toLowerCase().includes(term) ||
       dt.address?.toLowerCase().includes(term) ||

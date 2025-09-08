@@ -233,14 +233,88 @@ const MonthlyStatement = () => {
     document.head.removeChild(style);
   };
 }, []);
-  const handlePrint = () => {
-  const printContents = document.querySelector('.print-table').outerHTML;
-  const originalContents = document.body.innerHTML;
-  
-  document.body.innerHTML = printContents;
-  window.print();
-  document.body.innerHTML = originalContents;
-  window.location.reload(); // To restore the original state
+// print func
+const handlePrint = () => {
+  // টেবিল বানাবো filteredData দিয়ে
+  const tableHTML = `
+    <table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse; font-size:12px; text-align:right;">
+      <thead style="background:#11375B; color:white; text-align:center;">
+        <tr>
+          <th>#</th>
+          <th style="text-align:left;">Month</th>
+          <th>Own Trip Income</th>
+          <th>Vendor Trip Income</th>
+          <th>Own Trip Cost</th>
+          <th>Vendor Trip Cost</th>
+          <th>Purchase Cost</th>
+          <th>Salary Expense</th>
+          <th>Office Expense</th>
+          <th>Total Expense</th>
+          <th>Net Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filteredData
+          .map(
+            (item, i) => `
+            <tr>
+              <td style="text-align:center;">${i + 1}</td>
+              <td style="text-align:left;">${item.month}</td>
+              <td>${item.ownTripIncome.toFixed(2)}</td>
+              <td>${item.vendorTripIncome.toFixed(2)}</td>
+              <td>${item.ownTripCost.toFixed(2)}</td>
+              <td>${item.vendorTripCost.toFixed(2)}</td>
+              <td>${item.purchaseCost.toFixed(2)}</td>
+              <td>${item.salaryExpense.toFixed(2)}</td>
+              <td>${item.officeExpense.toFixed(2)}</td>
+              <td><b>${item.totalExpense.toFixed(2)}</b></td>
+              <td style="color:${item.netProfit >= 0 ? "green" : "red"};">
+                <b>${item.netProfit.toFixed(2)}</b>
+              </td>
+            </tr>
+          `
+          )
+          .join("")}
+        <tr style="font-weight:bold; background:#f5f5f5;">
+          <td colspan="2" style="text-align:center;">Total</td>
+          <td>${calculateTotal("ownTripIncome").toFixed(2)}</td>
+          <td>${calculateTotal("vendorTripIncome").toFixed(2)}</td>
+          <td>${calculateTotal("ownTripCost").toFixed(2)}</td>
+          <td>${calculateTotal("vendorTripCost").toFixed(2)}</td>
+          <td>${calculateTotal("purchaseCost").toFixed(2)}</td>
+          <td>${calculateTotal("salaryExpense").toFixed(2)}</td>
+          <td>${calculateTotal("officeExpense").toFixed(2)}</td>
+          <td>${calculateTotal("totalExpense").toFixed(2)}</td>
+          <td style="color:${calculateTotal("netProfit") >= 0 ? "green" : "red"};">
+            ${calculateTotal("netProfit").toFixed(2)}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+  const printWindow = window.open("", "", "width=900,height=650");
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Monthly Statement</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding:20px; }
+          h2 { text-align:center; color:#11375B; margin-bottom:20px; }
+          table { width:100%; border-collapse:collapse; }
+          th, td { border:1px solid #ddd; padding:6px; }
+          th { background:#11375B; color:white; }
+          tr:nth-child(even) { background:#fafafa; }
+        </style>
+      </head>
+      <body>
+        <h2>Monthly Profit/Loss Statement</h2>
+        ${tableHTML}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
 };
 
     // pagination

@@ -26,9 +26,11 @@ const UpdateEmployeeForm = () => {
     address,
     status,
     image,
+    nid,
+    blood_group
   } = updateEmployeeLoaderData.data;
 
-  const methods = useForm({ defaultValues: { status, branch_name, gender } });
+  const methods = useForm({ defaultValues: { status, branch_name, gender, blood_group, nid } });
   const { handleSubmit, register, control, setValue } = methods;
   const dateRef = useRef(null);
   const joinDateRef = useRef(null);
@@ -136,6 +138,24 @@ const UpdateEmployeeForm = () => {
                 ]}
               />
             </div>
+             <div className="w-full relative">
+              <SelectField
+                name="blood_group"
+                label="Blood Group"
+         
+                options={[
+                  { value: "A+", label: "A+" },
+                  { value: "A-", label: "A-" },
+                  { value: "B+", label: "B+" },
+                  { value: "B-", label: "B-" },
+                  { value: "AB+", label: "AB+" },
+                  { value: "AB-", label: "AB-" },
+                  { value: "O+", label: "O+" },
+                  { value: "O-", label: "O-" },
+                ]}
+                defaultValue={blood_group}
+              />
+            </div>
             <div className="w-full">
               <InputField
                 name="birth_date"
@@ -180,6 +200,9 @@ const UpdateEmployeeForm = () => {
                 }
               />
             </div>
+            <div className="w-full">
+                          <InputField name="nid" label="Nid" type="number" defaultValue={nid} />
+                        </div>
             <div className="w-full">
               <InputField
                 name="designation"
