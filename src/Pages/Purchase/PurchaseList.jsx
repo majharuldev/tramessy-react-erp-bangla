@@ -403,12 +403,13 @@ const printTable = () => {
               <tr>
                 <th className="p-2">SL.</th>
                 <th className="p-2">Date</th>
-                <th className="p-2">Product ID</th>
-                <th className="p-2">Supplier Name</th>
+                <th className="p-2">ProductID</th>
+                <th className="p-2">SupplierName</th>
                 <th className="px-2 py-2">Driver </th>
-                <th className="px-2 py-2">Vehicle No</th>
+                <th className="px-2 py-2">VehicleCategory</th>
+                <th className="px-2 py-2">VehicleNo</th>
                 <th className="p-2">Category</th>
-                <th className="p-2">Item Name</th>
+                <th className="p-2">ItemName</th>
                 <th className="p-2">Quantity</th>
                 {/* <th className="p-2">Unit Price</th> */}
                 <th className="p-2">Total</th>
@@ -435,6 +436,7 @@ const printTable = () => {
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
                   <td className="px-2 py-2">{dt.driver_name!== "null"?dt.driver_name: "N/A"}</td>
+                  <td className="px-2 py-2">{dt.vehicle_category!== "null"?dt.vehicle_category:"N/A"}</td>
                   <td className="px-2 py-2">{dt.vehicle_no!== "null"?dt.vehicle_no:"N/A"}</td>
                   <td className="p-2">{dt.category}</td>
                   <td className="p-2">{dt.item_name}</td>
@@ -504,6 +506,10 @@ const printTable = () => {
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Driver Name:</span>
                 <span>{selectedPurchase.driver_name}</span>
+              </div>
+              <div className="flex justify-between p-2">
+                <span className="font-medium w-1/2">Vehicle Category:</span>
+                <span>{selectedPurchase.vehicle_category}</span>
               </div>
               <div className="flex justify-between p-2">
                 <span className="font-medium w-1/2">Vehicle No:</span>

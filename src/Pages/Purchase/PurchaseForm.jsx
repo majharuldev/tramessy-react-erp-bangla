@@ -26,6 +26,7 @@ const PurchaseForm = () => {
   const [existingImage, setExistingImage] = useState(null);
 
   const selectedCategory = watch("category");
+    const selectedVehicle = watch("vehicle_no");
   
   // Calculate Total Expense
   const quantity = parseFloat(watch("quantity") || 0);
@@ -36,7 +37,30 @@ const PurchaseForm = () => {
     const totalPrice = quantity * unitPrice;
     setValue("purchase_amount", totalPrice);
   }, [quantity, unitPrice, setValue]);
-  
+
+  // Set vehicle category when vehicle is selected
+ useEffect(() => {
+  if (selectedVehicle) {
+    const selectedVehicleData = vehicle.find(
+      (v) =>
+        `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`.trim() ===
+        selectedVehicle.trim()
+    );
+    if (selectedVehicleData) {
+      console.log("Setting vehicle_category:", selectedVehicleData.vehicle_category); // Debug
+      setValue("vehicle_category", selectedVehicleData.vehicle_category, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } else {
+      console.log("No vehicle data found, setting vehicle_category to empty"); // Debug
+      setValue("vehicle_category", "");
+    }
+  } else {
+    console.log("No vehicle selected, setting vehicle_category to empty"); // Debug
+    setValue("vehicle_category", "");
+  }
+}, [selectedVehicle, vehicle, setValue]);
   // Preview image
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -84,6 +108,7 @@ const PurchaseForm = () => {
           setValue("item_name", purchaseData.item_name);
           setValue("driver_name", purchaseData.driver_name);
           setValue("vehicle_no", purchaseData.vehicle_no);
+          setValue("vehicle_category", purchaseData.vehicle_category);
           setValue("branch_name", purchaseData.branch_name);
           setValue("supplier_name", purchaseData.supplier_name);
           setValue("quantity", purchaseData.quantity);
@@ -117,8 +142,9 @@ const PurchaseForm = () => {
   }));
 
   const vehicleOptions = vehicle.map((dt) => ({
-    value: `${dt.registration_zone} ${dt.registration_serial} ${dt.registration_number} `,
-    label: `${dt.registration_zone} ${dt.registration_serial} ${dt.registration_number} `,
+    value: `${dt.registration_zone} ${dt.registration_serial} ${dt.registration_number}`,
+    label: `${dt.registration_zone} ${dt.registration_serial} ${dt.registration_number}`,
+    category: dt.vehicle_category
   }));
 
   const branchOptions = branch.map((branch) => ({
@@ -133,25 +159,38 @@ const PurchaseForm = () => {
 
   // Handle form submission for both add and update
   const onSubmit = async (data) => {
+    console.log("Form Data:", data);
+  
     try {
       const purchaseFormData = new FormData();
       
-      for (const key in data) {
-        // Handle file uploads separately
-        if (key === "bill_image") {
-          // যদি নতুন ফাইল সিলেক্ট করা হয়
-          if (typeof data[key] === "object") {
-            purchaseFormData.append(key, data[key]);
-          } 
-          // যদি এডিট মোডে থাকে এবং নতুন ফাইল সিলেক্ট না করা হয়
-          else if (isEditMode && existingImage && !data[key]) {
-            purchaseFormData.append(key, existingImage);
-          }
-        } else if (data[key] !== null && data[key] !== undefined) {
+      // for (const key in data) {
+      //   // Handle file uploads separately
+      //   if (key === "bill_image") {
+      //     // যদি নতুন ফাইল সিলেক্ট করা হয়
+      //     if (typeof data[key] === "object") {
+      //       purchaseFormData.append(key, data[key]);
+      //     } 
+      //     // যদি এডিট মোডে থাকে এবং নতুন ফাইল সিলেক্ট না করা হয়
+      //     else if (isEditMode && existingImage && !data[key]) {
+      //       purchaseFormData.append(key, existingImage);
+      //     }
+      //   } else if (data[key] !== null && data[key] !== undefined) {
+      //     purchaseFormData.append(key, data[key]);
+      //   }
+      // }
+     // Append all fields, including vehicle_category
+    for (const key in data) {
+      if (key === "bill_image") {
+        if (typeof data[key] === "object" && data[key]) {
           purchaseFormData.append(key, data[key]);
+        } else if (isEditMode && existingImage && !data[key]) {
+          purchaseFormData.append(key, existingImage);
         }
+      } else if (data[key] !== null && data[key] !== undefined) {
+        purchaseFormData.append(key, data[key]);
       }
-
+    }
       let response;
       
       if (isEditMode) {
@@ -274,10 +313,20 @@ const PurchaseForm = () => {
                 required={!isEditMode}
                 options={vehicleOptions}
                 control={control}
+              
               />
             </div>
           </div>
-
+          {/* Hidden field for vehicle category */}
+       <div className="w-full hidden">
+            <InputField
+              name="vehicle_category"
+              label="Vehicle Category"
+              value={watch("vehicle_category") || ""}
+              readOnly
+              {...register("vehicle_category")}
+            />
+          </div>
           <div className="flex flex-col lg:flex-row justify-between gap-x-3">
             <div className="w-full">
               <SelectField
