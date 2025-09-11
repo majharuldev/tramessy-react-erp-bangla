@@ -13,7 +13,7 @@ export default function AddTripForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const dateRef = useRef(null);
-  
+
   // State for dropdown options
   const [vehicle, setVehicle] = useState([]);
   const [driver, setDriver] = useState([]);
@@ -23,7 +23,7 @@ export default function AddTripForm() {
   const [vendorDrivers, setVendorDrivers] = useState([]);
   const [loadpoint, setLoadpoint] = useState([]);
   const [isFixedRateCustomer, setIsFixedRateCustomer] = useState(false);
-  
+
   // State for rates
   const [rates, setRates] = useState([]);
   const [vehicleCategories, setVehicleCategories] = useState([]);
@@ -75,14 +75,14 @@ export default function AddTripForm() {
 
   const { watch, handleSubmit, reset, setValue, control } = methods;
 
-  const customerOptions = useMemo(() => 
-  customer.map((c) => ({
-    value: c.customer_name,
-    label: c.customer_name,
-    mobile: c.mobile,
-    rate: c.rate,
-  })), 
-[customer]);
+  const customerOptions = useMemo(() =>
+    customer.map((c) => ({
+      value: c.customer_name,
+      label: c.customer_name,
+      mobile: c.mobile,
+      rate: c.rate,
+    })),
+    [customer]);
 
   // Handle customer mobile number update
   const selectedCustomer = useWatch({ control, name: "customer" });
@@ -103,7 +103,7 @@ export default function AddTripForm() {
   const selectedUnloadPoint = watch("unload_point");
   const selectedVehicleCategory = watch("vehicle_category");
   const selectedVehicleSize = watch("vehicle_size");
-   
+
   // Watch all expense fields
   const [
     fuelCost,
@@ -193,23 +193,23 @@ export default function AddTripForm() {
         const ratesRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/rate/list`);
         const ratesData = await ratesRes.json();
         setRates(ratesData.data);
-        
+
         // Extract unique load points, unload points, vehicle categories and sizes from rates
         const loadPoints = [...new Set(ratesData.data.map(rate => rate.load_point))];
         const unloadPoints = [...new Set(ratesData.data.map(rate => rate.unload_point))];
         const categories = [...new Set(ratesData.data.map(rate => rate.vehicle_category))];
         // const sizes = [...new Set(ratesData.data.map(rate => rate.vehicle_size))];
 
-const sizes = [
-  ...new Set(
-    ratesData.data
-      .map(rate => rate.vehicle_size)
-      .filter(size => size && size.trim() !== '')
-      .map(size => size.trim())
-  )
-];
-// setVehicleSizes(sizes);
-        
+        const sizes = [
+          ...new Set(
+            ratesData.data
+              .map(rate => rate.vehicle_size)
+              .filter(size => size && size.trim() !== '')
+              .map(size => size.trim())
+          )
+        ];
+        // setVehicleSizes(sizes);
+
         setLoadpoint(loadPoints.map(point => ({ customer_name: point })));
         setUnloadpoints(unloadPoints);
         setVehicleCategories(categories);
@@ -369,44 +369,44 @@ const sizes = [
   // Handle vehicle selection to auto-fill category and size
   const selectedVehicle = useWatch({ control, name: "vehicle_no" });
 
-useEffect(() => {
-  if (selectedTransport === "own_transport") {
-    const vehicle = vehicleOptions.find((v) => v.value === selectedVehicle);
-    if (vehicle) {
-      // setValue("vehicle_category", vehicle.category || "");
-      // setValue("vehicle_size", vehicle.size || "");
+  useEffect(() => {
+    if (selectedTransport === "own_transport") {
+      const vehicle = vehicleOptions.find((v) => v.value === selectedVehicle);
+      if (vehicle) {
+        // setValue("vehicle_category", vehicle.category || "");
+        // setValue("vehicle_size", vehicle.size || "");
+      }
+    } else if (selectedTransport === "vendor_transport") {
+      const vehicle = vendorVehicleOptions.find((v) => v.value === selectedVehicle);
+      if (vehicle) {
+        // setValue("vehicle_category", vehicle.category || "");
+        // setValue("vehicle_size", vehicle.size || "");
+      }
     }
-  } else if (selectedTransport === "vendor_transport") {
-    const vehicle = vendorVehicleOptions.find((v) => v.value === selectedVehicle);
-    if (vehicle) {
-      // setValue("vehicle_category", vehicle.category || "");
-      // setValue("vehicle_size", vehicle.size || "");
-    }
-  }
-}, [selectedVehicle, selectedTransport, setValue]); 
+  }, [selectedVehicle, selectedTransport, setValue]);
 
   // Fixed rate calculation based on load point, unload point, vehicle category and size
-useEffect(() => {
-  if (selectedLoadPoint && selectedUnloadPoint && selectedVehicleCategory && selectedVehicleSize && rates.length > 0) {
-    const foundRate = rates.find(
-      (rate) =>
-        rate.load_point === selectedLoadPoint &&
-        rate.unload_point === selectedUnloadPoint &&
-        rate.vehicle_category === selectedVehicleCategory &&
-        // rate.vehicle_size === selectedVehicleSize
-        rate.vehicle_size.toLowerCase().trim() === selectedVehicleSize.toLowerCase().trim()
-    );
-    
-     if (foundRate) {
-      const rateValue = parseFloat(foundRate.rate) || 0;
-      setValue("total_rent", Number(rateValue.toFixed(2)), { shouldValidate: true });
-      setIsRateFound(true);
-    } else if (!id) {
-      setValue("total_rent", "", { shouldValidate: true });
-      setIsRateFound(false);
+  useEffect(() => {
+    if (selectedLoadPoint && selectedUnloadPoint && selectedVehicleCategory && selectedVehicleSize && rates.length > 0) {
+      const foundRate = rates.find(
+        (rate) =>
+          rate.load_point === selectedLoadPoint &&
+          rate.unload_point === selectedUnloadPoint &&
+          rate.vehicle_category === selectedVehicleCategory &&
+          // rate.vehicle_size === selectedVehicleSize
+          rate.vehicle_size.toLowerCase().trim() === selectedVehicleSize.toLowerCase().trim()
+      );
+
+      if (foundRate) {
+        const rateValue = parseFloat(foundRate.rate) || 0;
+        setValue("total_rent", Number(rateValue.toFixed(2)), { shouldValidate: true });
+        setIsRateFound(true);
+      } else if (!id) {
+        setValue("total_rent", "", { shouldValidate: true });
+        setIsRateFound(false);
+      }
     }
-  }
-}, [selectedLoadPoint, selectedUnloadPoint, selectedVehicleCategory, selectedVehicleSize, rates, setValue, id]);
+  }, [selectedLoadPoint, selectedUnloadPoint, selectedVehicleCategory, selectedVehicleSize, rates, setValue, id]);
 
 
   // Handle driver mobile number update
@@ -422,13 +422,13 @@ useEffect(() => {
   // const generateRefId = useRefId();
   const onSubmit = async (data) => {
     // const refId = generateRefId();
-    
+
     try {
       setLoading(true);
       const url = id
         ? `${import.meta.env.VITE_BASE_URL}/api/trip/update/${id}`
         : `${import.meta.env.VITE_BASE_URL}/api/trip/create`;
-      
+
       // if (!id) {
       //   data.ref_id = refId;
       // }
@@ -510,24 +510,54 @@ useEffect(() => {
               </div>
               <div className="flex gap-x-6 mt-2">
                 <div className="w-full relative">
-                  <SelectField
+                  {isFixedRateCustomer ? (<SelectField
                     name="load_point"
                     label="Load Point"
                     required={id ? false : true}
                     options={loadpointOptions}
                     control={control}
                     isCreatable={true}
-                  />
+                  />) : (
+                    <SelectField
+                      name="load_point"
+                      label="Load Point"
+                      required={id ? false : true}
+                      options={[
+                        { value: "green_textile", label: "Green Textile Ltd." },
+                        { value: "epic_garments", label: "Epic Garments Manufacturing Ltd." },
+                        { value: "savar_depz", label: "Savar Depz" },
+                        { value: "airport", label: "Airport" },
+                        { value: "aepz", label: "Aepz" },
+                      ]}
+                      control={control}
+                      isCreatable={true}
+                    />)
+                  }
                 </div>
                 <div className="w-full relative">
-                  <SelectField
+                  {isFixedRateCustomer?(<SelectField
                     name="unload_point"
                     label="Unload Point"
                     required={id ? false : true}
                     options={unloadpointOptions}
                     control={control}
-                    isCreatable={!isFixedRateCustomer} 
+                    isCreatable={!isFixedRateCustomer}
+                  />):(
+                    <SelectField
+                    name="unload_point"
+                    label="Unload Point"
+                    required={id ? false : true}
+                    options={[
+                        { value: "ctg", label: "CTG" },
+                        { value: "ctg_ware_house", label: "CTG Ware House" },
+                        { value: "ctg_godown", label: "Ctg Godown" },
+                        
+                      ]}
+                    control={control}
+                    isCreatable={!isFixedRateCustomer}
                   />
+                  )
+                  }
                 </div>
                 <div className="w-full">
                   <InputField
@@ -552,7 +582,7 @@ useEffect(() => {
                   />
                 </div>
                 <div className="w-full">
-                  <InputField name="additional_load" label="Additional Load point"  />
+                  <InputField name="additional_load" label="Additional Load point" />
                 </div>
               </div>
             </div>
@@ -574,7 +604,7 @@ useEffect(() => {
                   required={!id}
                 />
 
-                 {selectedTransport === "vendor_transport" && (
+                {selectedTransport === "vendor_transport" && (
                   <SelectField
                     name="vendor_name"
                     label="Vendor Name"
@@ -637,22 +667,35 @@ useEffect(() => {
                   />
                 )}
 
-                <SelectField
+                {isFixedRateCustomer?(<><SelectField
                   name="vehicle_category"
                   label="Vehicle Category"
                   options={vehicleCategoryOptions}
                   control={control}
                   required={!id}
                 />
-
                 <SelectField
                   name="vehicle_size"
                   label="Vehicle Size"
                   options={vehicleSizeOptions}
                   control={control}
                   required={!id}
-                  isCreatable={!isFixedRateCustomer} 
-                />
+                  isCreatable={!isFixedRateCustomer}
+                /></>): ""}
+                 {/* (<SelectField
+                  name="vehicle_category"
+                  label="Vehicle Category"
+                   options={[
+                        { value: "pickup", label: "CTG" },
+                        { value: "covered_van", label: "Covered Van" },
+                        { value: "open_truck", label: "Open Truck" },
+                        { value: "trailer", label: "Trailer" },
+                        { value: "freezer_van", label: "Freezer Van" },
+                        
+                      ]}
+                  control={control}
+                  required={!id}
+                />) */}
 
                 <div className="w-full">
                   <InputField
@@ -665,7 +708,7 @@ useEffect(() => {
                   />
                 </div>
 
-                <InputField name="challan" label="Challan No."  />
+                <InputField name="challan" label="Challan No." />
               </div>
             </div>
 
@@ -675,7 +718,7 @@ useEffect(() => {
                 <h3 className="text-orange-500 font-medium text-center mb-6">
                   Expense Details
                 </h3>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <InputField name="driver_adv" label="Driver Advance" type="number" />
                   <InputField name="driver_commission" label="Driver Commission" type="number" />

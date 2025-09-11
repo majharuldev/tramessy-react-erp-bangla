@@ -433,7 +433,7 @@ const TripList = () => {
                 <th className="p-2">Customer</th>
                 <th className="p-2">TransportType</th>
                 <th className="p-2">VehicleNo</th>
-                <th className="p-2">Driver</th>
+                <th className="p-2">Vendor</th>
                 <th className="p-2">Trip&Destination</th>
                 <th className="p-2">TripRent</th>
                 <th className="p-2">TripCost</th>
@@ -476,7 +476,7 @@ const TripList = () => {
                           <p>{dt?.vehicle_no}</p>
                         </td>
                         <td className="p-2">
-                          <p>{dt.driver_name}</p>
+                          <p>{dt.vendor_name? dt.vendor_name: "N/A"}</p>
                         </td>
                         <td className="p-2">
                           <p>Load: {dt.load_point}</p>
@@ -587,7 +587,7 @@ const TripList = () => {
                   <p className="w-48">Trip type</p> <p>{selectedTrip.trip_type}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load}</p>
+                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load? selectedTrip.additional_load: "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
@@ -597,33 +597,37 @@ const TripList = () => {
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2">
                   <p className="w-48">Driver Mobile</p>{" "}
-                  <p>{selectedTrip.driver_mobile}</p>
+                  <p>{selectedTrip.driver_mobile? selectedTrip.driver_mobile: "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Driver Advance</p>{" "}
+                  <p>{selectedTrip.driver_advance? selectedTrip.driver_advance:0}</p>
+                </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Commission</p>{" "}
-                  <p>{selectedTrip.driver_commission}</p>
-                </li>
-                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Fuel Cost</p>{" "}
-                  <p>{selectedTrip.fuel_cost}</p>
+                  <p>{selectedTrip.driver_commission? selectedTrip.driver_commission:0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Fuel Cost</p>{" "}
+                  <p>{selectedTrip.fuel_cost? selectedTrip.fuel_cost:0}</p>
+                </li>
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Callan cost</p>{" "}
-                  <p>{selectedTrip.callan_cost}</p>
+                  <p>{selectedTrip.callan_cost ? selectedTrip.callan_cost: 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Others Cost</p>{" "}
-                  <p>{selectedTrip.others_cost}</p>
+                  <p>{selectedTrip.others_cost? selectedTrip.others_cost: 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Total Rent</p>{" "}
-                  <p>{selectedTrip.total_rent}</p>
+                  <p className="w-48">Vendor Name</p>{" "}
+                  <p>{selectedTrip.vendor_name? selectedTrip.vendor_name: "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Vehicle Number</p>{" "}
@@ -632,12 +636,12 @@ const TripList = () => {
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Model No</p>{" "}
-                  <p>{selectedTrip.model_no}</p>
+                  <p className="w-48">Transport type</p>{" "}
+                  <p>{selectedTrip.transport_type}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Unload Charge</p>{" "}
-                  <p>{selectedTrip.unload_charge} </p>
+                  <p className="w-48">Trip Id</p>{" "}
+                  <p>{selectedTrip.trip_id} </p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
@@ -646,16 +650,16 @@ const TripList = () => {
                   <p>{selectedTrip.total_rent}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Distribution Name</p>{" "}
-                  <p>{selectedTrip.distribution_name}</p>
+                  <p className="w-48">Due Amount</p>{" "}
+                  <p>{selectedTrip.due_amount? selectedTrip.due_amount:"N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost}</p>
+                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost? selectedTrip.additional_cost: 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Advance</p> <p>{selectedTrip.advance}</p>
+                  <p className="w-48">Advance</p> <p>{selectedTrip.advance? selectedTrip.advance: 0}</p>
                 </li>
               </ul>
               <div className="flex justify-end mt-10">

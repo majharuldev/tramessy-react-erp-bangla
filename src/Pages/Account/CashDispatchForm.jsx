@@ -38,6 +38,7 @@ const CashDispatchForm = () => {
         person_name: data.person_name,
         type: data.type,
         amount: data.amount,
+        purpose: data.purpose,
         bank_name: data.bank_name || "",
         remarks: data.remarks,
         ref: data.ref || "",
@@ -121,10 +122,11 @@ const CashDispatchForm = () => {
         if (!isEditing) {
           const branchFormData = new FormData()
           branchFormData.append("date", data.date)
-          branchFormData.append("cash_in", data.amount)
+          branchFormData.append("amount", data.amount)
           branchFormData.append("branch_name", data.branch_name)
-          branchFormData.append("remarks", data.ref)
-          branchFormData.append("mode", data.type)
+          branchFormData.append("remarks", data.remarks)
+          branchFormData.append("purpose", data.purpose)
+          branchFormData.append("type", data.type)
           branchFormData.append("ref_id", refId)
 
           await axios.post(`${import.meta.env.VITE_BASE_URL}/api/branch/create`, branchFormData)
@@ -221,6 +223,9 @@ const CashDispatchForm = () => {
             <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
               <div className="w-full">
                 <InputField name="bank_name" label="Bank Name" required={!isEditing} />
+              </div>
+              <div className="w-full">
+                <InputField name="purpose" label="purpose" required={!isEditing} />
               </div>
               <div className="w-full">
                 <InputField name="remarks" label="Note" required={!isEditing} />
