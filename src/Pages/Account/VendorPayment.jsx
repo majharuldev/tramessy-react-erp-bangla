@@ -81,7 +81,7 @@ const totalAmount = payment.reduce(
                 <th className="px-2 py-3">BillRef</th>
                 <th className="px-2 py-3">Amount</th>
                 <th className="px-2 py-3">CashType</th>
-                {/* <th className="px-2 py-3">Created By</th> */}
+                <th className="px-2 py-3">BankName</th>
                 <th className="px-2 py-3">Status</th>
                 <th className="px-2 py-3">Action</th>
               </tr>
@@ -120,7 +120,7 @@ const totalAmount = payment.reduce(
                   <td className="p-2">{dt.bill_ref}</td>
                   <td className="p-2">{dt.amount}</td>
                   <td className="p-2">{dt.cash_type}</td>
-                  {/* <td className="p-2">{dt.created_by}</td> */}
+                  <td className="p-2">{dt.bank_name}</td>
                   <td className="p-2">{dt.status}</td>
                   <td className="px-2 action_column">
                     <div className="flex gap-1">
