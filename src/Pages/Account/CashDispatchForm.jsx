@@ -15,7 +15,17 @@ const CashDispatchForm = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const dateRef = useRef(null)
+  const checkDateRef = useRef(null)
   const methods = useForm()
+  const [vehicle, setVehicle] = useState([]) 
+
+useEffect(()=>{
+  // Fetch vehicles
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`)
+      .then((response) => response.json())
+      .then((data) => setVehicle(data.data))
+      .catch((error) => console.error("Error fetching vehicle data:", error));
+}, [])
 
   // Fetch initial data if editing
   useEffect(() => {
@@ -37,6 +47,10 @@ const CashDispatchForm = () => {
         branch_name: data.branch_name, // Changed from 'branch' to 'branch_name'
         person_name: data.person_name,
         type: data.type,
+        vehicle_no: data.vehicle_no,
+        vehicle_category: data.vehicle_category,
+        check_no: data.check_no,
+        check_date: data.check_date,
         amount: data.amount,
         purpose: data.purpose,
         bank_name: data.bank_name || "",
@@ -77,8 +91,45 @@ const CashDispatchForm = () => {
     label: dt.full_name,
   }))
 
-  const { handleSubmit, reset, register, control } = methods
+  const { handleSubmit, reset, register, control, watch, setValue } = methods
 
+  const selectedCategory = watch("category");
+    const selectedVehicle = watch("vehicle_no");
+
+    // Set vehicle category when vehicle is selected
+ useEffect(() => {
+    if (selectedVehicle) {
+      const selectedVehicleData = vehicle.find(
+        (v) =>
+          `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`.trim() ===
+          selectedVehicle.trim()
+      )
+      if (selectedVehicleData) {
+        setValue("vehicle_category", selectedVehicleData.vehicle_category, {
+          shouldValidate: true,
+          shouldDirty: true,
+        })
+      } else {
+        setValue("vehicle_category", "")
+      }
+    } else {
+      setValue("vehicle_category", "")
+    }
+  }, [selectedVehicle, vehicle, setValue])
+
+  //  Fetch vehicle list
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`)
+      .then((response) => response.json())
+      .then((data) => setVehicle(data.data))
+      .catch((error) => console.error("Error fetching vehicle data:", error))
+  }, [])
+
+  // Vehicle options বানানো
+  const vehicleOptions = vehicle.map((v) => ({
+    value: `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`,
+    label: `${v.registration_zone} ${v.registration_serial} ${v.registration_number}`,
+  }))
   // generate ref id
   const generateRefId = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -117,20 +168,6 @@ const CashDispatchForm = () => {
         toast.success(isEditing ? "Fund transfer updated successfully" : "Fund transfer created successfully", {
           position: "top-right",
         })
-
-        // For new entries, also create branch record
-        if (!isEditing) {
-          const branchFormData = new FormData()
-          branchFormData.append("date", data.date)
-          branchFormData.append("amount", data.amount)
-          branchFormData.append("branch_name", data.branch_name)
-          branchFormData.append("remarks", data.remarks)
-          branchFormData.append("purpose", data.purpose)
-          branchFormData.append("type", data.type)
-          branchFormData.append("ref_id", refId)
-
-          await axios.post(`${import.meta.env.VITE_BASE_URL}/api/branch/create`, branchFormData)
-        }
 
         // Reset form if create, navigate back if edit
         if (isEditing) {
@@ -193,8 +230,27 @@ const CashDispatchForm = () => {
                   control={control}
                 />
               </div>
+              <div className="w-full">
+                <SelectField
+                  name="vehicle_no"
+                  label="Vehicle No"
+                  required={!isEditing}
+                  options={vehicleOptions}
+                  control={control}
+                />
+              </div>
             </div>
             <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
+                {/* Hidden field for vehicle category */}
+       <div className="w-full hidden">
+            <InputField
+              name="vehicle_category"
+              label="Vehicle Category"
+              value={watch("vehicle_category") || ""}
+              readOnly
+              {...register("vehicle_category")}
+            />
+          </div>
               <div className="w-full">
                 <SelectField
                   name="person_name"
@@ -217,10 +273,28 @@ const CashDispatchForm = () => {
                 />
               </div>
               <div className="w-full">
-                <InputField name="amount" label="Amount" type="number" required={!isEditing} />
+                <InputField name="check_no" label="Check No" type="number" required={!isEditing} />
               </div>
+              <div className="w-full">
+                <InputField name="check_date" label="Check Date" type="date" required={!isEditing} inputRef={(e) => {
+                    register("check_date").ref(e)
+                    checkDateRef.current = e
+                  }}
+                  icon={
+                    <span
+                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
+                      onClick={() => checkDateRef.current?.showPicker?.()}
+                    >
+                      <FiCalendar className="text-white cursor-pointer" />
+                    </span>
+                  } />
+              </div>
+              
             </div>
             <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
+              <div className="w-full">
+                <InputField name="amount" label="Amount" type="number" required={!isEditing} />
+              </div>
               <div className="w-full">
                 <InputField name="bank_name" label="Bank Name" required={!isEditing} />
               </div>

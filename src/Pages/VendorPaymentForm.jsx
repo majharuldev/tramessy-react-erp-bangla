@@ -12,6 +12,7 @@ const VendorPaymentForm = () => {
   const navigate = useNavigate()
   const { id } = useParams() // Get ID from URL parameters
   const dateRef = useRef(null)
+  const checkDateRef = useRef(null)
   const methods = useForm()
   const { handleSubmit, reset, register, control } = methods
 
@@ -200,8 +201,28 @@ const VendorPaymentForm = () => {
                   ]}
                 />
               </div>
+               <div className="w-full">
+                <InputField name="bank_name" label="Bank Name" required={!id}/>
+              </div>
             </div>
             <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
+              <div className="w-full">
+                <InputField name="check_date" label="Check Date" type="date" required={!id} inputRef={(e) => {
+                    register("check_date").ref(e)
+                    checkDateRef.current = e
+                  }}
+                  icon={
+                    <span
+                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
+                      onClick={() => checkDateRef.current?.showPicker?.()}
+                    >
+                      <FiCalendar className="text-white cursor-pointer" />
+                    </span>
+                  }/>
+              </div>
+              <div className="w-full">
+                <InputField name="check_no" label="Check No" required={!id}/>
+              </div>
               <div className="w-full">
                 <InputField name="bill_ref" label="Bill Ref" required={!id}/>
               </div>

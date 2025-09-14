@@ -14,6 +14,7 @@ const CashDispatch = () => {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [branch, setBranch] = useState([])
 const [selectedPerson, setSelectedPerson] = useState("");
@@ -74,10 +75,16 @@ const [selectedBranch, setSelectedBranch] = useState("");
       return false;
     }
 
-      // If no date filter, include all
+      // 🔎 search filter (check all fields)
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      const values = Object.values(item).join(" ").toLowerCase();
+      return values.includes(lowerSearch);
+    }
+
       return true;
     });
-  }, [account, startDate, endDate, selectedPerson, selectedBranch]);
+  }, [account, startDate, endDate, selectedPerson, selectedBranch, searchTerm]);
 
 
   const totalAmount = useMemo(() => {
@@ -129,6 +136,34 @@ const [selectedBranch, setSelectedBranch] = useState("");
             </Link>
           </div>
         </div>
+        {/* search */}
+          <div className="flex justify-end">
+            <div className="mt-3 md:mt-0">
+            <span className="text-primary font-semibold pr-3">Search: </span>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search by Product ..."
+              className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+            />
+             {/*  Clear button */}
+    {searchTerm && (
+      <button
+        onClick={() => {
+          setSearchTerm("");
+          setCurrentPage(1);
+        }}
+        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+      >
+        ✕
+      </button>
+    )}
+          </div>
+          </div>
         {/* filter */}
         {showFilter && (
           <div className="md:flex items-center gap-5 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
@@ -213,10 +248,14 @@ const [selectedBranch, setSelectedBranch] = useState("");
                 <th className="p-2">SL</th>
                 <th className="p-2">Date</th>
                 <th className="p-2">Branch</th>
+                <th className="p-2">VehicleNo</th>
+                <th className="p-2">VehicleCategory</th>
                 <th className="p-2">PersonName</th>
                 <th className="p-2">Type</th>
+                <th className="p-2">CheckDate</th>
+                <th className="p-2">CheckNo</th>
                 <th className="p-2">Amount</th>
-                <th className="p-2">Bank Name</th>
+                <th className="p-2">BankName</th>
                 <th className="p-2">Purpose</th>
                 <th className="p-2">Action</th>
               </tr>
@@ -237,8 +276,12 @@ const [selectedBranch, setSelectedBranch] = useState("");
                     <td className="p-2 font-bold">{indexOfFirstItem + i + 1}</td>
                     {dt.date ? format(parseISO(dt.date), "dd-MMMM-yyyy") : ""}
                     <td className="p-2">{dt.branch_name}</td>
+                    <td className="p-2">{dt.vehicle_no}</td>
+                    <td className="p-2">{dt.vehicle_category}</td>
                     <td className="p-2">{dt.person_name}</td>
                     <td className="p-2">{dt.type}</td>
+                    <td className="p-2">{dt.check_date}</td>
+                    <td className="p-2">{dt.check_no}</td>
                     <td className="p-2">{dt.amount}</td>
                     <td className="p-2">{dt.bank_name}</td>
                     <td className="p-2">{dt.purpose}</td>
