@@ -229,7 +229,7 @@ const AllUsers = () => {
         {/* Table */}
         <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200">
           <table className="min-w-full text-sm text-left">
-            <thead className="bg-[#11375B] text-white capitalize text-sm">
+            <thead className="bg-primary text-white capitalize text-sm">
               <tr>
                 <th className="p-2">#</th>
                 <th className="p-2">Name</th>
@@ -240,7 +240,7 @@ const AllUsers = () => {
                 <th className="p-2 action_column">Action</th>
               </tr>
             </thead>
-            <tbody className="text-[#11375B] font-semibold bg-gray-100">
+            <tbody className="text-primary">
               {
                 currentUsers.length === 0?(
                   <tr>

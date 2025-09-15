@@ -12,6 +12,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { IoIosRemoveCircle, IoMdClose } from "react-icons/io";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
+import { tableFormatDate } from "../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 
 const VendorList = () => {
   const [vendor, setVendor] = useState([]);
@@ -143,8 +145,8 @@ const VendorList = () => {
           </thead>
           <tbody>
             ${filteredvendor
-              .map(
-                (dt, i) => `
+        .map(
+          (dt, i) => `
               <tr>
                 <td>${i + 1}</td>
                 <td>${dt.date}</td>
@@ -154,8 +156,8 @@ const VendorList = () => {
                 <td>${dt.work_area}</td>
                 <td>${dt.status}</td>
               </tr>`
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
       </body>
@@ -227,17 +229,7 @@ const VendorList = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentVendor = filteredvendor.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(vendor.length / itemsPerPage);
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1);
-  };
-  const handleNextPage = () => {
-    if (currentPage < totalPages)
-      setCurrentPage((currentPage) => currentPage + 1);
-  };
 
-  const handlePageClick = (number) => {
-    setCurrentPage(number);
-  };
   return (
     <main className=" md:p-2">
       <Toaster />
@@ -297,51 +289,63 @@ const VendorList = () => {
               placeholder="Search..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
-             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         {/* Conditional Filter Section */}
         {showFilter && (
-          <div className="md:flex items-center justify-between gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+          <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-            <div className="w-xs">
+            <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
-                  setShowFilter(false);
+                  setCurrentPage(1)
+                  setStartDate("")
+                  setEndDate("")
+                  setShowFilter(false)
                 }}
-                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <IoIosRemoveCircle /> Clear Filter
+                <FaFilter /> Clear
               </button>
             </div>
           </div>
@@ -367,54 +371,54 @@ const VendorList = () => {
                   <td colSpan="8" className="text-center p-4 text-gray-500">
                     No Vendor found
                   </td>
-                  </tr>)
-              :(currentVendor?.map((dt, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="p-2">{dt.date}</td>
-                  <td className="p-2">{dt.vendor_name}</td>
-                  <td className="p-2">{dt.mobile}</td>
-                  <td className="p-2">{dt.rent_category}</td>
-                  <td className="p-2">{dt.work_area}</td>
-                  <td className="p-2">{dt.status}</td>
-                  <td className="p-2 action_column">
-                    <div className="flex gap-2">
-                      <Link to={`/tramessy/UpdateVendorForm/${dt.id}`}>
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setselectedvendorId(dt.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )))
+                </tr>)
+                  : (currentVendor?.map((dt, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 transition-all border border-gray-200"
+                    >
+                      <td className="p-2 font-bold">
+                        {indexOfFirstItem + index + 1}
+                      </td>
+                      <td className="p-2">{tableFormatDate(dt.date)}</td>
+                      <td className="p-2">{dt.vendor_name}</td>
+                      <td className="p-2">{dt.mobile}</td>
+                      <td className="p-2">{dt.rent_category}</td>
+                      <td className="p-2">{dt.work_area}</td>
+                      <td className="p-2">{dt.status}</td>
+                      <td className="p-2 action_column">
+                        <div className="flex gap-2">
+                          <Link to={`/tramessy/UpdateVendorForm/${dt.id}`}>
+                            <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                              <FaPen className="text-[12px]" />
+                            </button>
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setselectedvendorId(dt.id);
+                              setIsOpen(true);
+                            }}
+                            className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaTrashAlt className="text-[12px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )))
               }
             </tbody>
           </table>
         </div>
         {/* pagination */}
         {currentVendor.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
       {/* Delete modal */}
       <div className="flex justify-center items-center">

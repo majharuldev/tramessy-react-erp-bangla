@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const VendorLedger = () => {
   const [vendorData, setVendorData] = useState([]);
@@ -480,7 +481,7 @@ const VendorLedger = () => {
                   return (
                     <tr key={idx}>
                       <td className="border px-2 py-1">{idx + 1}</td>
-                      <td className="border px-2 py-1">{item.date}</td>
+                      <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
                       <td className="border px-2 py-1">{item.vendor_name}</td>
                       <td className="border px-2 py-1">
                         {item.load_point || (

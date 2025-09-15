@@ -8,6 +8,7 @@ import { IoMdClose } from "react-icons/io";
 import { MdShop } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const SupplierList = () => {
   const [supply, setSupply] = useState([]);
@@ -180,7 +181,7 @@ const SupplierList = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}.
                   </td>
-                  <td className="p-2">{dt.date}</td>
+                  <td className="p-2">{tableFormatDate(dt.date)}</td>
                   <td className="p-2">{dt.supplier_name}</td>
                   <td className="p-2">{dt.business_category}</td>
                   <td className="p-2">{dt.phone}</td>

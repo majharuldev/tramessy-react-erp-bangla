@@ -5,7 +5,8 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 
 const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const [startDate, setStartDate] = useState("");
@@ -198,54 +199,34 @@ totals.due = totals.rent  - totals.rec_amount;
 
         {showFilter && (
           <div className="flex gap-4 border border-gray-300 rounded-md p-5 mb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
-              {startDate && (
-                <button
-                  onClick={() => {
-                    setStartDate("");
-                    setCurrentPage(0);
-                  }}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="Clear start date"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
             </div>
-
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setCurrentPage(0);
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
-              {endDate && (
-                <button
-                  onClick={() => {
-                    setEndDate("");
-                    setCurrentPage(0);
-                  }}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="Clear end date"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
             </div>
           </div>
         )}
@@ -304,7 +285,7 @@ totals.due = totals.rent  - totals.rec_amount;
       return (
         <tr key={idx}>
           <td className="border px-2 py-1">{idx + 1 }</td>
-          <td className="border px-2 py-1">{item.bill_date}</td>
+          <td className="border px-2 py-1">{tableFormatDate(item.bill_date)}</td>
           <td className="border px-2 py-1">{item.customer_name}</td>
           <td className="border px-2 py-1">
             {item.load_point || <span className="flex justify-center items-center">--</span>}

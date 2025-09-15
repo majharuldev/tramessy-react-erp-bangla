@@ -14,6 +14,8 @@ import BtnSubmit from "../../../components/Button/BtnSubmit"
 import { FiFileText, FiX } from "react-icons/fi"
 import { BiEdit } from "react-icons/bi"
 import Pagination from "../../../components/Shared/Pagination"
+import { tableFormatDate } from "../../../components/Shared/formatDate"
+import DatePicker from "react-datepicker"
 
 
 const OfficialExpense = () => {
@@ -322,7 +324,7 @@ const OfficialExpense = () => {
 
 
   return (
-    <div className=" min-h-screen">
+    <div className=" min-h-screen p-2">
       <Toaster />
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 p-4">
         {/* Header */}
@@ -409,23 +411,33 @@ const OfficialExpense = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
             <div className="mt-3 md:mt-0 flex gap-2">
@@ -491,7 +503,7 @@ const OfficialExpense = () => {
                 filteredExpense.map((item, index) => (
                   <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-3 py-3 text-sm">{index + 1}</td>
-                    <td className="px-3 py-3 text-sm">{item.date}</td>
+                    <td className="px-3 py-3 text-sm">{tableFormatDate(item.date)}</td>
                     <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>

@@ -5,6 +5,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const VendorPayment = () => {
   const [payment, setPayment] = useState([]);
@@ -113,7 +114,7 @@ const totalAmount = payment.reduce(
               (currentPayment?.map((dt, index) => (
                 <tr className="hover:bg-gray-50 transition-all border border-gray-200">
                   <td className="p-2 font-bold">{index + 1}.</td>
-                  <td className="p-2">{dt.date}</td>
+                  <td className="p-2">{tableFormatDate(dt.date)}</td>
                   <td className="p-2">{dt.vendor_name}</td>
                   <td className="p-2">{dt.check_date}</td>
                   <td className="p-2">{dt.check_no}</td>

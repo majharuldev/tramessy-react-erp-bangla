@@ -368,6 +368,20 @@ export default function AddTripForm() {
 
   // Handle vehicle selection to auto-fill category and size
   const selectedVehicle = useWatch({ control, name: "vehicle_no" });
+    // Auto-fill driver name based on selected vehicle number (own transport only)
+useEffect(() => {
+  if (selectedTransport === "own_transport" && selectedVehicle) {
+    const vehicleData = vehicle.find(v => 
+      `${v.registration_zone} ${v.registration_serial} ${v.registration_number}` === selectedVehicle
+    );
+
+    if (vehicleData) {
+      setValue("driver_name", vehicleData.driver_name || "");
+    } else {
+      setValue("driver_name", "");
+    }
+  }
+}, [selectedVehicle, selectedTransport, setValue, vehicle]);
 
   useEffect(() => {
     if (selectedTransport === "own_transport") {

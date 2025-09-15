@@ -6,6 +6,9 @@ import jsPDF from "jspdf"
 import "jspdf-autotable"
 import autoTable from "jspdf-autotable"
 import Pagination from "../../components/Shared/Pagination"
+import DatePicker from "react-datepicker"
+import { tableFormatDate } from "../../components/Shared/formatDate"
+import { isSameDay } from "date-fns"
 
 export default function VehicleProfitReport() {
   const [tripData, setTripData] = useState([])
@@ -54,10 +57,10 @@ export default function VehicleProfitReport() {
   const calculateProfitByVehicle = () => {
 
     const normalizeVehicleNo = (no) => {
-    return no?.replace(/\s+/g, " ")  
-              ?.replace(/-+/g, "-")  
-              ?.trim()
-  }
+      return no?.replace(/\s+/g, " ")
+        ?.replace(/-+/g, "-")
+        ?.trim()
+    }
 
     const vehicleDateMap = new Map()
 
@@ -65,22 +68,14 @@ export default function VehicleProfitReport() {
     tripData
       .filter((trip) => {
         let dateMatch = true
-        // if (selectedDate) {
-        //   dateMatch = trip.date === selectedDate
-        // } else if (fromDate && toDate) {
-        //   dateMatch = trip.date >= fromDate && trip.date <= toDate
-        // } else if (fromDate) {
-        //   dateMatch = trip.date >= fromDate
-        // } else if (toDate) {
-        //   dateMatch = trip.date <= toDate
-        // }
+  const tripDate = new Date(trip.date)
         if (fromDate && toDate) {
-  dateMatch = trip.date >= fromDate && trip.date <= toDate
-} else if (fromDate) {
-  dateMatch = trip.date === fromDate  // শুধু একদিন
-} else {
-  dateMatch = true
-}
+          dateMatch = tripDate >= fromDate && tripDate <= toDate
+        } else if (fromDate) {
+          dateMatch = isSameDay(tripDate, fromDate)
+        } else {
+          dateMatch = true
+        }
 
         const vehicleMatch = selectedVehicle === "" || trip.vehicle_no === selectedVehicle
 
@@ -114,22 +109,14 @@ export default function VehicleProfitReport() {
     purchaseData
       .filter((purchase) => {
         let dateMatch = true
-        // if (selectedDate) {
-        //   dateMatch = purchase.date === selectedDate
-        // } else if (fromDate && toDate) {
-        //   dateMatch = purchase.date >= fromDate && purchase.date <= toDate
-        // } else if (fromDate) {
-        //   dateMatch = purchase.date >= fromDate
-        // } else if (toDate) {
-        //   dateMatch = purchase.date <= toDate
-        // }
+  const purchaseDate = new Date(purchase.date)
         if (fromDate && toDate) {
-  dateMatch = purchase.date >= fromDate && purchase.date <= toDate
-} else if (fromDate) {
-  dateMatch = purchase.date === fromDate  // শুধু একদিন
-} else {
-  dateMatch = true
-}
+          dateMatch = purchaseDate >= fromDate && purchaseDate <= toDate
+        } else if (fromDate) {
+          dateMatch = isSameDay(purchaseDate, fromDate)  
+        } else {
+          dateMatch = true
+        }
         const vehicleMatch = selectedVehicle === "" || purchase.vehicle_no === selectedVehicle
 
         return dateMatch && vehicleMatch && purchase.vehicle_no
@@ -171,22 +158,14 @@ export default function VehicleProfitReport() {
     stockOutData
       .filter((stock) => {
         let dateMatch = true
-        // if (selectedDate) {
-        //   dateMatch = stock.date === selectedDate
-        // } else if (fromDate && toDate) {
-        //   dateMatch = stock.date >= fromDate && stock.date <= toDate
-        // } else if (fromDate) {
-        //   dateMatch = stock.date >= fromDate
-        // } else if (toDate) {
-        //   dateMatch = stock.date <= toDate
-        // }
+  const stockDate = new Date(stock.date)
         if (fromDate && toDate) {
-  dateMatch = stock.date >= fromDate && stock.date <= toDate
-} else if (fromDate) {
-  dateMatch = stock.date === fromDate  // শুধু একদিন
-} else {
-  dateMatch = true
-}
+          dateMatch = stockDate >= fromDate && stockDate <= toDate
+        } else if (fromDate) {
+          dateMatch = isSameDay(stockDate, fromDate)
+        } else {
+          dateMatch = true
+        }
 
         const vehicleMatch = selectedVehicle === "" || stock.vehicle_name === selectedVehicle
         const isEngineOil = stock.product_category === "engine_oil"
@@ -220,8 +199,8 @@ export default function VehicleProfitReport() {
 
     // Calculate net profit for each vehicle-date combination
     const profitArray = Array.from(vehicleDateMap.values()).map((vehicleDate) => {
-      const totalExpenses = vehicleDate.trip_expenses + vehicleDate.parts_cost + 
-                           vehicleDate.fuel_cost + vehicleDate.engine_oil_cost
+      const totalExpenses = vehicleDate.trip_expenses + vehicleDate.parts_cost +
+        vehicleDate.fuel_cost + vehicleDate.engine_oil_cost
       return {
         ...vehicleDate,
         net_profit: vehicleDate.total_revenue - totalExpenses
@@ -256,17 +235,17 @@ export default function VehicleProfitReport() {
     setCurrentPage(1)
   }
 
-useEffect(() => {
-  calculateProfitByVehicle()
-  setCurrentPage(1)  
-}, [tripData, purchaseData, stockOutData, selectedDate, fromDate, toDate, selectedVehicle])
+  useEffect(() => {
+    calculateProfitByVehicle()
+    setCurrentPage(1)
+  }, [tripData, purchaseData, stockOutData, selectedDate, fromDate, toDate, selectedVehicle])
 
-// চাইলে আলাদা আলাদা বের করতে পারেন
-const totalTrip = profitData.reduce((sum, v) => sum + v.trip_count, 0)
-const totalTripCost = profitData.reduce((sum, v) => sum + v.trip_expenses, 0)
-const totalPartsCost = profitData.reduce((sum, v) => sum + v.parts_cost, 0)
-const totalFuelCost = profitData.reduce((sum, v) => sum + v.fuel_cost, 0)
-const totalEngineOil = profitData.reduce((sum, v) => sum + v.engine_oil_cost, 0)
+  // চাইলে আলাদা আলাদা বের করতে পারেন
+  const totalTrip = profitData.reduce((sum, v) => sum + v.trip_count, 0)
+  const totalTripCost = profitData.reduce((sum, v) => sum + v.trip_expenses, 0)
+  const totalPartsCost = profitData.reduce((sum, v) => sum + v.parts_cost, 0)
+  const totalFuelCost = profitData.reduce((sum, v) => sum + v.fuel_cost, 0)
+  const totalEngineOil = profitData.reduce((sum, v) => sum + v.engine_oil_cost, 0)
 
   const totalPages = Math.ceil(profitData.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -279,79 +258,79 @@ const totalEngineOil = profitData.reduce((sum, v) => sum + v.engine_oil_cost, 0)
 
   //   // ------------------- Export Functions -------------------
   const exportToExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(
-    profitData.map((d) => ({
-      Date: d.date,
-      "Vehicle No": d.vehicle_no,
-      Trips: d.trip_count,
-      "Trip Rent": d.total_revenue,
-      "Trip Cost": d.trip_expenses,
-      "Parts Cost": d.parts_cost,
-      "Fuel Cost": d.fuel_cost,
-      "Engine Oil": d.engine_oil_cost,
-      "Net Profit": d.net_profit,
-    }))
-  )
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Vehicle Profit")
-  XLSX.writeFile(workbook, "vehicle_profit_report.xlsx")
-}
-
-const exportToPDF = () => {
-  try {
-    const doc = new jsPDF()
-
-    // Title
-    doc.setFontSize(16)
-    doc.text("Vehicle Profit Report", 14, 15)
-    doc.setFontSize(10)
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22)
-
-    // Table Columns
-    const tableColumn = [
-      "Date",
-      "Vehicle No",
-      "Trips",
-      "Trip Rent",
-      "Trip Cost",
-      "Parts Cost",
-      "Fuel Cost",
-      "Engine Oil",
-      "Net Profit",
-    ]
-
-    // Table Rows
-    const tableRows = profitData.map((d) => [
-      d.date,
-      d.vehicle_no,
-      d.trip_count,
-      `${d.total_revenue.toLocaleString()}`,
-      `${d.trip_expenses.toLocaleString()}`,
-      `${d.parts_cost.toLocaleString()}`,
-      `${d.fuel_cost.toLocaleString()}`,
-      `${d.engine_oil_cost.toLocaleString()}`,
-      `${d.net_profit.toLocaleString()}`,
-    ])
-
-    // autoTable
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 30,
-      styles: { fontSize: 9 },
-      headStyles: { fillColor: [17, 55, 91] }, // #11375B
-    })
-
-    doc.save("vehicle_profit_report.pdf")
-  } catch (error) {
-    console.error("PDF generation error:", error)
-    alert("PDF ডাউনলোডে সমস্যা হচ্ছে। দয়া করে আবার চেষ্টা করুন।")
+    const worksheet = XLSX.utils.json_to_sheet(
+      profitData.map((d) => ({
+        Date: d.date,
+        "Vehicle No": d.vehicle_no,
+        Trips: d.trip_count,
+        "Trip Rent": d.total_revenue,
+        "Trip Cost": d.trip_expenses,
+        "Parts Cost": d.parts_cost,
+        "Fuel Cost": d.fuel_cost,
+        "Engine Oil": d.engine_oil_cost,
+        "Net Profit": d.net_profit,
+      }))
+    )
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Vehicle Profit")
+    XLSX.writeFile(workbook, "vehicle_profit_report.xlsx")
   }
-}
+
+  const exportToPDF = () => {
+    try {
+      const doc = new jsPDF()
+
+      // Title
+      doc.setFontSize(16)
+      doc.text("Vehicle Profit Report", 14, 15)
+      doc.setFontSize(10)
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22)
+
+      // Table Columns
+      const tableColumn = [
+        "Date",
+        "Vehicle No",
+        "Trips",
+        "Trip Rent",
+        "Trip Cost",
+        "Parts Cost",
+        "Fuel Cost",
+        "Engine Oil",
+        "Net Profit",
+      ]
+
+      // Table Rows
+      const tableRows = profitData.map((d) => [
+        d.date,
+        d.vehicle_no,
+        d.trip_count,
+        `${d.total_revenue.toLocaleString()}`,
+        `${d.trip_expenses.toLocaleString()}`,
+        `${d.parts_cost.toLocaleString()}`,
+        `${d.fuel_cost.toLocaleString()}`,
+        `${d.engine_oil_cost.toLocaleString()}`,
+        `${d.net_profit.toLocaleString()}`,
+      ])
+
+      // autoTable
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 30,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [17, 55, 91] }, // #11375B
+      })
+
+      doc.save("vehicle_profit_report.pdf")
+    } catch (error) {
+      console.error("PDF generation error:", error)
+      alert("PDF ডাউনলোডে সমস্যা হচ্ছে। দয়া করে আবার চেষ্টা করুন।")
+    }
+  }
 
 
- const printTable = () => {
-  const allRows = profitData.map((d) => `
+  const printTable = () => {
+    const allRows = profitData.map((d) => `
     <tr>
       <td>${d.date}</td>
       <td>${d.vehicle_no}</td>
@@ -365,7 +344,7 @@ const exportToPDF = () => {
     </tr>
   `).join("")
 
-  const totalRow = `
+    const totalRow = `
     <tr style="font-weight:bold; background-color:#f0f0f0;">
       <td colspan="2" style="text-align:right;">Total:</td>
       <td>${totalTrip}</td>
@@ -378,8 +357,8 @@ const exportToPDF = () => {
     </tr>
   `
 
-  const WinPrint = window.open("", "", "width=900,height=650")
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650")
+    WinPrint.document.write(`
     <html>
       <head>
         <title>Vehicle Profit Report</title>
@@ -417,11 +396,11 @@ const exportToPDF = () => {
       </body>
     </html>
   `)
-  WinPrint.document.close()
-  WinPrint.focus()
-  WinPrint.print()
-  WinPrint.close()
-}
+    WinPrint.document.close()
+    WinPrint.focus()
+    WinPrint.print()
+    WinPrint.close()
+  }
 
 
   return (
@@ -429,15 +408,15 @@ const exportToPDF = () => {
       <div className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-4 border border-gray-200">
         {/* Header and filter section remains the same */}
         <div className="md:flex items-center justify-between mb-6">
-           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
-             Vehicle Performance Report
-           </h1>
-           <div className="mt-3 md:mt-0 flex gap-2">
-             <button
+          <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
+            Vehicle Performance Report
+          </h1>
+          <div className="mt-3 md:mt-0 flex gap-2">
+            <button
               onClick={() => setShowFilter((prev) => !prev)}
               className="text-primary border border-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FiFilter/> Filter
+              <FiFilter /> Filter
             </button>
             {/* <button
               onClick={fetchData}
@@ -450,57 +429,61 @@ const exportToPDF = () => {
         </div>
 
         <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
-            <button
-              onClick={exportToExcel}
-              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              Excel
-            </button>
-            <button
-              onClick={exportToPDF}
-              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              PDF
-            </button>
-            <button
-              onClick={printTable}
-              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              Print
-            </button>
-          </div>
+          <button
+            onClick={exportToExcel}
+            className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+          >
+            Excel
+          </button>
+          <button
+            onClick={exportToPDF}
+            className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+          >
+            PDF
+          </button>
+          <button
+            onClick={printTable}
+            className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+          >
+            Print
+          </button>
+        </div>
 
         {showFilter && (
           <div className="border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
             <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="relative w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">From Date</label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value)
-                    if (e.target.value) setSelectedDate("")
-                  }}
-                  className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+              <div className="flex-1 min-w-0">
+                <DatePicker
+                  selected={fromDate}
+                  onChange={(date) => setFromDate(date)}
+                  selectsStart
+                  startDate={fromDate}
+                  endDate={toDate}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="DD/MM/YYYY"
+                  locale="en-GB"
+                  className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                  isClearable
                 />
               </div>
 
-              <div className="relative w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">To Date</label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value)
-                    if (e.target.value) setSelectedDate("")
-                  }}
-                  className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+              <div className="flex-1 min-w-0">
+                <DatePicker
+                  selected={toDate}
+                  onChange={(date) => setToDate(date)}
+                  selectsEnd
+                  startDate={fromDate}
+                  endDate={toDate}
+                  minDate={fromDate}
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="DD/MM/YYYY"
+                  locale="en-GB"
+                  className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                  isClearable
                 />
               </div>
-
-              <div className="relative w-full">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle No</label>
+              <div className="flex-1 min-w-0">
+                {/* <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle No</label> */}
                 <select
                   value={selectedVehicle}
                   onChange={(e) => setSelectedVehicle(e.target.value)}
@@ -515,14 +498,14 @@ const exportToPDF = () => {
                 </select>
               </div>
               <div>
-                <div className="mt-5 flex gap-2">
-              <button
-                onClick={clearAllFilters}
-                className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-              >
-                <FiFilter/> Clear
-              </button>
-            </div>
+                <div className=" flex gap-2">
+                  <button
+                    onClick={clearAllFilters}
+                    className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                  >
+                    <FiFilter /> Clear
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -575,7 +558,7 @@ const exportToPDF = () => {
                       key={`${vehicleDate.vehicle_no}-${vehicleDate.date}-${index}`}
                       className="hover:bg-gray-50 transition-all"
                     >
-                      <td className="px-4 py-4 font-medium text-[#11375B]">{vehicleDate.date}</td>
+                      <td className="px-4 py-4 font-medium text-[#11375B]">{tableFormatDate(vehicleDate.date)}</td>
                       <td className="px-4 py-4 font-bold">{vehicleDate.vehicle_no}</td>
                       <td className="px-4 py-4 text-gray-700">{vehicleDate.trip_count}</td>
                       <td className="px-4 py-4 text-gray-700 font-semibold">
@@ -594,7 +577,7 @@ const exportToPDF = () => {
                         {vehicleDate.engine_oil_cost.toLocaleString()}
                       </td>
                       <td className={`px-4 py-4 font-bold ${vehicleDate.net_profit >= 0 ? "text-green-600" : "text-red-600"}`}>
-                         {vehicleDate.net_profit.toLocaleString()}
+                        {vehicleDate.net_profit.toLocaleString()}
                       </td>
                     </tr>
                   )
@@ -602,33 +585,33 @@ const exportToPDF = () => {
               )}
             </tbody>
             {currentData.length > 0 && (
-  <tfoot className="bg-gray-100 font-bold">
-    <tr>
-      <td colSpan="2" className="text-right px-4 py-3">Total:</td>
-      <td className="px-4 py-3">{totalTrip}</td>
-      <td className="px-4 py-3">{totalRevenue.toLocaleString()}</td>
-      <td className="px-4 py-3">{totalTripCost.toLocaleString()}</td>
-      <td className="px-4 py-3">{totalPartsCost.toLocaleString()}</td>
-      <td className="px-4 py-3">{totalFuelCost.toLocaleString()}</td>
-      <td className="px-4 py-3">{totalEngineOil.toLocaleString()}</td>
-      <td className={`px-4 py-3 ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
-        {totalProfit.toLocaleString()}
-      </td>
-    </tr>
-  </tfoot>
-)}
+              <tfoot className="bg-gray-100 font-bold">
+                <tr>
+                  <td colSpan="2" className="text-right px-4 py-3">Total:</td>
+                  <td className="px-4 py-3">{totalTrip}</td>
+                  <td className="px-4 py-3">{totalRevenue.toLocaleString()}</td>
+                  <td className="px-4 py-3">{totalTripCost.toLocaleString()}</td>
+                  <td className="px-4 py-3">{totalPartsCost.toLocaleString()}</td>
+                  <td className="px-4 py-3">{totalFuelCost.toLocaleString()}</td>
+                  <td className="px-4 py-3">{totalEngineOil.toLocaleString()}</td>
+                  <td className={`px-4 py-3 ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    {totalProfit.toLocaleString()}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
 
         {/* Pagination */}
-         {currentData.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+        {currentData.length > 0 && totalPages >= 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
     </main>
   )

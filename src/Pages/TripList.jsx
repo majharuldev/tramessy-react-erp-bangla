@@ -17,6 +17,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
+import { formatDate, tableFormatDate } from "../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 const TripList = () => {
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,117 +75,148 @@ const TripList = () => {
   }, []);
   if (loading) return <p className="text-center mt-16">Loading trip...</p>;
 
-  // excel
-  const exportTripsToExcel = () => {
-    const tableData = filteredTrips.map((dt, index) => ({
-      "SL.": index + 1,
-      Date: dt.date,
-      "Driver Name": dt.driver_name || "N/A",
-      "Driver Mobile": dt.driver_mobile || "N/A",
-      Commission: dt.driver_commission || "0",
-      "Load Point": dt.load_point,
-      "Unload Point": dt.unload_point,
-      "Trip Cost": dt.total_exp || 0,
-      "Trip Fare": dt.total_rent || 0,
-      "Total Profit":
-        parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
-    }));
+  // Excel Export
+const exportTripsToExcel = () => {
+  const tableData = filteredTrips.map((dt, index) => ({
+    "SL.": index + 1,
+    Date: tableFormatDate(dt.date),
+    TripId: dt.trip_id,
+    Customer: dt.customer || "N/A",
+    TransportType: dt.transport_type?.replace("_", " ") || "N/A",
+    VehicleNo: dt.vehicle_no || "N/A",
+    Vendor: dt.vendor_name || "N/A",
+    "Trip & Destination": `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
+    TripRent: dt.total_rent || 0,
+    TripCost: dt.total_exp || 0,
+    Profit: (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
+  }));
 
-    const worksheet = XLSX.utils.json_to_sheet(tableData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
+  const worksheet = XLSX.utils.json_to_sheet(tableData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, "trip_report.xlsx");
+};
 
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "trip_report.xlsx");
-  };
-  // pdf
-  const exportTripsToPDF = () => {
-    const doc = new jsPDF("landscape");
+// PDF Export
+const exportTripsToPDF = () => {
+  const doc = new jsPDF("landscape");
 
-    const tableColumn = [
-      "SL.",
-      "Date",
-      "Driver Name",
-      "Mobile",
-      "Commission",
-      "Load Point",
-      "Unload Point",
-      "Trip Cost",
-      "Trip Fare",
-      "Profit",
-    ];
+  const tableColumn = [
+    "SL.",
+    "Date",
+    "TripId",
+    "Customer",
+    "TransportType",
+    "VehicleNo",
+    "Vendor",
+    "Trip & Destination",
+    "TripRent",
+    "TripCost",
+    "Profit",
+  ];
 
-    const tableRows = filteredTrips.map((dt, index) => [
-      index + 1,
-      dt.date,
-      dt.driver_name || "N/A",
-      dt.driver_mobile || "N/A",
-      dt.driver_commission || "0",
-      dt.load_point,
-      dt.unload_point,
-      dt.total_exp || "0",
-      dt.total_rent || "0",
-      parseFloat(dt.total_rent || 0) - parseFloat(dt.total_exp || 0),
-    ]);
+  const tableRows = filteredTrips.map((dt, index) => [
+    index + 1,
+    tableFormatDate(dt.date),
+    dt.trip_id,
+    dt.customer || "N/A",
+    dt.transport_type?.replace("_", " ") || "N/A",
+    dt.vehicle_no || "N/A",
+    dt.vendor_name || "N/A",
+    `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
+    dt.total_rent || 0,
+    dt.total_exp || 0,
+    (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
+  ]);
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
-      styles: {
-        fontSize: 10,
-      },
-      headStyles: {
-        fillColor: [17, 55, 91],
-        textColor: [255, 255, 255],
-      },
-      alternateRowStyles: {
-        fillColor: [240, 240, 240],
-      },
-      theme: "grid",
-    });
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 20,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [17, 55, 91], textColor: [255, 255, 255] },
+    alternateRowStyles: { fillColor: [240, 240, 240] },
+    theme: "grid",
+  });
 
-    doc.save("trip_report.pdf");
-  };
-  // print
-  const printTripsTable = () => {
-    const actionColumns = document.querySelectorAll(".action_column");
-    actionColumns.forEach((col) => (col.style.display = "none"));
+  doc.save("trip_report.pdf");
+};
 
-    const printContent = document.querySelector("table").outerHTML;
-    const WinPrint = window.open("", "", "width=900,height=650");
+// Print Function
+const printTripsTable = () => {
+  // Generate table HTML from filteredTrips (ignore pagination)
+  let tableHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>SL.</th>
+          <th>Date</th>
+          <th>TripId</th>
+          <th>Customer</th>
+          <th>TransportType</th>
+          <th>VehicleNo</th>
+          <th>Vendor</th>
+          <th>Trip & Destination</th>
+          <th>TripRent</th>
+          <th>TripCost</th>
+          <th>Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
 
-    WinPrint.document.write(`
+  filteredTrips.forEach((dt, index) => {
+    const totalProfit = (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0);
+    const tripDestination = `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`;
+
+    tableHTML += `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${tableFormatDate(dt.date)}</td>
+        <td>${dt.trip_id}</td>
+        <td>${dt.customer || "N/A"}</td>
+        <td>${dt.transport_type?.replace("_", " ") || "N/A"}</td>
+        <td>${dt.vehicle_no || "N/A"}</td>
+        <td>${dt.vendor_name || "N/A"}</td>
+        <td>${tripDestination}</td>
+        <td>${dt.total_rent || 0}</td>
+        <td>${dt.total_exp || 0}</td>
+        <td>${totalProfit}</td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `</tbody></table>`;
+
+  const WinPrint = window.open("", "", "width=900,height=650");
+  WinPrint.document.write(`
     <html>
-    <head>
-      <title>Print</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        thead { background-color: #11375B; color: white; }
-        tbody tr:nth-child(even) { background-color: #f3f4f6; }
-      </style>
-    </head>
-    <body>
-      <h3>Trip Report</h3>
-      ${printContent}
-    </body>
+      <head>
+        <title>Print</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { width: 100%; border-collapse: collapse; }
+          th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+          thead { background-color: #11375B; color: white; }
+          tbody tr:nth-child(even) { background-color: #f3f4f6; }
+        </style>
+      </head>
+      <body>
+        <h3>Trip Report</h3>
+        ${tableHTML}
+      </body>
     </html>
   `);
 
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
-    WinPrint.close();
+  WinPrint.document.close();
+  WinPrint.focus();
+  WinPrint.print();
+  WinPrint.close();
+};
 
-    actionColumns.forEach((col) => (col.style.display = ""));
-  };
 
   // delete by id
   const handleDelete = async (id) => {
@@ -332,7 +365,7 @@ const TripList = () => {
           <div className="mt-3 md:mt-0">
             <span className="text-primary font-semibold pr-3">Search: </span>
             <input
-            value={searchTerm}
+              value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
@@ -355,35 +388,47 @@ const TripList = () => {
             )}
           </div>
         </div>
-        {/* Conditional Filter Section */}
+        {/* Conditional Filter Section */}        
         {showFilter && (
-          <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+          <div className="flex flex-col md:flex-row items-stretch gap-4 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300">
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
 
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
+            {/* customer select */}
             <select
               value={selectedCustomer}
               onChange={(e) => {
                 setSelectedCustomer(e.target.value)
                 setCurrentPage(1);
               }}
-              className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+              className=" flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
             >
               <option value="">Select Customer</option>
               {customers.map((c) => (
@@ -392,31 +437,33 @@ const TripList = () => {
                 </option>
               ))}
             </select>
+
+            {/* transport select */}
             <select
               value={transportType}
               onChange={(e) => {
                 setTransportType(e.target.value);
                 setCurrentPage(1);
               }}
-              className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+              className="flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
             >
               <option value="">All Transport</option>
               <option value="own_transport">Own Transport</option>
               <option value="vendor_transport">Vendor Transport</option>
             </select>
 
-            <div className="w-xs">
+            <div className="md:w-28 flex-shrink-0">
               <button
                 onClick={() => {
-                  setStartDate("");
-                  setEndDate("");
+                  setStartDate(null);
+                  setEndDate(null);
                   setSelectedCustomer("");
+                  setTransportType("");
                   setShowFilter(false);
-                  setTransportType("")
                 }}
-                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+                className="w-full bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-2 py-2 rounded-md shadow flex items-center justify-center gap-2 transition-all duration-300"
               >
-                Clear
+                <IoIosRemoveCircle /> Clear
               </button>
             </div>
           </div>
@@ -462,7 +509,7 @@ const TripList = () => {
                         <td className="p-2 font-bold">
                           {indexOfFirstItem + index + 1}
                         </td>
-                        <td className="p-2">{dt?.date}</td>
+                        <td className="p-2">{tableFormatDate(dt?.date)}</td>
                         <td className="p-2">{dt?.trip_id}</td>
                         <td className="p-2">
                           <p>{dt.customer}</p>
@@ -476,7 +523,7 @@ const TripList = () => {
                           <p>{dt?.vehicle_no}</p>
                         </td>
                         <td className="p-2">
-                          <p>{dt.vendor_name? dt.vendor_name: "N/A"}</p>
+                          <p>{dt.vendor_name ? dt.vendor_name : "N/A"}</p>
                         </td>
                         <td className="p-2">
                           <p>Load: {dt.load_point}</p>
@@ -587,7 +634,7 @@ const TripList = () => {
                   <p className="w-48">Trip type</p> <p>{selectedTrip.trip_type}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load? selectedTrip.additional_load: "N/A"}</p>
+                  <p className="w-48">Additional Load</p> <p>{selectedTrip.additional_load ? selectedTrip.additional_load : "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
@@ -597,37 +644,37 @@ const TripList = () => {
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2">
                   <p className="w-48">Driver Mobile</p>{" "}
-                  <p>{selectedTrip.driver_mobile? selectedTrip.driver_mobile: "N/A"}</p>
+                  <p>{selectedTrip.driver_mobile ? selectedTrip.driver_mobile : "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Advance</p>{" "}
-                  <p>{selectedTrip.driver_advance? selectedTrip.driver_advance:0}</p>
+                  <p>{selectedTrip.driver_advance ? selectedTrip.driver_advance : 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Commission</p>{" "}
-                  <p>{selectedTrip.driver_commission? selectedTrip.driver_commission:0}</p>
+                  <p>{selectedTrip.driver_commission ? selectedTrip.driver_commission : 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Fuel Cost</p>{" "}
-                  <p>{selectedTrip.fuel_cost? selectedTrip.fuel_cost:0}</p>
+                  <p>{selectedTrip.fuel_cost ? selectedTrip.fuel_cost : 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Callan cost</p>{" "}
-                  <p>{selectedTrip.callan_cost ? selectedTrip.callan_cost: 0}</p>
+                  <p>{selectedTrip.callan_cost ? selectedTrip.callan_cost : 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Others Cost</p>{" "}
-                  <p>{selectedTrip.others_cost? selectedTrip.others_cost: 0}</p>
+                  <p>{selectedTrip.others_cost ? selectedTrip.others_cost : 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Vendor Name</p>{" "}
-                  <p>{selectedTrip.vendor_name? selectedTrip.vendor_name: "N/A"}</p>
+                  <p>{selectedTrip.vendor_name ? selectedTrip.vendor_name : "N/A"}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Vehicle Number</p>{" "}
@@ -651,15 +698,15 @@ const TripList = () => {
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Due Amount</p>{" "}
-                  <p>{selectedTrip.due_amount? selectedTrip.due_amount:"N/A"}</p>
+                  <p>{selectedTrip.due_amount ? selectedTrip.due_amount : "N/A"}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost? selectedTrip.additional_cost: 0}</p>
+                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost ? selectedTrip.additional_cost : 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Advance</p> <p>{selectedTrip.advance? selectedTrip.advance: 0}</p>
+                  <p className="w-48">Advance</p> <p>{selectedTrip.advance ? selectedTrip.advance : 0}</p>
                 </li>
               </ul>
               <div className="flex justify-end mt-10">

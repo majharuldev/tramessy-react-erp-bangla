@@ -7,6 +7,8 @@ import { FiFilter } from "react-icons/fi";
 import Pagination from "../../components/Shared/Pagination";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 // Extend dayjs with isBetween plugin
 dayjs.extend(isBetween);
 
@@ -56,12 +58,12 @@ export default function FuelReport() {
         route: `${trip.load_point || ""} to ${trip.unload_point || ""}`,
         fuel_cost: parseFloat(trip.fuel_cost) || 0,
         total_rent: parseFloat(trip.total_rent) || 0,
-        fuel_percentage: trip.total_rent > 0 
+        fuel_percentage: trip.total_rent > 0
           ? ((parseFloat(trip.fuel_cost) / parseFloat(trip.total_rent)) * 100).toFixed(2)
           : "N/A",
         status: trip.status || "N/A"
       }));
-    
+
     setReport(fuelReport);
   };
 
@@ -78,20 +80,16 @@ export default function FuelReport() {
 
   // Filter report by date range, vehicle, and search term
   const filteredReport = report.filter((item) => {
-    // Date filter - only apply when both dates are selected
-    if (startDate && endDate) {
-      const itemDate = dayjs(item.date);
-      const start = dayjs(startDate);
-      const end = dayjs(endDate);
-      
-      if (!itemDate.isBetween(start, end, 'day', '[]')) {
-        return false;
-      }
-    } else if (startDate && !endDate) {
-      // If only start date is selected, show items from that date only
-      if (dayjs(item.date).format('YYYY-MM-DD') !== startDate) {
-        return false;
-      }
+    const dtDate = new Date(item.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (start && end) {
+      return dtDate >= start && dtDate <= end;
+    } else if (start) {
+      return dtDate.toDateString() === start.toDateString();
+    } else {
+      return true; // no filter applied
     }
 
     // Vehicle filter
@@ -141,64 +139,64 @@ export default function FuelReport() {
 
   // Handle PDF export
   const handlePdfExport = () => {
-  const doc = new jsPDF();
-  const title = "Fuel Cost Report from Trips";
+    const doc = new jsPDF();
+    const title = "Fuel Cost Report from Trips";
 
-  doc.setFontSize(16);
-  doc.text(title, 14, 15);
+    doc.setFontSize(16);
+    doc.text(title, 14, 15);
 
-  if (startDate || endDate) {
-    doc.setFontSize(10);
-    const dateRangeText = `Date Range: ${startDate || ''} ${endDate ? ' to ' + endDate : ''}`;
-    doc.text(dateRangeText, 14, 22);
-  }
+    if (startDate || endDate) {
+      doc.setFontSize(10);
+      const dateRangeText = `Date Range: ${startDate || ''} ${endDate ? ' to ' + endDate : ''}`;
+      doc.text(dateRangeText, 14, 22);
+    }
 
-  const headers = [
-    ["Date", "Ref ID", "Vehicle", "Driver", "Customer", "Route", "Fuel Cost", "Total Rent", "Fuel %"]
-  ];
+    const headers = [
+      ["Date", "Ref ID", "Vehicle", "Driver", "Customer", "Route", "Fuel Cost", "Total Rent", "Fuel %"]
+    ];
 
-  const data = filteredReport.map(item => [
-    item.date,
-    item.ref_id,
-    item.vehicle,
-    item.driver,
-    item.customer,
-    item.route,
-    item.fuel_cost.toFixed(2),
-    item.total_rent.toFixed(2),
-    item.fuel_percentage + '%'
-  ]);
+    const data = filteredReport.map(item => [
+      item.date,
+      item.ref_id,
+      item.vehicle,
+      item.driver,
+      item.customer,
+      item.route,
+      item.fuel_cost.toFixed(2),
+      item.total_rent.toFixed(2),
+      item.fuel_percentage + '%'
+    ]);
 
-  autoTable(doc, {
-    head: headers,
-    body: data,
-    startY: 30,
-    theme: 'grid',
-    styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
-    headStyles: { fillColor: [17, 55, 91], textColor: 255, fontStyle: 'bold' },
-    foot: [
-      ['', '', '', '', '', 'Total:', totals.totalFuelCost.toFixed(2), totals.totalRent.toFixed(2), '']
-    ],
-    footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
-  });
+    autoTable(doc, {
+      head: headers,
+      body: data,
+      startY: 30,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
+      headStyles: { fillColor: [17, 55, 91], textColor: 255, fontStyle: 'bold' },
+      foot: [
+        ['', '', '', '', '', 'Total:', totals.totalFuelCost.toFixed(2), totals.totalRent.toFixed(2), '']
+      ],
+      footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
+    });
 
-  doc.save('fuel_trip_report.pdf');
-};
+    doc.save('fuel_trip_report.pdf');
+  };
   // Handle Excel export
   const handleExcelExport = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
-    
+
     // Headers
     csvContent += "Date,Ref ID,Vehicle,Driver,Customer,Route,Fuel Cost,Total Rent,Fuel %\n";
-    
+
     // Data
     filteredReport.forEach(item => {
       csvContent += `${item.date},${item.ref_id},${item.vehicle},${item.driver},${item.customer},"${item.route}",${item.fuel_cost.toFixed(2)},${item.total_rent.toFixed(2)},${item.fuel_percentage}%\n`;
     });
-    
+
     // Add totals row
     csvContent += `,,,,,Total,${totals.totalFuelCost.toFixed(2)},${totals.totalRent.toFixed(2)},\n`;
-    
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -209,9 +207,9 @@ export default function FuelReport() {
   };
 
   // Simple print function
-const handlePrint = () => {
-  // Generate table rows for all filtered data
-  const rowsHtml = filteredReport.map(item => `
+  const handlePrint = () => {
+    // Generate table rows for all filtered data
+    const rowsHtml = filteredReport.map(item => `
     <tr>
       <td style="border:1px solid #ddd;padding:6px;text-align:center">${item.date}</td>
       <td style="border:1px solid #ddd;padding:6px;text-align:center">${item.ref_id}</td>
@@ -224,8 +222,8 @@ const handlePrint = () => {
     </tr>
   `).join("");
 
-  // Totals row
-  const totalsRow = `
+    // Totals row
+    const totalsRow = `
     <tr style="font-weight:bold;background:#f0f0f0">
       <td colspan="6" style="border:1px solid #ddd;padding:6px;text-align:right">Total:</td>
       <td style="border:1px solid #ddd;padding:6px;text-align:right">${totals.totalFuelCost.toFixed(2)}</td>
@@ -233,7 +231,7 @@ const handlePrint = () => {
     </tr>
   `;
 
-  const html = `
+    const html = `
     <table style="width:100%;border-collapse:collapse">
       <thead style="background:#11375B;color:white">
         <tr>
@@ -256,8 +254,8 @@ const handlePrint = () => {
     </table>
   `;
 
-  const WinPrint = window.open("", "", "width=900,height=650");
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650");
+    WinPrint.document.write(`
     <html>
       <head>
         <title>Fuel Trip Report</title>
@@ -269,16 +267,16 @@ const handlePrint = () => {
       </body>
     </html>
   `);
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-  WinPrint.close();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
 
 
   return (
     <div className="md:p-2">
-      <div 
+      <div
         ref={reportRef}
         className="w-xs md:w-full overflow-hidden overflow-x-auto max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 md:p-8 border border-gray-200"
       >
@@ -300,26 +298,26 @@ const handlePrint = () => {
         {/* Export and Search */}
         <div className="md:flex justify-between items-center">
           <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
-            <button 
+            <button
               onClick={handleExcelExport}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer flex items-center gap-2"
             >
               <FaFileExcel /> Excel
             </button>
-            <button 
+            <button
               onClick={handlePdfExport}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer flex items-center gap-2"
             >
               <FaFilePdf /> PDF
             </button>
-            <button 
+            <button
               onClick={handlePrint}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer flex items-center gap-2"
             >
               Print
             </button>
           </div>
-          
+
           <div className="mt-3 md:mt-0 relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FaSearch className="text-gray-400" />
@@ -332,48 +330,60 @@ const handlePrint = () => {
               className="border border-gray-300 rounded-md outline-none text-sm py-2 pl-10 pr-5 w-full md:w-64"
             />
           </div>
-           {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-9 top-[6.7rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+          {/*  Clear button */}
+          {searchTerm && (
+            <button
+              onClick={() => {
+                setSearchTerm("");
+                setCurrentPage(1);
+              }}
+              className="absolute right-9 top-[6.7rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="relative w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
 
-            <div className="relative w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              {/* <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label> */}
               <select
                 value={selectedVehicle}
                 onChange={(e) => setSelectedVehicle(e.target.value)}
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+                className=" w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
               >
                 <option value="">All Vehicles</option>
                 {getAvailableVehicles().map(vehicle => (
@@ -387,7 +397,7 @@ const handlePrint = () => {
                 onClick={clearFilters}
                 className="bg-primary text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FiFilter/>Clear 
+                <FiFilter />Clear
               </button>
             </div>
           </div>
@@ -421,7 +431,7 @@ const handlePrint = () => {
                 {currentItems.length > 0 ? (
                   currentItems.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50 transition-all border border-gray-200">
-                      <td className="p-3">{item.date}</td>
+                      <td className="p-3">{tableFormatDate(item.date)}</td>
                       <td className="p-3">{item.ref_id}</td>
                       <td className="p-3">{item.vehicle}</td>
                       <td className="p-3">{item.driver}</td>
@@ -461,7 +471,7 @@ const handlePrint = () => {
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={(page) => setCurrentPage(page)}
-            maxVisible={8} 
+            maxVisible={8}
           />
         )}
       </div>

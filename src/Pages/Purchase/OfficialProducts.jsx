@@ -9,6 +9,8 @@ import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
@@ -359,24 +361,36 @@ const exportPDF = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-              />
-            </div>
+            <div className="flex-1 min-w-0">
+                         <DatePicker
+                           selected={startDate}
+                           onChange={(date) => setStartDate(date)}
+                           selectsStart
+                           startDate={startDate}
+                           endDate={endDate}
+                           dateFormat="dd/MM/yyyy"
+                           placeholderText="DD/MM/YYYY"
+                           locale="en-GB"
+                           className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                           isClearable
+                         />
+                       </div>
+           
+                       <div className="flex-1 min-w-0">
+                         <DatePicker
+                           selected={endDate}
+                           onChange={(date) => setEndDate(date)}
+                           selectsEnd
+                           startDate={startDate}
+                           endDate={endDate}
+                           minDate={startDate}
+                           dateFormat="dd/MM/yyyy"
+                           placeholderText="DD/MM/YYYY"
+                           locale="en-GB"
+                           className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                           isClearable
+                         />
+                       </div>
            
             <div className="">
               <button
@@ -426,7 +440,7 @@ const exportPDF = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}.
                   </td>
-                  <td className="p-2">{dt.date}</td>
+                  <td className="p-2">{tableFormatDate(dt.date)}</td>
                   <td className="p-2">{dt.id}</td>
                   <td className="p-2">{dt.supplier_name}</td>
                 

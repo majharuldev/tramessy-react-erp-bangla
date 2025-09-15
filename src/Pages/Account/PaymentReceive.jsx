@@ -1,21 +1,22 @@
 
 import axios from "axios";
-import { format, isAfter, isBefore, isEqual, parseISO } from "date-fns";
+import { format, isAfter, isBefore, isEqual, isSameDay, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
 import { FaFilter, FaPen, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { FiFilter } from "react-icons/fi";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
+import DatePicker from "react-datepicker";
 
 const PaymentReceive = () => {
   const [payment, setPayment] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [showFilter, setShowFilter] = useState(false);
   const [filteredPayment, setFilteredPayment] = useState([]);
-  
+
   // Fetch payment data
   useEffect(() => {
     axios
@@ -33,40 +34,45 @@ const PaymentReceive = () => {
       });
   }, []);
 
-   // filter logic
+  const sortedPayment = [...payment].sort((a, b) => new Date(b.date) - new Date(a.date));
+  // filter logic
   useEffect(() => {
     if (!startDate && !endDate) {
       setFilteredPayment(payment);
       return;
     }
 
-    const start = startDate ? parseISO(startDate) : null;
-    const end = endDate ? parseISO(endDate) : null;
-
-    const result = payment.filter((item) => {
+    const result = sortedPayment.filter((item) => {
       if (!item.date) return false;
-      const itemDate = parseISO(item.date);
+      const itemDate = new Date(item.date);
+// যদি শুধু startDate দেওয়া হয় → সেই দিনের ডেটা
+    if (startDate && !endDate) {
+      return isSameDay(itemDate, startDate);
+    }
 
-      if (start && end) {
-        return (
-          (isEqual(itemDate, start) || isAfter(itemDate, start)) &&
-          (isEqual(itemDate, end) || isBefore(itemDate, end))
-        );
-      } else if (start) {
-        return isEqual(itemDate, start) || isAfter(itemDate, start);
-      } else if (end) {
-        return isEqual(itemDate, end) || isBefore(itemDate, end);
-      }
+    // যদি শুধু endDate দেওয়া হয় → সেই দিনের ডেটা
+    if (endDate && !startDate) {
+      return isSameDay(itemDate, endDate);
+    }
+
+    // যদি দুইটাই দেওয়া হয় → range এর মধ্যে
+   if (startDate && endDate) {
+  return (
+    (isAfter(itemDate, startDate) || isSameDay(itemDate, startDate)) &&
+    (isBefore(itemDate, endDate) || isSameDay(itemDate, endDate))
+  );
+}
+
       return true;
     });
 
     setFilteredPayment(result);
   }, [startDate, endDate, payment]);
   // total amount footer
-const totalAmount = filteredPayment.reduce(
-  (sum, item) => sum + Number(item.amount || 0),
-  0
-);
+  const totalAmount = filteredPayment.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -75,17 +81,7 @@ const totalAmount = filteredPayment.reduce(
   const currentPayments = filteredPayment.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredPayment.length / itemsPerPage);
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  const handlePageClick = (number) => {
-    setCurrentPage(number);
-  };
 
   // filter clear func
   const handleClearFilter = () => {
@@ -107,13 +103,13 @@ const totalAmount = filteredPayment.reduce(
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <div className="mt-3 md:mt-0 flex gap-2">
-                                    <button
-                                      onClick={() => setShowFilter((prev) => !prev)}
-                                      className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-                                    >
-                                      <FaFilter /> Filter
-                                    </button>
-                                  </div>
+              <button
+                onClick={() => setShowFilter((prev) => !prev)}
+                className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FaFilter /> Filter
+              </button>
+            </div>
             <Link to="/tramessy/account/PaymentReceiveForm">
               <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <FaPlus /> Recieve
@@ -121,40 +117,49 @@ const totalAmount = filteredPayment.reduce(
             </Link>
           </div>
         </div>
-           {/* filter */}
-                {showFilter && (
-                          <div className="md:flex items-center gap-5 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-                            <div className="relative w-full">
-                              <label className="block mb-1 text-sm font-medium">
-                                Start Date
-                              </label>
-                              <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-                              />
-                            </div>
-                            <div className="relative w-full">
-                              <label className="block mb-1 text-sm font-medium">End Date</label>
-                              <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-                              />
-                            </div>
-                            <div className=" mt-5">
-                              <button
-                                onClick={handleClearFilter}
-                                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-                              >
-                                <FiFilter/> Clear
-                              </button>
-                            </div>
-                          </div>
-                        )}
-        
+        {/* filter */}
+        {showFilter && (
+          <div className="md:flex items-center gap-5 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
+              />
+            </div>
+            <div className=" ">
+              <button
+                onClick={handleClearFilter}
+                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FiFilter /> Clear
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="mt-5 overflow-x-auto rounded-xl">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-[#11375B] text-white capitalize text-sm">
@@ -202,27 +207,27 @@ const totalAmount = filteredPayment.reduce(
                 </tr>
               ))}
             </tbody>
-              {/* ✅ মোট যোগফল row */}
-    {currentPayments.length > 0 && (
-      <tfoot className="bg-gray-100 font-bold">
-        <tr>
-          <td colSpan="5" className="text-right p-2">Total:</td>
-          <td className="p-2">{totalAmount}</td>
-          <td colSpan="5"></td>
-        </tr>
-      </tfoot>
-    )}
+            {/* ✅ মোট যোগফল row */}
+            {currentPayments.length > 0 && (
+              <tfoot className="bg-gray-100 font-bold">
+                <tr>
+                  <td colSpan="5" className="text-right p-2">Total:</td>
+                  <td className="p-2">{totalAmount}</td>
+                  <td colSpan="5"></td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
         {/* pagination */}
         {currentPayments.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
     </div>
   );

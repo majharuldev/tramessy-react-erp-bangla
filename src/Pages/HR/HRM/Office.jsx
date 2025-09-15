@@ -12,6 +12,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { tableFormatDate } from "../../../components/Shared/formatDate";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -308,7 +309,7 @@ const printOfficeTable = () => {
                   <td className="p-2 font-bold">
                     {indexOfFirstItem + index + 1}
                   </td>
-                  <td className="p-2">{dt.date}</td>
+                  <td className="p-2">{tableFormatDate(dt.date)}</td>
                   <td className="p-2">{dt.branch_name}</td>
                   <td className="p-2">{dt.address}</td>
                   <td className="p-2">{dt.opening_balance}</td>

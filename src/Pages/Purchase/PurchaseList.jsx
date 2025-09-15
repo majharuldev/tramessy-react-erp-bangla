@@ -9,6 +9,8 @@ import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
@@ -38,49 +40,49 @@ const PurchaseList = () => {
         setLoading(false);
       });
   }, []);
- // state
-const [vehicleFilter, setVehicleFilter] = useState("");
+  // state
+  const [vehicleFilter, setVehicleFilter] = useState("");
 
-// Filter by date
-const filtered = purchase.filter((dt) => {
-  const dtDate = new Date(dt.date);
-  const start = startDate ? new Date(startDate) : null;
-  const end = endDate ? new Date(endDate) : null;
+  // Filter by date
+  const filtered = purchase.filter((dt) => {
+    const dtDate = new Date(dt.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
 
-  if (start && end) {
-    return dtDate >= start && dtDate <= end;
-  } else if (start) {
-    return dtDate.toDateString() === start.toDateString();
-  } else {
-    return true; // no filter applied
-  }
-});
+    if (start && end) {
+      return dtDate >= start && dtDate <= end;
+    } else if (start) {
+      return dtDate.toDateString() === start.toDateString();
+    } else {
+      return true; // no filter applied
+    }
+  });
 
-// Vehicle filter apply
-const vehicleFiltered = filtered.filter((dt) => {
-  if (vehicleFilter) {
-    return dt.vehicle_no === vehicleFilter;
-  }
-  return true;
-});
+  // Vehicle filter apply
+  const vehicleFiltered = filtered.filter((dt) => {
+    if (vehicleFilter) {
+      return dt.vehicle_no === vehicleFilter;
+    }
+    return true;
+  });
 
-// Search (Product ID, Supplier, Vehicle, Driver)
-const filteredPurchase = vehicleFiltered.filter((dt) => {
-  // শুধু এই দুইটা ক্যাটেগরি দেখানোর জন্য
-  if (!(dt.category === "engine_oil" || dt.category === "parts")) {
-    return false;
-  }
-  const term = searchTerm.toLowerCase();
-  return (
-    dt.id?.toString().toLowerCase().includes(term) ||
-    dt.supplier_name?.toLowerCase().includes(term) ||
-    dt.vehicle_no?.toLowerCase().includes(term) ||
-    dt.driver_name?.toLowerCase().includes(term)
-  );
-});
+  // Search (Product ID, Supplier, Vehicle, Driver)
+  const filteredPurchase = vehicleFiltered.filter((dt) => {
+    // শুধু এই দুইটা ক্যাটেগরি দেখানোর জন্য
+    if (!(dt.category === "engine_oil" || dt.category === "parts")) {
+      return false;
+    }
+    const term = searchTerm.toLowerCase();
+    return (
+      dt.id?.toString().toLowerCase().includes(term) ||
+      dt.supplier_name?.toLowerCase().includes(term) ||
+      dt.vehicle_no?.toLowerCase().includes(term) ||
+      dt.driver_name?.toLowerCase().includes(term)
+    );
+  });
 
-// Vehicle No dropdown unique values
-const uniqueVehicles = [...new Set(purchase.map((p) => p.vehicle_no))];
+  // Vehicle No dropdown unique values
+  const uniqueVehicles = [...new Set(purchase.map((p) => p.vehicle_no))];
   // view car by id
   const handleViewCar = async (id) => {
     try {
@@ -129,79 +131,79 @@ const uniqueVehicles = [...new Set(purchase.map((p) => p.vehicle_no))];
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Purchase List");
-    
+
     // Generate Excel file
     XLSX.writeFile(workbook, "Purchase_List.xlsx");
     toast.success("Excel file downloaded successfully!");
   };
 
   // PDF Export Function
-const exportPDF = () => {
-  const doc = new jsPDF();
+  const exportPDF = () => {
+    const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("Purchase List", 14, 15);
+    doc.setFontSize(18);
+    doc.text("Purchase List", 14, 15);
 
-  if (startDate || endDate) {
-    doc.setFontSize(10);
-    doc.text(
-      `Date Range: ${startDate || "Start"} to ${endDate || "End"}`,
-      14,
-      22
-    );
-  }
+    if (startDate || endDate) {
+      doc.setFontSize(10);
+      doc.text(
+        `Date Range: ${startDate || "Start"} to ${endDate || "End"}`,
+        14,
+        22
+      );
+    }
 
-  // শুধু Action বাদ দিয়ে table data তৈরি
-  const tableData = filteredPurchase.map((item, index) => [
-    index + 1,
-    item.id,
-    item.supplier_name,
-    item.driver_name !== "null" ? item.driver_name : "N/A",
-    item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
-    item.category,
-    item.item_name,
-    item.quantity,
-    item.unit_price,
-    item.purchase_amount,
-  ]);
+    // শুধু Action বাদ দিয়ে table data তৈরি
+    const tableData = filteredPurchase.map((item, index) => [
+      index + 1,
+      item.id,
+      item.supplier_name,
+      item.driver_name !== "null" ? item.driver_name : "N/A",
+      item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
+      item.category,
+      item.item_name,
+      item.quantity,
+      item.unit_price,
+      item.purchase_amount,
+    ]);
 
-  autoTable(doc, {
-    head: [
-      [
-        "SL",
-        "Product ID",
-        "Supplier",
-        "Driver",
-        "Vehicle No",
-        "Category",
-        "Item",
-        "Qty",
-        "Unit Price",
-        "Total",
+    autoTable(doc, {
+      head: [
+        [
+          "SL",
+          "Product ID",
+          "Supplier",
+          "Driver",
+          "Vehicle No",
+          "Category",
+          "Item",
+          "Qty",
+          "Unit Price",
+          "Total",
+        ],
       ],
-    ],
-    body: tableData,
-    startY: 30,
-    theme: "grid",
-    headStyles: {
-      fillColor: [17, 55, 91],
-      textColor: 255,
-    },
-    styles: {
-      fontSize: 8,
-      cellPadding: 2,
-    },
-    margin: { top: 30 },
-  });
+      body: tableData,
+      startY: 30,
+      theme: "grid",
+      headStyles: {
+        fillColor: [17, 55, 91],
+        textColor: 255,
+      },
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      margin: { top: 30 },
+    });
 
-  doc.save("Purchase_List.pdf");
-  toast.success("PDF file downloaded successfully!");
-};
+    doc.save("Purchase_List.pdf");
+    toast.success("PDF file downloaded successfully!");
+  };
 
   // Print Function
-const printTable = () => {
-  // শুধু filtered data ব্যবহার
-  const tableHeader = `
+  const printTable = () => {
+    // শুধু filtered data ব্যবহার
+    const tableHeader = `
     <thead>
       <tr>
         <th>SL</th>
@@ -218,9 +220,9 @@ const printTable = () => {
     </thead>
   `;
 
-  const tableRows = filteredPurchase
-    .map(
-      (item, index) => `
+    const tableRows = filteredPurchase
+      .map(
+        (item, index) => `
         <tr>
           <td>${index + 1}</td>
           <td>${item.id}</td>
@@ -234,13 +236,13 @@ const printTable = () => {
           <td>${item.purchase_amount}</td>
         </tr>
       `
-    )
-    .join("");
+      )
+      .join("");
 
-  const printContent = `<table>${tableHeader}<tbody>${tableRows}</tbody></table>`;
+    const printContent = `<table>${tableHeader}<tbody>${tableRows}</tbody></table>`;
 
-  const printWindow = window.open("", "", "width=1000,height=700");
-  printWindow.document.write(`
+    const printWindow = window.open("", "", "width=1000,height=700");
+    printWindow.document.write(`
     <html>
       <head>
         <title>Purchase List</title>
@@ -269,11 +271,11 @@ const printTable = () => {
       </body>
     </html>
   `);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
-  printWindow.close();
-};
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
 
   return (
     <div className=" md:p-2">
@@ -332,56 +334,68 @@ const printTable = () => {
               placeholder="Search by Product ..."
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
-             {/*  Clear button */}
-    {searchTerm && (
-      <button
-        onClick={() => {
-          setSearchTerm("");
-          setCurrentPage(1);
-        }}
-        className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
-      >
-        ✕
-      </button>
-    )}
+            {/*  Clear button */}
+            {searchTerm && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-5 top-[5.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex items-center gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
             <select
-  value={vehicleFilter}
-  onChange={(e) => {
-    setVehicleFilter(e.target.value);
-    setCurrentPage(1);
-  }}
-  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
->
-  <option value="">All Vehicle No</option>
-  {uniqueVehicles.map((v, index) => (
-    <option key={index} value={v}>
-      {v}
-    </option>
-  ))}
-</select>
+              value={vehicleFilter}
+              onChange={(e) => {
+                setVehicleFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="mt-1 flex-1 min-w-0 text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+            >
+              <option value="">All Vehicle No</option>
+              {uniqueVehicles.map((v, index) => (
+                <option key={index} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
             <div className="">
               <button
                 onClick={() => {
@@ -392,7 +406,7 @@ const printTable = () => {
                 }}
                 className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-2 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear 
+                <FaFilter /> Clear
               </button>
             </div>
           </div>
@@ -418,74 +432,74 @@ const printTable = () => {
               </tr>
             </thead>
             <tbody className="text-primary">
-              { currentPurchase.length === 0 ? (
+              {currentPurchase.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
                     No purchase found
                   </td>
-                  </tr>)
-              :(currentPurchase?.map((dt, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-50 transition-all border border-gray-200"
-                >
-                  <td className="p-2 font-bold">
-                    {indexOfFirstItem + index + 1}.
-                  </td>
-                   <td className="p-2">{dt.date}</td>
-                  <td className="p-2">{dt.id}</td>
-                  <td className="p-2">{dt.supplier_name}</td>
-                  <td className="px-2 py-2">{dt.driver_name!== "null"?dt.driver_name: "N/A"}</td>
-                  <td className="px-2 py-2">{dt.vehicle_category!== "null"?dt.vehicle_category:"N/A"}</td>
-                  <td className="px-2 py-2">{dt.vehicle_no!== "null"?dt.vehicle_no:"N/A"}</td>
-                  <td className="p-2">{dt.category}</td>
-                  <td className="p-2">{dt.item_name}</td>
-                  <td className="p-2">{dt.quantity}</td>
-                  {/* <td className="p-2">{dt.unit_price}</td> */}
-                  <td className="p-2">{dt.purchase_amount}</td>
-                  {/* <td className="p-2">
+                </tr>)
+                : (currentPurchase?.map((dt, index) => (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition-all border border-gray-200"
+                  >
+                    <td className="p-2 font-bold">
+                      {indexOfFirstItem + index + 1}.
+                    </td>
+                    <td className="p-2">{tableFormatDate(dt.date)}</td>
+                    <td className="p-2">{dt.id}</td>
+                    <td className="p-2">{dt.supplier_name}</td>
+                    <td className="px-2 py-2">{dt.driver_name !== "null" ? dt.driver_name : "N/A"}</td>
+                    <td className="px-2 py-2">{dt.vehicle_category !== "null" ? dt.vehicle_category : "N/A"}</td>
+                    <td className="px-2 py-2">{dt.vehicle_no !== "null" ? dt.vehicle_no : "N/A"}</td>
+                    <td className="p-2">{dt.category}</td>
+                    <td className="p-2">{dt.item_name}</td>
+                    <td className="p-2">{dt.quantity}</td>
+                    {/* <td className="p-2">{dt.unit_price}</td> */}
+                    <td className="p-2">{dt.purchase_amount}</td>
+                    {/* <td className="p-2">
                     <img
                       src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${dt.bill_image}`}
                       alt=""
                       className="w-20 h-20 rounded-xl"
                     />
                   </td> */}
-                  <td className="px-2 action_column">
-                    <div className="flex gap-1">
-                      <Link
-                        to={`/tramessy/Purchase/update-maintenance/${dt.id}`}
-                      >
-                        <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                          <FaPen className="text-[12px]" />
+                    <td className="px-2 action_column">
+                      <div className="flex gap-1">
+                        <Link
+                          to={`/tramessy/Purchase/update-maintenance/${dt.id}`}
+                        >
+                          <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                            <FaPen className="text-[12px]" />
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() => handleViewCar(dt.id)}
+                          className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaEye className="text-[12px]" />
                         </button>
-                      </Link>
-                      <button
-                        onClick={() => handleViewCar(dt.id)}
-                        className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaEye className="text-[12px]" />
-                      </button>
-                      {/* <button className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                        {/* <button className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer">
                         <FaTrashAlt className="text-[12px]" />
                       </button> */}
-                    </div>
-                  </td>
-                </tr>
-              )))
+                      </div>
+                    </td>
+                  </tr>
+                )))
               }
             </tbody>
           </table>
         </div>
         {/* pagination */}
-      
+
         {currentPurchase.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
       {viewModalOpen && selectedPurchase && (
         <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 p-4">

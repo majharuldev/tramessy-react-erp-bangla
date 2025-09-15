@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
+import { tableFormatDate } from "../components/Shared/formatDate";
 const CarList = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -391,7 +392,7 @@ const CarList = () => {
                   <td className="p-2">{driver.address}</td>
                   {/* <td className="p-2">{driver.emergency_contact}</td> */}
                   <td className="p-2">{driver.license}</td>
-                  <td className="p-2">{driver.license_expire_date}</td>
+                  <td className="p-2">{tableFormatDate(driver.license_expire_date)}</td>
                   <td className="p-2">
                     <span className="text-white bg-green-700 px-3 py-1 rounded-md text-xs font-semibold">
                       {driver.status}

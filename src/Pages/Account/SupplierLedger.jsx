@@ -6,6 +6,7 @@ import { MdOutlineArrowDropDown } from "react-icons/md";
 import * as XLSX from "xlsx"; 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const SupplierLedger = () => {
   const [supplies, setSupplies] = useState([]); // Supplier dropdown options
@@ -312,7 +313,7 @@ const closingBalance =
                     {index + 1}.
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
-                    {dt.date}
+                    {tableFormatDate(dt.date)}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
                     {dt.supplier_name}

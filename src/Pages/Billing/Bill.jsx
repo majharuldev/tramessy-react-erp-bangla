@@ -8,6 +8,8 @@ import pdfMake from "pdfmake/build/pdfmake"
 import pdfFonts from "pdfmake/build/vfs_fonts"
 import Pagination from "../../components/Shared/Pagination"
 import CreatableSelect from "react-select/creatable"
+import { tableFormatDate } from "../../components/Shared/formatDate"
+import DatePicker from "react-datepicker"
 
 pdfMake.vfs = pdfFonts.vfs
 
@@ -55,9 +57,9 @@ const Bill = () => {
   }, [])
 
   const customerOptions = customerList.map((customer) => ({
-  value: customer.customer_name,
-  label: customer.customer_name,
-}))
+    value: customer.customer_name,
+    label: customer.customer_name,
+  }))
 
   // Handle click outside the customer search input to close suggestions
   useEffect(() => {
@@ -146,7 +148,7 @@ const Bill = () => {
     setSelectedCustomer(customerName)
     setCustomerSearchTerm(customerName)
     setShowCustomerSuggestions(false)
-    setCurrentPage(1) 
+    setCurrentPage(1)
   }
 
   const numberToWords = (num) => {
@@ -363,8 +365,8 @@ const Bill = () => {
             </thead>
             <tbody>
               ${selectedData
-                .map(
-                  (dt, i) => `
+        .map(
+          (dt, i) => `
                 <tr>
                   <td class="text-center">${dt.id}</td>
                   <td class="text-center">${dt.date}</td>
@@ -374,8 +376,8 @@ const Bill = () => {
                   <td class="text-right">${dt.d_total || 0}</td>
                   <td class="text-right">${(Number.parseFloat(dt.total_rent) || 0) + (Number.parseFloat(dt.d_total) || 0)}</td>
                 </tr>`,
-                )
-                .join("")}
+        )
+        .join("")}
             </tbody>
             <tfoot>
               <tr>
@@ -401,8 +403,8 @@ const Bill = () => {
 
   const handleSubmit = async () => {
     const selectedData = filteredTrips.filter(
-    (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
-  );
+      (dt, i) => selectedRows[dt.id] && dt.status === "Pending"
+    );
     if (!selectedData.length) {
       return toast.error("Please select at least one row for Not submitted.", {
         position: "top-right",
@@ -505,12 +507,12 @@ const Bill = () => {
     }
   }
 
-  const [currentPage, setCurrentPage] = useState(1) 
-const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   const indexOfLastItem = currentPage * itemsPerPage
-const indexOfFirstItem = indexOfLastItem - itemsPerPage
-const currentItems = filteredTrips.slice(indexOfFirstItem, indexOfLastItem)
-const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = filteredTrips.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
 
   if (loading) return <p className="text-center mt-16">Loading...</p>
 
@@ -631,72 +633,65 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
 
         {showFilter && (
           <div className="flex gap-4 border border-gray-300 rounded-md p-5 my-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value)
-                  setCurrentPage(1)
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
-              {startDate && (
-                <button
-                  onClick={() => {
-                    setStartDate("")
-                    setCurrentPage(1)
-                  }}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="Clear start date"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
             </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value)
-                  setCurrentPage(1)
-                }}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
-              {endDate && (
-                <button
-                  onClick={() => {
-                    setEndDate("")
-                    setCurrentPage(1)
-                  }}
-                  className="absolute right-8 top-1.5 text-gray-600 hover:text-gray-900"
-                  aria-label="Clear end date"
-                  type="button"
-                >
-                  &times;
-                </button>
-              )}
             </div>
-            <div className="w-full relative">
-  <CreatableSelect
-    isClearable
-    placeholder="Select or create customer..."
-    value={selectedCustomer ? { value: selectedCustomer, label: selectedCustomer } : null}
-    options={customerOptions}
-    onChange={(newValue) => {
-      setSelectedCustomer(newValue ? newValue.value : "")
-      setCurrentPage(1)
-    }}
-    onCreateOption={(inputValue) => {
-      const newCustomer = { value: inputValue, label: inputValue }
-      setCustomerList((prev) => [...prev, { customer_name: inputValue }])
-      setSelectedCustomer(inputValue)
-    }}
-    className="text-sm"
-  />
-</div>
+            <CreatableSelect
+              isClearable
+              placeholder="Select or create customer..."
+              value={selectedCustomer ? { value: selectedCustomer, label: selectedCustomer } : null}
+              options={customerOptions}
+              onChange={(newValue) => {
+                setSelectedCustomer(newValue ? newValue.value : "")
+                setCurrentPage(1)
+              }}
+              onCreateOption={(inputValue) => {
+                const newCustomer = { value: inputValue, label: inputValue }
+                setCustomerList((prev) => [...prev, { customer_name: inputValue }])
+                setSelectedCustomer(inputValue)
+              }}
+              className="text-sm"
+            />
+            <div className="mt-3 md:mt-0 flex gap-2">
+              <button
+                onClick={() => {
+                  setCurrentPage(1)
+                  setStartDate("")
+                  setEndDate("")
+                  setSelectedCustomer("")
+                  setShowFilter(false)
+                }}
+                className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FaFilter /> Clear
+              </button>
+            </div>
           </div>
         )}
 
@@ -721,7 +716,7 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
               {currentItems.map((dt, index) => (
                 <tr key={index} className="hover:bg-gray-50 transition-all">
                   <td className="border border-gray-700 p-1 font-bold">{dt.id}.</td>
-                  <td className="border border-gray-700 p-1">{dt.date}</td>
+                  <td className="border border-gray-700 p-1">{tableFormatDate(dt.date)}</td>
                   <td className="border border-gray-700 p-1">{dt.driver_name}</td>
                   <td className="border border-gray-700 p-1">{dt.customer}</td>
                   <td className="border border-gray-700 p-1">{dt.vehicle_no}</td>
@@ -743,26 +738,26 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
                     ) : (
                       <span className="inline-block px-2 py-1 text-xs text-green-700 rounded">Submitted</span>
                     )} */}
-                    <td className="border border-gray-700 p-1 text-center ">
-  <div className="flex items-center">
-    <input
-    type="checkbox"
-    className="w-4 h-4"
-    checked={!!selectedRows[dt.id]}
+                  <td className="border border-gray-700 p-1 text-center ">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4"
+                        checked={!!selectedRows[dt.id]}
                         onChange={() => handleCheckBox(dt.id)}
-    disabled={false} 
-  />
-  {dt.status === "Pending" && (
-    <span className=" inline-block px-2  text-xs text-yellow-600 rounded">
-      Not Submitted
-    </span>
-  )}
-  {dt.status === "Approved" && (
-    <span className=" inline-block px-2  text-xs text-green-700 rounded">
-      Submitted
-    </span>
-  )}
-  </div>
+                        disabled={false}
+                      />
+                      {dt.status === "Pending" && (
+                        <span className=" inline-block px-2  text-xs text-yellow-600 rounded">
+                          Not Submitted
+                        </span>
+                      )}
+                      {dt.status === "Approved" && (
+                        <span className=" inline-block px-2  text-xs text-green-700 rounded">
+                          Submitted
+                        </span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -787,13 +782,13 @@ const totalPages = Math.ceil(filteredTrips.length / itemsPerPage)
 
           {/* Pagination */}
           {filteredTrips.length > 0 && totalPages >= 1 && (
-  <Pagination
-    currentPage={currentPage}
-    totalPages={totalPages}
-    onPageChange={(page) => setCurrentPage(page)}
-    maxVisible={8}
-  />
-)}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+              maxVisible={8}
+            />
+          )}
 
           <div className="flex justify-end mt-5">
             <button

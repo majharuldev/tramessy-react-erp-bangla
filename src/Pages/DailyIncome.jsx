@@ -11,6 +11,8 @@ import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import { saveAs } from "file-saver"
 import Pagination from "../components/Shared/Pagination"
+import { tableFormatDate } from "../components/Shared/formatDate"
+import DatePicker from "react-datepicker"
 
 const DailyIncome = () => {
   const [trips, setTrips] = useState([])
@@ -41,132 +43,132 @@ const DailyIncome = () => {
     fetchTrips()
   }, [])
 
-   // customers data   
+  // customers data   
   const [customers, setCustomers] = useState([]);
-    const [selectedCustomer, setSelectedCustomer] = useState("");
-  
-    useEffect(() => {
-      // Fetch customers data
-      axios
-        .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
-        .then((response) => {
-          if (response.data.status === "Success") {
-            setCustomers(response.data.data);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching customers:", error);
-        });
-    }, []);
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+
+  useEffect(() => {
+    // Fetch customers data
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/api/customer/list`)
+      .then((response) => {
+        if (response.data.status === "Success") {
+          setCustomers(response.data.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching customers:", error);
+      });
+  }, []);
 
   // search and filter
- // search off, only filter by date + customer + vehicle
-const filteredIncome = trips.filter((dt) => {
-  const tripDate = new Date(dt.date);
-  const start = startDate ? new Date(startDate) : null;
-  const end = endDate ? new Date(endDate) : null;
+  // search off, only filter by date + customer + vehicle
+  const filteredIncome = trips.filter((dt) => {
+    const tripDate = new Date(dt.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
 
-  const matchesDate =
-    (start && end && tripDate >= start && tripDate <= end) ||
-    (start && tripDate.toDateString() === start.toDateString()) ||
-    (!start && !end);
+    const matchesDate =
+      (start && end && tripDate >= start && tripDate <= end) ||
+      (start && tripDate.toDateString() === start.toDateString()) ||
+      (!start && !end);
 
-  const matchesCustomer =
-    !selectedCustomer || dt.customer?.toLowerCase() === selectedCustomer.toLowerCase()
+    const matchesCustomer =
+      !selectedCustomer || dt.customer?.toLowerCase() === selectedCustomer.toLowerCase()
 
-  // vehicle filter (dropdown বা input field নিলে সেভাবে handle করতে হবে)
-  const matchesVehicle =
-    !selectedVehicle || dt.vehicle_no?.toLowerCase() === selectedVehicle.toLowerCase();
+    // vehicle filter (dropdown বা input field নিলে সেভাবে handle করতে হবে)
+    const matchesVehicle =
+      !selectedVehicle || dt.vehicle_no?.toLowerCase() === selectedVehicle.toLowerCase();
 
-  return matchesDate && matchesCustomer && matchesVehicle;
-});
+    return matchesDate && matchesCustomer && matchesVehicle;
+  });
 
 
   // Correct headers matching your table
   const headers = [
     { label: "#", key: "index" },
     { label: "Date", key: "date" },
-    { label: "Customer", key: "customer" }, 
+    { label: "Customer", key: "customer" },
     { label: "Vehicle", key: "vehicle_no" },
     { label: "Load", key: "load_point" },
     { label: "Unload", key: "unload_point" },
-    { label: "Trip Rent", key: "total_rent" }, 
-    { label: "Expense", key: "total_exp" }, 
+    { label: "Trip Rent", key: "total_rent" },
+    { label: "Expense", key: "total_exp" },
     { label: "Profit", key: "profit" },
   ]
 
   // Correct CSV data mapping
- // CSV data for export
-const csvData = filteredIncome.map((dt, index) => {
-  const totalRent = Number.parseFloat(dt.total_rent ?? "0") || 0
-  const totalExp = Number.parseFloat(dt.total_exp ?? "0") || 0
-  const profit = (totalRent - totalExp).toFixed(2)
+  // CSV data for export
+  const csvData = filteredIncome.map((dt, index) => {
+    const totalRent = Number.parseFloat(dt.total_rent ?? "0") || 0
+    const totalExp = Number.parseFloat(dt.total_exp ?? "0") || 0
+    const profit = (totalRent - totalExp).toFixed(2)
 
-  return {
-    index: index + 1,
-    date: new Date(dt.date).toLocaleDateString("en-GB"),
-    customer: dt.customer,
-    vehicle_no: dt.vehicle_no,
-    load_point: dt.load_point,
-    unload_point: dt.unload_point,
-    total_rent: totalRent.toFixed(2),
-    total_exp: totalExp.toFixed(2),
-    profit: profit,
-  }
-})
+    return {
+      index: index + 1,
+      date: new Date(dt.date).toLocaleDateString("en-GB"),
+      customer: dt.customer,
+      vehicle_no: dt.vehicle_no,
+      load_point: dt.load_point,
+      unload_point: dt.unload_point,
+      total_rent: totalRent.toFixed(2),
+      total_exp: totalExp.toFixed(2),
+      profit: profit,
+    }
+  })
 
 
   // Export Excel function
-const exportExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(csvData)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredTrips")
-  XLSX.writeFile(workbook, "filtered_trips.xlsx")
-}
+  const exportExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(csvData)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredTrips")
+    XLSX.writeFile(workbook, "filtered_trips.xlsx")
+  }
 
   // Export PDF function
- const exportPDF = () => {
-  const doc = new jsPDF()
-  const tableColumn = headers.map((h) => h.label)
-  const tableRows = csvData.map((row) => headers.map((h) => row[h.key]))
+  const exportPDF = () => {
+    const doc = new jsPDF()
+    const tableColumn = headers.map((h) => h.label)
+    const tableRows = csvData.map((row) => headers.map((h) => row[h.key]))
 
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    styles: { font: "helvetica", fontSize: 8 },
-  })
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      styles: { font: "helvetica", fontSize: 8 },
+    })
 
-  doc.save("filtered_trips.pdf")
-}
+    doc.save("filtered_trips.pdf")
+  }
 
   // Print function
-const printTable = () => {
-  const doc = new jsPDF()
-  const tableColumn = headers.map((h) => h.label)
-  const tableRows = csvData.map((row) => headers.map((h) => row[h.key]))
+  const printTable = () => {
+    const doc = new jsPDF()
+    const tableColumn = headers.map((h) => h.label)
+    const tableRows = csvData.map((row) => headers.map((h) => row[h.key]))
 
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    styles: { font: "helvetica", fontSize: 8 },
-  })
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      styles: { font: "helvetica", fontSize: 8 },
+    })
 
-  doc.autoPrint()
-  window.open(doc.output("bloburl"), "_blank")
-}
+    doc.autoPrint()
+    window.open(doc.output("bloburl"), "_blank")
+  }
 
   // মোট যোগফল বের করা
-const totalRent = filteredIncome.reduce(
-  (sum, trip) => sum + Number(trip.total_rent || 0),
-  0
-);
+  const totalRent = filteredIncome.reduce(
+    (sum, trip) => sum + Number(trip.total_rent || 0),
+    0
+  );
 
-const totalExpense = filteredIncome.reduce(
-  (sum, trip) => sum + Number(trip.total_exp || 0),
-  0
-);
+  const totalExpense = filteredIncome.reduce(
+    (sum, trip) => sum + Number(trip.total_exp || 0),
+    0
+  );
 
-const totalProfit = totalRent - totalExpense;
+  const totalProfit = totalRent - totalExpense;
 
   // pagination
   const itemsPerPage = 10
@@ -244,62 +246,77 @@ const totalProfit = totalRent - totalExpense;
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Start date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-            <div className="relative w-full">
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="End date"
-                className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
             <select
-  value={selectedCustomer}
-  onChange={(e) => {setSelectedCustomer(e.target.value)
-    setCurrentPage(1);
-  }}
-  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
->
-  <option value="">Select Customer</option>
-  {customers.map((c) => (
-    <option key={c.id} value={c.customer_name}>
-      {c.customer_name}
-    </option>
-  ))}
-</select>
-<select
-  value={selectedVehicle}
-  onChange={(e) => {
-    setSelectedVehicle(e.target.value);
-    setCurrentPage(1);
-  }}
-  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
->
-  <option value="">Select Vehicle</option>
-  {trips.map((t, i) => (
-    <option key={i} value={t.vehicle_no}>
-      {t.vehicle_no}
-    </option>
-  ))}
-</select>
+              value={selectedCustomer}
+              onChange={(e) => {
+                setSelectedCustomer(e.target.value)
+                setCurrentPage(1);
+              }}
+              className=" flex-1 min-w-0 text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+            >
+              <option value="">Select Customer</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.customer_name}>
+                  {c.customer_name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedVehicle}
+              onChange={(e) => {
+                setSelectedVehicle(e.target.value);
+                setCurrentPage(1);
+              }}
+              className=" flex-1 min-w-0 text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+            >
+              <option value="">Select Vehicle</option>
+              {trips.map((t, i) => (
+                <option key={i} value={t.vehicle_no}>
+                  {t.vehicle_no}
+                </option>
+              ))}
+            </select>
 
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
-                onClick={() => {setCurrentPage(1);
+                onClick={() => {
+                  setCurrentPage(1);
                   setStartDate("");
                   setEndDate("");
                   setSelectedCustomer("");
                   setShowFilter(false);
-                setSelectedVehicle(""); }
+                  setSelectedVehicle("");
+                }
                 }
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
@@ -354,15 +371,15 @@ const totalProfit = totalRent - totalExpense;
                   <tr key={trip.id || index} className="hover:bg-gray-50 transition-all">
                     <td className="px-4 py-4 font-bold">{indexOfFirstItem + index + 1}</td>
                     <td className="px-4 py-4">
-                      {new Date(trip.date).toLocaleDateString("en-GB")} 
+                      {tableFormatDate(trip.date)}
                     </td>
                     <td className="px-4 py-4">{trip.customer}</td>
                     <td className="px-4 py-4">{trip.vehicle_no}</td>
                     <td className="px-4 py-4">{trip.load_point}</td>
                     <td className="px-4 py-4">{trip.unload_point}</td>
-                    <td className="px-4 py-4">{trip.total_rent}</td> 
+                    <td className="px-4 py-4">{trip.total_rent}</td>
                     <td className="px-4 py-4">
-                      {Number(trip.total_exp || 0).toFixed(2)} 
+                      {Number(trip.total_exp || 0).toFixed(2)}
                     </td>
                     <td className="px-4 py-4">
                       {(Number(trip.total_rent || 0) - Number(trip.total_exp || 0)).toFixed(2)}{" "}
@@ -382,27 +399,27 @@ const totalProfit = totalRent - totalExpense;
               )}
             </tbody>
             {/* ✅ মোট যোগফল row */}
-{currentTrips.length > 0 && (
-  <tfoot className="bg-gray-100 font-bold">
-    <tr>
-      <td colSpan="6" className="text-right px-4 py-3">Total:</td>
-      <td className="px-4 py-3">{totalRent.toFixed(2)}</td>
-      <td className="px-4 py-3">{totalExpense.toFixed(2)}</td>
-      <td className="px-4 py-3">{totalProfit.toFixed(2)}</td>
-    </tr>
-  </tfoot>
-)}
+            {currentTrips.length > 0 && (
+              <tfoot className="bg-gray-100 font-bold">
+                <tr>
+                  <td colSpan="6" className="text-right px-4 py-3">Total:</td>
+                  <td className="px-4 py-3">{totalRent.toFixed(2)}</td>
+                  <td className="px-4 py-3">{totalExpense.toFixed(2)}</td>
+                  <td className="px-4 py-3">{totalProfit.toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
         {/* pagination */}
         {currentTrips.length > 0 && totalPages >= 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          maxVisible={8} 
-        />
-      )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxVisible={8}
+          />
+        )}
       </div>
     </main>
   )

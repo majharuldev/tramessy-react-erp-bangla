@@ -7,6 +7,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FaFilter } from "react-icons/fa";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const DriverLedger = () => {
   const [driver, setDriver] = useState([]);
@@ -82,17 +83,38 @@ const DriverLedger = () => {
   const driverNames = [...new Set(driver.map((d) => d.driver_name))];
 
   // Get unique months from data for dropdown
-  const availableMonths = [
-    ...new Set(
-      driver.map((item) => {
-        const date = new Date(item.date);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-          2,
-          "0"
-        )}`;
-      })
-    ),
-  ].sort();
+  // const availableMonths = [
+  //   ...new Set(
+  //     driver.map((item) => {
+  //       const date = new Date(item.date);
+  //       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+  //         2,
+  //         "0"
+  //       )}`;
+  //     })
+  //   ),
+  // ].sort();
+
+  const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const availableMonths = [
+  ...new Set(
+    driver.map((item) => {
+      const date = new Date(item.date);
+      return `${monthNames[date.getMonth()]} ${date.getFullYear()}`; // Month Name + Year
+    })
+  )
+].sort((a, b) => {
+  // Sort by actual date
+  const [monthA, yearA] = a.split(" ");
+  const [monthB, yearB] = b.split(" ");
+  const dateA = new Date(`${monthA} 1, ${yearA}`);
+  const dateB = new Date(`${monthB} 1, ${yearB}`);
+  return dateA - dateB;
+});
 
   // helper function
 const toNumber = (val) => {
@@ -110,8 +132,8 @@ const toNumber = (val) => {
       ? d.driver_name === selectedDriver
       : true;
     const matchesMonth = selectedMonth
-      ? new Date(d.date).toISOString().slice(0, 7) === selectedMonth
-      : true;
+  ? `${monthNames[new Date(d.date).getMonth()]} ${new Date(d.date).getFullYear()}` === selectedMonth
+  : true;
     return matchesDriver && matchesMonth;
   });
 
@@ -654,7 +676,7 @@ const toNumber = (val) => {
             <tbody className="overflow-x-auto">
               {rowsWithBalance.map((item, index) => (
                 <tr key={index}>
-                  <td className="border px-2 py-1">{item.date}</td>
+                  <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
                   <td className="border px-2 py-1">{item.load_point}</td>
                   <td className="border px-2 py-1">{item.unload_point}</td>
                   <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td>

@@ -8,6 +8,9 @@ import { IoIosRemoveCircle } from "react-icons/io";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { tableFormatDate } from "../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
+import { isAfter, isBefore, isSameDay } from "date-fns";
 
 const OfficeLedger = () => {
   const [branch, setBranch] = useState([]);
@@ -44,7 +47,7 @@ const OfficeLedger = () => {
         if (response.data.status === "Success") {
           const data = response.data.data;
           setOfficeList(data);
-          
+
           // Set default branch if available
           if (data.length > 0 && !selectedBranch) {
             setSelectedBranch(data[0].branch_name);
@@ -79,18 +82,24 @@ const OfficeLedger = () => {
       : true;
 
     if (!isBranchMatch) return false;
-
-    const itemDate = new Date(item.date);
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-
-    if (start && end) {
-      return itemDate >= start && itemDate <= end;
-    } else if (start) {
-      return itemDate >= start;
-    } else if (end) {
-      return itemDate <= end;
-    }
+const itemDate = new Date(item.date);
+     // If only startDate is set, match exactly that date
+         if (startDate && !endDate) {
+           return isSameDay(itemDate, startDate);
+         }
+   
+         // If only endDate is set, match exactly that date
+         if (!startDate && endDate) {
+           return isSameDay(itemDate, endDate);
+         }
+   
+         // If both startDate and endDate are set, filter range
+         if (startDate && endDate) {
+         return (
+           (isAfter(itemDate, startDate) || isSameDay(itemDate, startDate)) &&
+           (isBefore(itemDate, endDate) || isSameDay(itemDate, endDate))
+         );
+       }
 
     return true;
   });
@@ -112,76 +121,76 @@ const OfficeLedger = () => {
   const branchDataWithBalance = calculateBalance();
 
   // Closing balance
-const closingBalance =
-  branchDataWithBalance.length > 0
-    ? branchDataWithBalance[branchDataWithBalance.length - 1].runningBalance
-    : openingBalance;
+  const closingBalance =
+    branchDataWithBalance.length > 0
+      ? branchDataWithBalance[branchDataWithBalance.length - 1].runningBalance
+      : openingBalance;
 
 
-    // ================= Excel Export =================
-const exportExcel = () => {
-  const wsData = branchDataWithBalance.map((item, i) => ({
-    SL: i + 1,
-    Date: item.date,
-    Particulars: item.remarks || "--",
-    Mode: item.mode || "--",
-    Destination: item.unload_point || "--",
-    Due: item.due || "--",
-    CashIn: item.cash_in || "--",
-    CashOut: item.cash_out || "--",
-    Balance: item.runningBalance,
-    Ref: item.ref || "--",
-  }));
+  // ================= Excel Export =================
+  const exportExcel = () => {
+    const wsData = branchDataWithBalance.map((item, i) => ({
+      SL: i + 1,
+      Date: item.date,
+      Particulars: item.remarks || "--",
+      Mode: item.mode || "--",
+      Destination: item.unload_point || "--",
+      Due: item.due || "--",
+      CashIn: item.cash_in || "--",
+      CashOut: item.cash_out || "--",
+      Balance: item.runningBalance,
+      Ref: item.ref || "--",
+    }));
 
-  const ws = XLSX.utils.json_to_sheet(wsData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Office Ledger");
-  XLSX.writeFile(wb, `Office_Ledger_${selectedBranch || "All"}.xlsx`);
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Office Ledger");
+    XLSX.writeFile(wb, `Office_Ledger_${selectedBranch || "All"}.xlsx`);
 
-  toast.success("Excel file downloaded!");
-};
+    toast.success("Excel file downloaded!");
+  };
 
-// ================= PDF Export =================
-const exportPDF = () => {
-  const doc = new jsPDF();
+  // ================= PDF Export =================
+  const exportPDF = () => {
+    const doc = new jsPDF();
 
-  doc.setFontSize(16);
-  doc.text(`Office Ledger - ${selectedBranch}`, 14, 15);
+    doc.setFontSize(16);
+    doc.text(`Office Ledger - ${selectedBranch}`, 14, 15);
 
-  autoTable(doc, {
-    head: [[
-      "SL", "Date", "Particulars", "Mode", "Destination", "Due",
-      "CashIn", "CashOut", "Balance", "Ref"
-    ]],
-    body: branchDataWithBalance.map((item, i) => [
-      i + 1,
-      item.date,
-      item.remarks || "--",
-      item.mode || "--",
-      item.unload_point || "--",
-      item.due || "--",
-      item.cash_in || "--",
-      item.cash_out || "--",
-      item.runningBalance,
-      item.ref || "--",
-    ]),
-    startY: 25,
-    theme: "grid",
-    headStyles: {
-      fillColor: [17, 55, 91],
-      textColor: 255,
-    },
-    styles: { fontSize: 8 },
-  });
+    autoTable(doc, {
+      head: [[
+        "SL", "Date", "Particulars", "Mode", "Destination", "Due",
+        "CashIn", "CashOut", "Balance", "Ref"
+      ]],
+      body: branchDataWithBalance.map((item, i) => [
+        i + 1,
+        item.date,
+        item.remarks || "--",
+        item.mode || "--",
+        item.unload_point || "--",
+        item.due || "--",
+        item.cash_in || "--",
+        item.cash_out || "--",
+        item.runningBalance,
+        item.ref || "--",
+      ]),
+      startY: 25,
+      theme: "grid",
+      headStyles: {
+        fillColor: [17, 55, 91],
+        textColor: 255,
+      },
+      styles: { fontSize: 8 },
+    });
 
-  doc.save(`Office_Ledger_${selectedBranch || "All"}.pdf`);
-  toast.success("PDF file downloaded!");
-};
+    doc.save(`Office_Ledger_${selectedBranch || "All"}.pdf`);
+    toast.success("PDF file downloaded!");
+  };
 
-// ================= Print =================
-const printTable = () => {
-  const printWindow = window.open("", "", "width=900,height=650");
-  const tableHTML = `
+  // ================= Print =================
+  const printTable = () => {
+    const printWindow = window.open("", "", "width=900,height=650");
+    const tableHTML = `
     <html>
       <head>
         <title>Office Ledger - ${selectedBranch}</title>
@@ -213,8 +222,8 @@ const printTable = () => {
           </thead>
           <tbody>
             ${branchDataWithBalance
-              .map(
-                (item, i) => `
+        .map(
+          (item, i) => `
               <tr>
                 <td>${i + 1}</td>
                 <td>${item.date}</td>
@@ -227,17 +236,17 @@ const printTable = () => {
                 <td>${item.runningBalance}</td>
                 <td>${item.ref || "--"}</td>
               </tr>`
-              )
-              .join("")}
+        )
+        .join("")}
           </tbody>
         </table>
       </body>
     </html>
   `;
-  printWindow.document.write(tableHTML);
-  printWindow.document.close();
-  printWindow.print();
-};
+    printWindow.document.write(tableHTML);
+    printWindow.document.close();
+    printWindow.print();
+  };
 
   return (
     <main className=" md:p-2 overflow-hidden">
@@ -295,27 +304,36 @@ const printTable = () => {
         {/* Conditional Filter Section */}
         {showFilter && (
           <div className="md:flex items-center gap-5 justify-between border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="relative w-full">
-              <label className="block mb-1 text-sm font-medium">
-                Start Date
-              </label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                selectsStart
+                startDate={startDate}
+                endDate={endDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-            <div className="relative w-full">
-              <label className="block mb-1 text-sm font-medium">End Date</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+            <div className="flex-1 min-w-0">
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                selectsEnd
+                startDate={startDate}
+                endDate={endDate}
+                minDate={startDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="DD/MM/YYYY"
+                locale="en-GB"
+                className="!w-full p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
+                isClearable
               />
             </div>
-            <div className="w-xs mt-5">
+            <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
                   setStartDate("");
@@ -324,7 +342,7 @@ const printTable = () => {
                 }}
                 className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <IoIosRemoveCircle /> Clear Filter
+                <IoIosRemoveCircle /> Clear 
               </button>
             </div>
           </div>
@@ -334,14 +352,14 @@ const printTable = () => {
         <div className="w-full mt-5 overflow-x-auto border border-gray-200">
           <table className="w-full text-sm text-left">
             <thead className="text-black capitalize font-bold">
-               <tr className="bg-gray-100 font-bold text-black">
+              <tr className="bg-gray-100 font-bold text-black">
                 <td colSpan="8" className="text-right border border-gray-700 px-2 py-2">
                   Closing Balance:
                 </td>
                 <td className="border border-gray-700 px-2 py-2">
                   {closingBalance < 0
-    ? `${Math.abs(closingBalance)}`
-    : closingBalance}
+                    ? `${Math.abs(closingBalance)}`
+                    : closingBalance}
                 </td>
                 <td className="border border-gray-700 px-2 py-2"></td>
               </tr>
@@ -368,7 +386,7 @@ const printTable = () => {
                     {index + 1}.
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
-                    {dt.date}
+                    {tableFormatDate(dt.date)}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
                     {dt?.remarks || "--"}

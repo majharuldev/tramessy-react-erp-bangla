@@ -33,7 +33,7 @@ const CustomerLedger = () => {
     : customers;
 
   return (
-    <main className="overflow-hidden">
+    <main className="overflow-hidden  p-2">
       <Toaster />
       <div className="w-xs md:w-full overflow-hidden max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
