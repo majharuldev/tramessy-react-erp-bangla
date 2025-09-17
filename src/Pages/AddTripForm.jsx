@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { FiCalendar } from "react-icons/fi";
-import { add } from "date-fns";
+import { add, format } from "date-fns";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
@@ -439,6 +439,14 @@ useEffect(() => {
 
     try {
       setLoading(true);
+      //Date formatting only if valid
+      if (data.date) {
+        const parsedDate = new Date(data.date);
+        if (!isNaN(parsedDate)) {
+          data.date = format(parsedDate, "yyyy-MM-dd");
+        }
+      }
+      
       const url = id
         ? `${import.meta.env.VITE_BASE_URL}/api/trip/update/${id}`
         : `${import.meta.env.VITE_BASE_URL}/api/trip/create`;
@@ -493,14 +501,7 @@ useEffect(() => {
                     inputRef={(e) => {
                       dateRef.current = e
                     }}
-                    icon={
-                      <span
-                        className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                        onClick={() => dateRef.current?.showPicker?.()}
-                      >
-                        <FiCalendar className="text-white cursor-pointer" />
-                      </span>
-                    }
+                    
                   />
                 </div>
                 <SelectField
@@ -667,7 +668,7 @@ useEffect(() => {
                 ) : selectedTransport === "vendor_transport" ? (
                   <SelectField
                     name="driver_name"
-                    label="Driver Name"
+                    label="Driver Name/Number"
                     options={vendorDriverOptions}
                     control={control}
                     required={!id}

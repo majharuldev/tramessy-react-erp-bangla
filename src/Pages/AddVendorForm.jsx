@@ -104,14 +104,6 @@ const AddVendorForm = () => {
                     register("date").ref(e);
                     dateRef.current = e;
                   }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                      onClick={() => dateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-white cursor-pointer" />
-                    </span>
-                  }
                 />
               </div>
 
