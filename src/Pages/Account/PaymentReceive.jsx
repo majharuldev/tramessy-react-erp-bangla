@@ -8,6 +8,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
 import DatePicker from "react-datepicker";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const PaymentReceive = () => {
   const [payment, setPayment] = useState([]);
@@ -181,7 +182,7 @@ const PaymentReceive = () => {
               {currentPayments?.map((dt, index) => (
                 <tr key={dt.id} className="hover:bg-gray-50 transition-all border border-gray-200">
                   <td className="px-2 py-1 font-bold">{indexOfFirstItem + index + 1}.</td>
-                  <td className="px-2 py-1">{dt.date ? format(parseISO(dt.date), "dd-MMMM-yyyy") : ""}</td>
+                  <td className="px-2 py-1">{dt.date ? tableFormatDate(dt.date) : ""}</td>
                   <td className="px-2 py-1">{dt.customer_name}</td>
                   <td className="px-2 py-1">{dt.branch_name}</td>
                   <td className="px-2 py-1">{dt.bill_ref}</td>

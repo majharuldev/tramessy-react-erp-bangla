@@ -15,7 +15,6 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import { formatDate, tableFormatDate } from "../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
@@ -703,10 +702,23 @@ const printTripsTable = () => {
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
-                  <p className="w-48">Additional Cost</p> <p>{selectedTrip.additional_cost ? selectedTrip.additional_cost : 0}</p>
+                  <p className="w-48">Additional Load Cost</p> <p>{selectedTrip.additional_cost ? selectedTrip.additional_cost : 0}</p>
+                </li>
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Additional Unload Cost</p> <p>{selectedTrip.additional_unload_charge ? selectedTrip.additional_unload_charge : 0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Additional Unload Point</p> <p>{selectedTrip.additional_unload ? selectedTrip.additional_unload : 0}</p>
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Advance</p> <p>{selectedTrip.advance ? selectedTrip.advance : 0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Remarks</p> <p>{selectedTrip.remarks ? selectedTrip.remarks : 0}</p>
                 </li>
               </ul>
               <div className="flex justify-end mt-10">

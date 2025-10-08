@@ -8,7 +8,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 
-const SupplierLedger = () => {
+const PartyLedger = () => {
   const [supplies, setSupplies] = useState([]); // Supplier dropdown options
   const [supplierLedger, setSupplierLedger] = useState([]); // Ledger data for table
   const [loading, setLoading] = useState(true); // Loading state
@@ -231,7 +231,7 @@ const closingBalance =
         {/* Header */}
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-[#11375B] capitalize flex items-center gap-3">
-            Supplier ledger
+            Party ledger
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2"></div>
         </div>
@@ -251,14 +251,14 @@ const closingBalance =
           </div>
           <div className="mt-3 md:mt-0 w-full md:w-64 relative">
             <label className="text-primary text-sm font-semibold">
-              Select Supplier Ledger
+              Select Party Ledger
             </label>
             <select
               value={selectedSupplier}
               onChange={(e) => setSelectedSupplier(e.target.value)}
               className="mt-1 w-full text-gray-700 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
             >
-              <option value="">Select supplier</option>
+              <option value="">Select Party</option>
               {supplies.map((supply, idx) => (
                 <option key={idx} value={supply.supplier_name}>
                   {supply.supplier_name} 
@@ -272,10 +272,10 @@ const closingBalance =
 
         {/* Table */}
         <div className="w-full mt-5 overflow-x-auto border border-gray-200">
-          <table className="w-full text-sm text-left">
+          <table className="min-w-full text-sm text-left">
             <thead className="text-black capitalize font-bold">
               <tr>
-    <td colSpan="7" className="text-right border border-gray-700 px-2 py-2">
+    <td colSpan="12" className="text-right border border-gray-700 px-2 py-2">
       Closing Balance:
     </td>
     <td className="border border-gray-700 px-2 py-2">
@@ -286,17 +286,32 @@ const closingBalance =
                 <th className="border border-gray-700 px-2 py-1">SL.</th>
                 <th className="border border-gray-700 px-2 py-1">Date</th>
                 <th className="border border-gray-700 px-2 py-1">
-                  Supplier
+                  Party
                 </th>
                 <th className="border border-gray-700 px-2 py-1">
-                  Particulars
+                  Load Point
                 </th>
-                <th className="border border-gray-700 px-2 py-1">Mode</th>
+                <th className="border border-gray-700 px-2 py-1">Unload Point</th>
                 <th className="border border-gray-700 px-2 py-1">
-                  PurchaseAmount
+                  Vehicle No
                 </th>
                 <th className="border border-gray-700 px-2 py-1">
-                  PaymentAmount
+                  Vehicle Category
+                </th>
+                <th className="border border-gray-700 px-2 py-1">
+                  chalan
+                </th>
+                <th className="border border-gray-700 px-2 py-1">
+                  quantity
+                </th>
+                <th className="border border-gray-700 px-2 py-1">
+                  rate
+                </th>
+                <th className="border border-gray-700 px-2 py-1">
+                  Bill Amount
+                </th>
+                <th className="border border-gray-700 px-2 py-1">
+                  Recieve Amount
                 </th>
                 <th className="border border-gray-700 py-1 text-center">
                   <p className="border-b">
@@ -319,16 +334,31 @@ const closingBalance =
                     {dt.supplier_name}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
-                    {dt.remarks}
+                    {dt.load_point}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
-                    {dt.mode}
+                    {dt.unload_point}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
-                    {dt.purchase_amount}
+                    {dt.vehicle_no}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
-                    {dt.pay_amount}
+                    {dt.vehicle_category}
+                  </td>
+                  <td className="border border-gray-700 px-2 py-1">
+                    {dt.chalan}
+                  </td>
+                  <td className="border border-gray-700 px-2 py-1">
+                    {dt.quantity}
+                  </td>
+                  <td className="border border-gray-700 px-2 py-1">
+                    {dt.rate}
+                  </td>
+                  <td className="border border-gray-700 px-2 py-1">
+                    {dt.bill_amount}
+                  </td>
+                  <td className="border border-gray-700 px-2 py-1">
+                    {dt.recieve_amount}
                   </td>
                   <td className="border border-gray-700 px-2 py-1">
                     {dt.runningBalance < 0 
@@ -345,4 +375,4 @@ const closingBalance =
   );
 };
 
-export default SupplierLedger;
+export default PartyLedger;

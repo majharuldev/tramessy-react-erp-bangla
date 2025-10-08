@@ -37,7 +37,7 @@ const CustomerLedger = () => {
       <Toaster />
       <div className="w-xs md:w-full overflow-hidden max-w-7xl mx-auto bg-white/80 backdrop-blur-md shadow-xl rounded-xl p-2 py-10 border border-gray-200">
         <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-[#11375B] capitalize flex items-center gap-3">
+          <h1 className="text-xl font-bold text-primary capitalize flex items-center gap-3">
             Customer Ledger {selectedCustomer && `: ${selectedCustomer}`}
           </h1>
           <div className="mt-3 md:mt-0 w-full md:w-72">

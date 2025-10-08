@@ -19,7 +19,7 @@ const DriverLedger = () => {
   const openingBalance = selectedDriver
     ? driverOpeningBalances[selectedDriver] || 0
     : 0;
-  const TADA_RATE = 300;
+  const TADA_RATE = 0;
 
   // helper states
   const [helpers, setHelpers] = useState([]);
@@ -96,35 +96,49 @@ const DriverLedger = () => {
   // ].sort();
 
   const monthNames = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
-const availableMonths = [
-  ...new Set(
-    driver.map((item) => {
-      const date = new Date(item.date);
-      return `${monthNames[date.getMonth()]} ${date.getFullYear()}`; // Month Name + Year
-    })
-  )
-].sort((a, b) => {
-  // Sort by actual date
-  const [monthA, yearA] = a.split(" ");
-  const [monthB, yearB] = b.split(" ");
-  const dateA = new Date(`${monthA} 1, ${yearA}`);
-  const dateB = new Date(`${monthB} 1, ${yearB}`);
-  return dateA - dateB;
-});
+  const availableMonths = [
+    ...new Set(
+      driver.map((item) => {
+        const date = new Date(item.date);
+        return `${monthNames[date.getMonth()]} ${date.getFullYear()}`; // Month Name + Year
+      })
+    )
+  ].sort((a, b) => {
+    // Sort by actual date
+    const [monthA, yearA] = a.split(" ");
+    const [monthB, yearB] = b.split(" ");
+    const dateA = new Date(`${monthA} 1, ${yearA}`);
+    const dateB = new Date(`${monthB} 1, ${yearB}`);
+    return dateA - dateB;
+  });
 
   // helper function
-const toNumber = (val) => {
-  if (val === null || val === undefined) return 0;
-  if (typeof val === "string") {
-    if (val.trim().toLowerCase() === "null" || val.trim() === "") return 0;
+  // const toNumber = (val) => {
+  //   if (val === null || val === undefined) return 0;
+  //   if (typeof val === "string") {
+  //     if (val.trim().toLowerCase() === "null" || val.trim() === "") return 0;
+  //   }
+  //   const num = Number(val);
+  //   return isNaN(num) ? 0 : num;
+  // };
+ const toNumber = (value) => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === "string") {
+    const cleaned = value.trim();
+    if (cleaned === "" || cleaned.toLowerCase() === "null" || cleaned === "undefined") {
+      return 0;
+    }
+    const num = Number(cleaned);
+    return isNaN(num) ? 0 : num;
   }
-  const num = Number(val);
-  return isNaN(num) ? 0 : num;
+  if (typeof value === "number") return value;
+  return 0;
 };
+
 
   // Filter by driver and month
   const filteredDriver = driver.filter((d) => {
@@ -132,8 +146,8 @@ const toNumber = (val) => {
       ? d.driver_name === selectedDriver
       : true;
     const matchesMonth = selectedMonth
-  ? `${monthNames[new Date(d.date).getMonth()]} ${new Date(d.date).getFullYear()}` === selectedMonth
-  : true;
+      ? `${monthNames[new Date(d.date).getMonth()]} ${new Date(d.date).getFullYear()}` === selectedMonth
+      : true;
     return matchesDriver && matchesMonth;
   });
 
@@ -171,8 +185,11 @@ const toNumber = (val) => {
       police_cost = 0,
       chada = 0,
       callan_cost = 0,
-    others_cost = 0,
-    fuel_cost = 0,
+      others_cost = 0,
+      additional_cost=0,
+      additional_unload_charge=0,
+      food_cost=0,
+      fuel_cost = 0,
       driver_adv = 0,
     } = item;
     const totalExpense =
@@ -184,9 +201,14 @@ const toNumber = (val) => {
       toNumber(police_cost) +
       toNumber(chada) +
       toNumber(callan_cost) +
-    toNumber(others_cost) +
-    toNumber(fuel_cost);
+      toNumber(others_cost) +
+      toNumber(additional_cost)+
+      toNumber(additional_unload_charge)+
+      toNumber(food_cost)+
+      toNumber(fuel_cost);
     runningBalance += Number(driver_adv) - totalExpense;
+    console.log("Row Debug:", item.driver_name, item.fuel_cost, item.food_cost, item.additional_cost, item.callan_cost);
+
     return {
       ...item,
       totalExpense,
@@ -251,8 +273,8 @@ const toNumber = (val) => {
       Police: item.police_cost,
       Chada: item.chada,
       Fuel: item.fuel_cost,
-  Callan: item.callan_cost,
-  Others: item.others_cost,
+      Callan: item.callan_cost,
+      Others: item.others_cost,
       Total_Expense: item.totalExpense,
       Balance: item.balance,
     }));
@@ -277,7 +299,7 @@ const toNumber = (val) => {
         Callan: "",
         Others: "",
         Total_Expense: tadaAmounts[selectedDriver].amount,
-        Balance: finalBalance, 
+        Balance: finalBalance,
       });
     }
 
@@ -360,9 +382,9 @@ const toNumber = (val) => {
         item.feri_cost || "0",
         item.police_cost || "0",
         item.chada || "0",
-         item.fuel_cost || "0",
-  item.callan_cost || "0",
-  item.others_cost || "0",
+        item.fuel_cost || "0",
+        item.callan_cost || "0",
+        item.others_cost || "0",
         item.totalExpense || "0",
         item.balance < 0 ? `(${Math.abs(item.balance)})` : item.balance,
       ]);
@@ -485,74 +507,74 @@ const toNumber = (val) => {
   return (
     <div className="md:p-2">
       <div className="border border-gray-200 md:p-4 rounded-xl">
-      <div className="overflow-hidden overflow-x-auto max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="md:flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-[#11375B] capitalize flex items-center gap-3">
-            Driver ledger : {selectedDriver || "All Drivers"}{" "}
-            {selectedMonth && `(${selectedMonth})`}
-          </h1>
-          <div className="mt-3 md:mt-0 flex gap-2">
-            <button
-              onClick={() => setShowFilter((prev) => !prev)}
-              className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-            >
-              <FaFilter /> Filter
-            </button>
-          </div>
-        </div>
-        {/* Export and Driver Dropdown */}
-        <div className="md:flex items-center justify-between mb-4">
-          <div className="flex gap-1 md:gap-3 flex-wrap font-semibold text-primary">
-            <button
-              onClick={exportDriversToExcel}
-              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              Excel
-            </button>
-            <button
-              onClick={exportDriversToPDF}
-              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              PDF
-            </button>
-            <button
-              onClick={printDriversTable}
-              className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
-            >
-              Print
-            </button>
-          </div>
-        </div>
-        {/* Month Filter Section */}
-        {showFilter && (
-          <div className="flex flex-col md:flex-row gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
-            <div className="w-full">
-              <div className="relative w-full">
-                <label className="text-primary text-sm font-semibold">
-                  Select Month
-                </label>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
-                >
-                  <option value="">All Months</option>
-                  {availableMonths.map((month, idx) => (
-                    <option key={idx} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <div className="overflow-hidden overflow-x-auto max-w-5xl mx-auto">
+          {/* Header */}
+          <div className="md:flex items-center justify-between mb-6">
+            <h1 className="text-xl font-bold text-[#11375B] capitalize flex items-center gap-3">
+              Driver ledger : {selectedDriver || "All Drivers"}{" "}
+              {selectedMonth && `(${selectedMonth})`}
+            </h1>
+            <div className="mt-3 md:mt-0 flex gap-2">
+              <button
+                onClick={() => setShowFilter((prev) => !prev)}
+                className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              >
+                <FaFilter /> Filter
+              </button>
             </div>
-            {/* Driver dropdown */}
-            <div className="w-full">
-              <div className="relative w-full">
-                <label className="text-primary text-sm font-semibold">
-                  Select Driver
-                </label>
-                {/* <select
+          </div>
+          {/* Export and Driver Dropdown */}
+          <div className="md:flex items-center justify-between mb-4">
+            <div className="flex gap-1 md:gap-3 flex-wrap font-semibold text-primary">
+              <button
+                onClick={exportDriversToExcel}
+                className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+              >
+                Excel
+              </button>
+              <button
+                onClick={exportDriversToPDF}
+                className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+              >
+                PDF
+              </button>
+              <button
+                onClick={printDriversTable}
+                className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
+              >
+                Print
+              </button>
+            </div>
+          </div>
+          {/* Month Filter Section */}
+          {showFilter && (
+            <div className="flex flex-col md:flex-row gap-5 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
+              <div className="w-full">
+                <div className="relative w-full">
+                  <label className="text-primary text-sm font-semibold">
+                    Select Month
+                  </label>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="mt-1 w-full text-sm border border-gray-300 px-3 py-2 rounded bg-white outline-none"
+                  >
+                    <option value="">All Months</option>
+                    {availableMonths.map((month, idx) => (
+                      <option key={idx} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              {/* Driver dropdown */}
+              <div className="w-full">
+                <div className="relative w-full">
+                  <label className="text-primary text-sm font-semibold">
+                    Select Driver
+                  </label>
+                  {/* <select
                   value={selectedDriver}
                   onChange={(e) => setSelectedDriver(e.target.value)}
                   className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
@@ -564,231 +586,162 @@ const toNumber = (val) => {
                     </option>
                   ))}
                 </select> */}
-                <select
-  value={selectedDriver}
-  onChange={(e) => setSelectedDriver(e.target.value)}
-  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
->
-  <option value="">All Drivers</option>
-  {driverList.map((driver, idx) => (
-    <option key={idx} value={driver.driver_name}>
-      {driver.driver_name}
-    </option>
-  ))}
-</select>
+                  <select
+                    value={selectedDriver}
+                    onChange={(e) => setSelectedDriver(e.target.value)}
+                    className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+                  >
+                    <option value="">All Drivers</option>
+                    {driverList.map((driver, idx) => (
+                      <option key={idx} value={driver.driver_name}>
+                        {driver.driver_name}
+                      </option>
+                    ))}
+                  </select>
 
-                <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
+                  <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
+                </div>
               </div>
-            </div>
-            {/* Helper dropdown */}
-            <div className="w-full">
-              <div className="relative w-full">
-                <label className="text-primary text-sm font-semibold">
-                  Select Helper
-                </label>
-                <select
-                  value={selectedHelper}
-                  onChange={(e) => setSelectedHelper(e.target.value)}
-                  className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+              {/* Helper dropdown */}
+              <div className="w-full">
+                <div className="relative w-full">
+                  <label className="text-primary text-sm font-semibold">
+                    Select Helper
+                  </label>
+                  <select
+                    value={selectedHelper}
+                    onChange={(e) => setSelectedHelper(e.target.value)}
+                    className="mt-1 w-full text-gray-500 text-sm border border-gray-300 bg-white p-2 rounded appearance-none outline-none"
+                  >
+                    <option value="">All Helper</option>
+                    {helpers.map((helper, idx) => (
+                      <option key={idx} value={helper.helper_name}>
+                        {helper.helper_name}
+                      </option>
+                    ))}
+                  </select>
+                  <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
+                </div>
+              </div>
+              <div className="w-xs mt-7">
+                <button
+                  onClick={() => {
+                    setSelectedDriver("");
+                    setSelectedHelper("");
+                    setSelectedMonth("");
+                    setShowFilter(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
                 >
-                  <option value="">All Helper</option>
-                  {helpers.map((helper, idx) => (
-                    <option key={idx} value={helper.helper_name}>
-                      {helper.helper_name}
-                    </option>
-                  ))}
-                </select>
-                <MdOutlineArrowDropDown className="absolute top-[35px] right-2 pointer-events-none text-xl text-gray-500" />
+                  Clear
+                </button>
               </div>
             </div>
-            <div className="w-xs mt-7">
-              <button
-                 onClick={() => {
-    setSelectedDriver("");
-    setSelectedHelper("");
-    setSelectedMonth("");   
-    setShowFilter(false);    
-  }}
-                className="w-full bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1.5 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
-              >
-                 Clear
-              </button>
+          )}
+          {/* TADA Summary */}
+          {selectedDriver && tadaAmounts[selectedDriver] && (
+            <div className="mb-4 p-3 bg-blue-50 rounded-md">
+              <h3 className="font-semibold text-primary">
+                TADA Summary for {selectedDriver}
+              </h3>
+              <p>Total Days Present: {tadaAmounts[selectedDriver].days}</p>
+              <p>
+                Total TADA Amount: {tadaAmounts[selectedDriver].amount} BDT ({TADA_RATE}
+                BDT per day)
+              </p>
             </div>
-          </div>
-        )}
-        {/* TADA Summary */}
-        {selectedDriver && tadaAmounts[selectedDriver] && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-md">
-            <h3 className="font-semibold text-primary">
-              TADA Summary for {selectedDriver}
-            </h3>
-            <p>Total Days Present: {tadaAmounts[selectedDriver].days}</p>
-            <p>
-              Total TADA Amount: {tadaAmounts[selectedDriver].amount} BDT (300
-              BDT per day)
-            </p>
-          </div>
-        )}
-        {/* Table with scroll */}
-        <div id="driver-ledger-table" className="overflow-x-auto">
-          <table className="min-w-full text-sm text-left text-gray-900">
-            <thead>
-              <tr>
-                <th rowSpan="2" className="border px-2 py-1">
-                  Date
-                </th>
-                <th colSpan="3" className="border py-1">
-                  Particulars
-                </th>
-                <th rowSpan="2" className="border px-2 py-1">
-                  Advance
-                </th>
-                <th colSpan="10" className="border px-2 py-1">
-                  Expense
-                </th>
-                <th rowSpan="2" className="border py-1">
-                  <p className="border-b">
-                    Opening Balance:{" "}
-                    {selectedDriver
-                      ? driverOpeningBalances[selectedDriver] || 0
-                      : 0}
-                  </p>
-                  Balance
-                </th>
-              </tr>
-              <tr>
-                <th className="border px-2 py-1">Load</th>
-                <th className="border px-2 py-1">Unload</th>
-                <th className="border px-2 py-1">Commission</th>
-                <th className="border px-2 py-1">Labor</th>
-                <th className="border px-2 py-1">Parking</th>
-                <th className="border px-2 py-1">Night</th>
-                <th className="border px-2 py-1">Toll</th>
-                <th className="border px-2 py-1">Ferry</th>
-                <th className="border px-2 py-1">Police</th>
-                <th className="border px-2 py-1">Chada</th>
-                {/* <th className="border px-2 py-1">Fuel</th> */}
-<th className="border px-2 py-1">Callan</th>
-<th className="border px-2 py-1">Others</th>
-                <th className="border px-2 py-1">Total</th>
-              </tr>
-            </thead>
-            <tbody className="overflow-x-auto">
-              {rowsWithBalance.map((item, index) => (
-                <tr key={index}>
-                  <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
-                  <td className="border px-2 py-1">{item.load_point}</td>
-                  <td className="border px-2 py-1">{item.unload_point}</td>
-                  <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.driver_adv)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.labor)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.parking_cost)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.night_guard)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.toll_cost)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.feri_cost)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.police_cost)}</td>
-                  <td className="border px-2 py-1">{toNumber(item.chada)}</td>
-                  {/* <td className="border px-2 py-1">{item.fuel_cost}</td> */}
-<td className="border px-2 py-1">{item.callan_cost}</td>
-<td className="border px-2 py-1">{item.others_cost}</td>
-                  <td className="border px-2 py-1">{item.totalExpense}</td>
-                  <td className="border px-2 py-1">
-                    <span className={item.balance < 0 ? "text-red-500" : ""}>
-                      {item.balance < 0
-                        ? `(${Math.abs(item.balance)})`
-                        : item.balance}
-                    </span>
-                  </td>
+          )}
+          {/* Table with scroll */}
+          <div id="driver-ledger-table" className="overflow-x-auto">
+            <table className="min-w-full text-sm text-left text-gray-900">
+              <thead>
+                <tr>
+                  <th rowSpan="2" className="border px-2 py-1">
+                    Date
+                  </th>
+                  <th colSpan="3" className="border py-1">
+                    Particulars
+                  </th>
+                  <th rowSpan="2" className="border px-2 py-1">
+                    Advance
+                  </th>
+                  <th colSpan="14" className="border px-2 py-1">
+                    Expense
+                  </th>
+                  <th rowSpan="2" className="border py-1">
+                    <p className="border-b">
+                      Opening Balance:{" "}
+                      {selectedDriver
+                        ? driverOpeningBalances[selectedDriver] || 0
+                        : 0}
+                    </p>
+                    Balance
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="font-bold bg-gray-100">
-                <td colSpan={3} className="border px-2 py-1 text-right">
-                  Total:
-                </td>
-                <td className="border px-2 py-1">{footerTotals.commission}</td>
-                <td className="border px-2 py-1">{footerTotals.advance}</td>
-                <td colSpan={9} className="border px-2 py-1"></td>
-                <td className="border px-2 py-1">
-                  {footerTotals.totalExpense}
-                </td>
-                <td className="border px-2 py-1">
-                  <span className={footerTotals.balance < 0 ? "text-red-500" : ""}>
-                    {footerTotals.balance < 0
-                      ? `(${Math.abs(footerTotals.balance)})`
-                      : footerTotals.balance}
-                  </span>
-                </td>
-              </tr>
-              {/* TADA Calculation in Footer */}
-              {selectedDriver && tadaAmounts[selectedDriver] && (
-                <>
-                  <tr className="font-bold bg-gray-100">
-                    <td colSpan={17} className="border px-2 py-1">
-                      <div className="flex justify-between">
-                        <span>Balance:</span>
-                        <span className={footerTotals.balance < 0 ? "text-red-500" : ""}>
-                          {footerTotals.balance < 0
-                            ? `(${Math.abs(footerTotals.balance)})`
-                            : footerTotals.balance}{" "}
-                          BDT
-                        </span>
-                      </div>
+                <tr>
+                  <th className="border px-2 py-1">Load</th>
+                  <th className="border px-2 py-1">Unload</th>
+                  <th className="border px-2 py-1">Commission</th>
+                  <th className="border px-2 py-1">Labor</th>
+                  <th className="border px-2 py-1">Parking</th>
+                  <th className="border px-2 py-1">Night</th>
+                  <th className="border px-2 py-1">Toll</th>
+                  <th className="border px-2 py-1">Ferry</th>
+                  <th className="border px-2 py-1">Police</th>
+                  <th className="border px-2 py-1">Chada</th>
+                  <th className="border px-2 py-1">Fuel</th>
+                  <th className="border px-2 py-1">Food</th>
+                  <th className="border px-2 py-1">Add.LoadCost</th>
+                  <th className="border px-2 py-1">Add.UnloadCost</th>
+                  <th className="border px-2 py-1">Callan</th>
+                  <th className="border px-2 py-1">Others</th>
+                  <th className="border px-2 py-1">Total</th>
+                </tr>
+              </thead>
+              <tbody className="overflow-x-auto">
+                {rowsWithBalance.map((item, index) => (
+                  <tr key={index}>
+                    <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
+                    <td className="border px-2 py-1">{item.load_point}</td>
+                    <td className="border px-2 py-1">{item.unload_point}</td>
+                    <td className="border px-2 py-1">{toNumber(item.driver_commission)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.driver_adv)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.labor)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.parking_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.night_guard)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.toll_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.feri_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.police_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.chada)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.fuel_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.food_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.additional_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.additional_unload_charge)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.callan_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.others_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.totalExpense)}</td>
+                    <td className="border px-2 py-1">
+                      <span className={item.balance < 0 ? "text-red-500" : ""}>
+                        {item.balance < 0
+                          ? `(${Math.abs(item.balance)})`
+                          : item.balance}
+                      </span>
                     </td>
                   </tr>
-                  <tr className="font-bold bg-gray-100">
-                    <td colSpan={17} className="border px-2 py-1">
-                      <div className="flex justify-between">
-                        <span>TADA Calculation:</span>
-                        <span>
-                          {tadaAmounts[selectedDriver].days} days × 300 ={" "}
-                          {tadaAmounts[selectedDriver].amount} BDT
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr className="font-bold bg-gray-100">
-                    <td colSpan={17} className="border px-2 py-1">
-                      <div className="flex justify-between">
-                        <span>Driver Commission:</span>
-                        <span>{footerTotals.commission} BDT</span>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* Helper Salary Row */}
-                  {selectedHelper && (
-                    <tr className="font-bold bg-gray-100">
-                      <td colSpan={17} className="border px-2 py-1">
-                        <div className="flex justify-between">
-                          <span>Helper Salary:</span>
-                          <span>{currentHelperSalary} BDT</span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                  <tr className="font-bold bg-gray-100">
-                    <td colSpan={16} className="border px-2 py-1">
-                      <div className="flex justify-between">
-                        <span>Final Balance (After All Deductions):</span>
-                        <span className={finalBalance < 0 ? "text-red-500" : ""}>
-                          {finalBalance < 0
-                            ? `(${Math.abs(finalBalance)})`
-                            : finalBalance}{" "}
-                          BDT
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                </>
-              )}
-              {/* Final Balance Row when no driver is selected */}
-              {!selectedDriver && (
+                ))}
+              </tbody>
+              <tfoot>
                 <tr className="font-bold bg-gray-100">
                   <td colSpan={3} className="border px-2 py-1 text-right">
-                    Final Balance:
+                    Total:
                   </td>
-                  <td colSpan={14} className="border px-8 py-1 text-right">
+                  <td className="border px-2 py-1">{footerTotals.commission}</td>
+                  <td className="border px-2 py-1">{footerTotals.advance}</td>
+                  <td colSpan={13} className="border px-2 py-1"></td>
+                  <td className="border px-2 py-1">
+                    {footerTotals.totalExpense}
+                  </td>
+                  <td className="border px-2 py-1">
                     <span className={footerTotals.balance < 0 ? "text-red-500" : ""}>
                       {footerTotals.balance < 0
                         ? `(${Math.abs(footerTotals.balance)})`
@@ -796,12 +749,87 @@ const toNumber = (val) => {
                     </span>
                   </td>
                 </tr>
-              )}
-            </tfoot>
-          </table>
+                {/* TADA Calculation in Footer */}
+                {selectedDriver && tadaAmounts[selectedDriver] && (
+                  <>
+                    <tr className="font-bold bg-gray-100">
+                      <td colSpan={21} className="border px-2 py-1">
+                        <div className="flex justify-between">
+                          <span>Balance:</span>
+                          <span className={footerTotals.balance < 0 ? "text-red-500" : ""}>
+                            {footerTotals.balance < 0
+                              ? `(${Math.abs(footerTotals.balance)})`
+                              : footerTotals.balance}{" "}
+                            BDT
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="font-bold bg-gray-100">
+                      <td colSpan={21} className="border px-2 py-1">
+                        <div className="flex justify-between">
+                          <span>TADA Calculation:</span>
+                          <span>
+                            {tadaAmounts[selectedDriver].days} days × {TADA_RATE} ={" "}
+                            {tadaAmounts[selectedDriver].amount} BDT
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr className="font-bold bg-gray-100">
+                      <td colSpan={21} className="border px-2 py-1">
+                        <div className="flex justify-between">
+                          <span>Driver Commission:</span>
+                          <span>{footerTotals.commission} BDT</span>
+                        </div>
+                      </td>
+                    </tr>
+                    {/* Helper Salary Row */}
+                    {selectedHelper && (
+                      <tr className="font-bold bg-gray-100">
+                        <td colSpan={21} className="border px-2 py-1">
+                          <div className="flex justify-between">
+                            <span>Helper Salary:</span>
+                            <span>{currentHelperSalary} BDT</span>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="font-bold bg-gray-100">
+                      <td colSpan={20} className="border px-2 py-1">
+                        <div className="flex justify-between">
+                          <span>Final Balance (After All Deductions):</span>
+                          <span className={finalBalance < 0 ? "text-red-500" : ""}>
+                            {finalBalance < 0
+                              ? `(${Math.abs(finalBalance)})`
+                              : finalBalance}{" "}
+                            BDT
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  </>
+                )}
+                {/* Final Balance Row when no driver is selected */}
+                {!selectedDriver && (
+                  <tr className="font-bold bg-gray-100">
+                    <td colSpan={7} className="border px-2 py-1 text-right">
+                      Final Balance:
+                    </td>
+                    <td colSpan={14} className="border px-8 py-1 text-right">
+                      <span className={footerTotals.balance < 0 ? "text-red-500" : ""}>
+                        {footerTotals.balance < 0
+                          ? `(${Math.abs(footerTotals.balance)})`
+                          : footerTotals.balance}
+                      </span>
+                    </td>
+                  </tr>
+                )}
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };

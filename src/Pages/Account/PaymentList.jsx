@@ -16,6 +16,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { format, parseISO } from "date-fns";
 import Pagination from "../../components/Shared/Pagination";
 import DatePicker from "react-datepicker";
+import { tableFormatDate } from "../../components/Shared/formatDate";
 
 const PaymentList = () => {
   const generateRefId = useRefId();
@@ -505,7 +506,7 @@ const PaymentList = () => {
                       className="hover:bg-gray-50 transition-all border border-gray-200"
                     >
                       <td className="px-1 py-2 font-bold">{index + 1}</td>
-                      <td className="px-1 py-2 ">{dt.date ? format(parseISO(dt.date), "dd-MMMM-yyyy") : ""}</td>
+                      <td className="px-1 py-2">{dt.date ? tableFormatDate(dt.date) : ""}</td>
 
                       <td className="px-1 py-2">{dt.supplier_name}</td>
                       <td className="px-1 py-2">{dt.category}</td>

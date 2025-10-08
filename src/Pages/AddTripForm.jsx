@@ -54,6 +54,7 @@ export default function AddTripForm() {
       feri_cost: "",
       chada: "",
       food_cost: "",
+      callan_cost: "",
       total_exp: 0,
       total: 0,
       transport_type: "",
@@ -65,7 +66,9 @@ export default function AddTripForm() {
       customer_mobile: "",
       driver_adv: "",
       additional_load: "",
+      additional_unload:"",
       additional_cost: "",
+      additional_unload_charge:"",
       vehicle_category: "",
       vehicle_size: "",
       branch_name: "",
@@ -120,6 +123,8 @@ export default function AddTripForm() {
     d_day,
     d_amount,
     additional_cost,
+    additional_unload_charge,
+    callan_cost,
   ] = watch([
     "fuel_cost",
     "toll_cost",
@@ -135,6 +140,8 @@ export default function AddTripForm() {
     "d_day",
     "d_amount",
     "additional_cost",
+    "additional_unload_charge",
+    "callan_cost",
   ]);
 
   // Calculate totals
@@ -152,6 +159,8 @@ export default function AddTripForm() {
       (Number(chadaCost) || 0) +
       (Number(fuelCost) || 0) +
       (Number(additional_cost) || 0) +
+      (Number(additional_unload_charge)|| 0) +
+      (Number(callan_cost) || 0)+
       (Number(othersCost) || 0);
 
     setValue("total_exp", totalExp);
@@ -174,6 +183,8 @@ export default function AddTripForm() {
     d_day,
     d_amount,
     additional_cost,
+    additional_unload_charge,
+    callan_cost,
     setValue,
   ]);
 
@@ -599,6 +610,9 @@ useEffect(() => {
                 <div className="w-full">
                   <InputField name="additional_load" label="Additional Load point" />
                 </div>
+                <div className="w-full">
+                  <InputField name="additional_unload" label="Additional Unload point" />
+                </div>
               </div>
             </div>
 
@@ -750,12 +764,18 @@ useEffect(() => {
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="chada" label="Chada" type="number" />
+                  <InputField name="parking_cost" label="Parking Cost" type="number" />
                   <InputField name="food_cost" label="Food Cost" type="number" />
-                  <InputField name="others_cost" label="Other Costs" type="number" />
-                  <InputField name="additional_cost" label="Additional Load Cost" type="number" />
+                  <InputField name="others_cost" label="Other Costs" type="number" />   
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                  <InputField name="additional_cost" label="Additional Load Cost" type="number" />
+                  <InputField name="additional_unload_charge" label="Additional Unload Cost" type="number" />
+                  <InputField name="callan_cost" label="Challan Cost" type="number" />
                   <InputField name="total_exp" label="Total Expense" readOnly />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                  <InputField name="remarks" label="Remarks"  />
                 </div>
               </div>
             )}

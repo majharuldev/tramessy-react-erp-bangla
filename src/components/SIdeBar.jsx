@@ -19,6 +19,7 @@ import { FaUsers } from "react-icons/fa";
 import { PiUsersFour } from "react-icons/pi";
 import { RiLuggageCartLine } from "react-icons/ri";
 import { HiCurrencyBangladeshi } from "react-icons/hi2";
+import { VscDebugConsole } from "react-icons/vsc";
 
 const Sidebar = () => {
   const [openMenu, setOpenMenu] = useState({
@@ -733,6 +734,104 @@ const Sidebar = () => {
                     </ul>
                   </div>
                 </li>
+                {/* console */}
+                {/* <li className="text-primary font-medium rounded-sm">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => toggleMenu("console")}
+                    onKeyDown={(e) =>
+                      (e.key === "Enter" || e.key === " ") &&
+                      toggleMenu("console")
+                    }
+                    className="flex justify-between items-center py-3 px-2 cursor-pointer hover:bg-primary hover:text-white hover:rounded-sm duration-300 outline-none"
+                  >
+                    <span className="flex items-center gap-2">
+                      <VscDebugConsole />
+                      <span>Console</span>
+                    </span>
+                    <span
+                      className={`transform transition-transform duration-500 ${
+                        openMenu.customer ? "rotate-180" : ""
+                      }`}
+                    >
+                      <FaChevronDown />
+                    </span>
+                  </div>
+                  <div
+                    className={`transition-all duration-700 ease-in-out overflow-hidden ${
+                      openMenu.console ? "max-h-[500px]" : "max-h-0"
+                    }`}
+                  >
+                    <ul className="space-y-3 px-2 text-sm mt-2">
+                      <li>
+                        <Link
+                          to="/tramessy/console/distribution-point"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/distribution-point")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Distribution Point</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/tramessy/console/party"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/party")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Party Info</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/tramessy/console/booking"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/booking")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Booking</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/tramessy/console/party-ledger"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/party-ledger")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Party Ledger</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/tramessy/console/distributor-ledger"
+                          className={`flex gap-2 items-center p-2 rounded-sm font-medium ${
+                            isActive("/tramessy/distributor-ledger")
+                              ? "text-white bg-primary"
+                              : "text-gray-500 hover:text-primary"
+                          }`}
+                        >
+                          
+                          <span>Distributor Ledger</span>
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+                </li> */}
                 {/* Customer */}
                 <li className="text-primary font-medium rounded-sm">
                   <div

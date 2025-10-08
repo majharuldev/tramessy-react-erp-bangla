@@ -91,6 +91,14 @@ import VehicleReport from "../Pages/Reports/VehicelReport";
 import OfficialProduct from "../Pages/Purchase/OfficialProducts";
 import OfficialProductForm from "../Pages/Purchase/OfficialProductForm";
 import Bill from "../Pages/Billing/Bill";
+import Party from "../Pages/Console/Party";
+import PartyForm from "../Pages/Console/PartyForm";
+import DistributionPoint from "../Pages/Console/DistributionPoint";
+import DistributionForm from "../Pages/Console/DistributionForm";
+import PartyLedger from "../Pages/Console/PartyLedger";
+import DistributorLedger from "../Pages/Console/DistributorLedger";
+import Booking from "../Pages/Console/Booking";
+import BookingForm from "../Pages/Console/BookingForm";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -583,6 +591,39 @@ export const router = createBrowserRouter([
       {
         path: "/tramessy/Inventory/InventorySupplierForm",
         element: <InventorySupplierForm />,
+      },
+      // console
+      {
+        path: "/tramessy/console/party",
+        element: <Party />,
+      },
+      {
+        path: "/tramessy/console/add-party",
+        element: <PartyForm />,
+      },
+      {
+        path: "/tramessy/console/booking",
+        element: <Booking />,
+      },
+      {
+        path: "/tramessy/console/add-booking",
+        element: <BookingForm />,
+      },
+      {
+        path: "/tramessy/console/distribution-point",
+        element: <DistributionPoint />,
+      },
+      {
+        path: "/tramessy/console/add-distribution-point",
+        element: <DistributionForm />,
+      },
+      {
+        path: "/tramessy/console/distributor-ledger",
+        element: <DistributorLedger />,
+      },
+      {
+        path: "/tramessy/console/party-ledger",
+        element: <PartyLedger />,
       },
       // Customer
       {
