@@ -295,7 +295,7 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
                     <td className="p-2">{dt.vehicle_category}</td>
                     <td className="p-2">{dt.person_name}</td>
                     <td className="p-2">{dt.type}</td>
-                    <td className="p-2">{tableFormatDate(dt.check_date)}</td>
+                    <td className="p-2">{dt.check_date ? tableFormatDate(dt.check_date) : ""}</td>
                     <td className="p-2">{dt.check_no}</td>
                     <td className="p-2">{dt.amount}</td>
                     <td className="p-2">{dt.bank_name}</td>

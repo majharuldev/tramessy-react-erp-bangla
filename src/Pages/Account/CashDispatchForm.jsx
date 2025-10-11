@@ -41,16 +41,23 @@ useEffect(()=>{
       const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/account/show/${id}`)
       const data = response.data.data
 
+      // Normalize bad date and string values
+    const normalizeDate = (d) => {
+      if (!d || d === "null" || d === "undefined" || d === "Invalid Date") return ""
+      const parsed = new Date(d)
+      return isNaN(parsed.getTime()) ? "" : parsed.toISOString().split("T")[0]
+    }
+
       // Set form values
       methods.reset({
-        date: data.date,
-        branch_name: data.branch_name, // Changed from 'branch' to 'branch_name'
-        person_name: data.person_name,
-        type: data.type,
-        vehicle_no: data.vehicle_no,
-        vehicle_category: data.vehicle_category,
+        date: normalizeDate(data.date),
+        branch_name: data.branch_name === "undefined" ? "" : data.branch_name,
+      person_name: data.person_name === "undefined" ? "" : data.person_name,
+      type: data.type === "undefined" ? "" : data.type,
+      vehicle_no: data.vehicle_no === "undefined" ? "" : data.vehicle_no,
+      vehicle_category: data.vehicle_category === "null" ? "" : data.vehicle_category,
         check_no: data.check_no,
-        check_date: data.check_date,
+        check_date: normalizeDate(data.check_date),
         amount: data.amount,
         purpose: data.purpose,
         bank_name: data.bank_name || "",

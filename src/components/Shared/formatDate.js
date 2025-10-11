@@ -3,6 +3,9 @@ export const tableFormatDate = (dateString, locale = "en-GB") => {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
 
+  //  Prevent Invalid Date crash
+  if (isNaN(date.getTime())) return "N/A";
+
   const parts = new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
