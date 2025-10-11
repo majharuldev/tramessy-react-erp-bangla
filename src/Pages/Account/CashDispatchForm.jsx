@@ -93,7 +93,7 @@ useEffect(()=>{
 
   const { handleSubmit, reset, register, control, watch, setValue } = methods
 
-  const selectedCategory = watch("category");
+  // const selectedCategory = watch("category");
     const selectedVehicle = watch("vehicle_no");
 
     // Set vehicle category when vehicle is selected
@@ -225,7 +225,7 @@ useEffect(()=>{
                 <SelectField
                   name="branch_name"
                   label="Branch Name"
-                  required={!isEditing}
+                  // required={!isEditing}
                   options={branchOptions}
                   control={control}
                 />
@@ -234,7 +234,7 @@ useEffect(()=>{
                 <SelectField
                   name="vehicle_no"
                   label="Vehicle No"
-                  required={!isEditing}
+                  // required={!isEditing}
                   options={vehicleOptions}
                   control={control}
                 />
@@ -255,7 +255,7 @@ useEffect(()=>{
                 <SelectField
                   name="person_name"
                   label="Person Name"
-                  required={!isEditing}
+                  // required={!isEditing}
                   options={employeeOptions}
                   control={control}
                 />
@@ -264,7 +264,7 @@ useEffect(()=>{
                 <SelectField
                   name="type"
                   label="Cash Type"
-                  required={!isEditing}
+                  // required={!isEditing}
                   options={[
                     { value: "Cash", label: "Cash" },
                     { value: "Bank", label: "Bank" },
@@ -273,10 +273,14 @@ useEffect(()=>{
                 />
               </div>
               <div className="w-full">
-                <InputField name="check_no" label="Check No" type="number" required={!isEditing} />
+                <InputField name="check_no" label="Check No" type="number"
+                //  required={!isEditing} 
+                 />
               </div>
               <div className="w-full">
-                <InputField name="check_date" label="Check Date" type="date" required={!isEditing} inputRef={(e) => {
+                <InputField name="check_date" label="Check Date" type="date" 
+                // required={!isEditing} 
+                inputRef={(e) => {
                     register("check_date").ref(e)
                     checkDateRef.current = e
                   }}
@@ -293,16 +297,24 @@ useEffect(()=>{
             </div>
             <div className="mt-5 md:mt-1 md:flex justify-between gap-3">
               <div className="w-full">
-                <InputField name="amount" label="Amount" type="number" required={!isEditing} />
+                <InputField name="amount" label="Amount" type="number" 
+                // required={!isEditing} 
+                />
               </div>
               <div className="w-full">
-                <InputField name="bank_name" label="Bank Name" required={!isEditing} />
+                <InputField name="bank_name" label="Bank Name" 
+                // required={!isEditing}
+                 />
               </div>
               <div className="w-full">
-                <InputField name="purpose" label="purpose" required={!isEditing} />
+                <InputField name="purpose" label="purpose" 
+                // required={!isEditing} 
+                />
               </div>
               <div className="w-full">
-                <InputField name="remarks" label="Note" required={!isEditing} />
+                <InputField name="remarks" label="Note" 
+                // required={!isEditing}
+                 />
               </div>
             </div>
             {/* Submit Button */}
