@@ -5,7 +5,6 @@ import toast, { Toaster } from "react-hot-toast";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
-import { FiCalendar } from "react-icons/fi";
 import { add, format } from "date-fns";
 
 export default function AddTripForm() {
@@ -66,9 +65,9 @@ export default function AddTripForm() {
       customer_mobile: "",
       driver_adv: "",
       additional_load: "",
-      additional_unload:"",
+      additional_unload: "",
       additional_cost: "",
-      additional_unload_charge:"",
+      additional_unload_charge: "",
       vehicle_category: "",
       vehicle_size: "",
       branch_name: "",
@@ -159,8 +158,8 @@ export default function AddTripForm() {
       (Number(chadaCost) || 0) +
       (Number(fuelCost) || 0) +
       (Number(additional_cost) || 0) +
-      (Number(additional_unload_charge)|| 0) +
-      (Number(callan_cost) || 0)+
+      (Number(additional_unload_charge) || 0) +
+      (Number(callan_cost) || 0) +
       (Number(othersCost) || 0);
 
     setValue("total_exp", totalExp);
@@ -379,20 +378,20 @@ export default function AddTripForm() {
 
   // Handle vehicle selection to auto-fill category and size
   const selectedVehicle = useWatch({ control, name: "vehicle_no" });
-    // Auto-fill driver name based on selected vehicle number (own transport only)
-useEffect(() => {
-  if (selectedTransport === "own_transport" && selectedVehicle) {
-    const vehicleData = vehicle.find(v => 
-      `${v.registration_zone} ${v.registration_serial} ${v.registration_number}` === selectedVehicle
-    );
+  // Auto-fill driver name based on selected vehicle number (own transport only)
+  useEffect(() => {
+    if (selectedTransport === "own_transport" && selectedVehicle) {
+      const vehicleData = vehicle.find(v =>
+        `${v.registration_zone} ${v.registration_serial} ${v.registration_number}` === selectedVehicle
+      );
 
-    if (vehicleData) {
-      setValue("driver_name", vehicleData.driver_name || "");
-    } else {
-      setValue("driver_name", "");
+      if (vehicleData) {
+        setValue("driver_name", vehicleData.driver_name || "");
+      } else {
+        setValue("driver_name", "");
+      }
     }
-  }
-}, [selectedVehicle, selectedTransport, setValue, vehicle]);
+  }, [selectedVehicle, selectedTransport, setValue, vehicle]);
 
   useEffect(() => {
     if (selectedTransport === "own_transport") {
@@ -457,7 +456,7 @@ useEffect(() => {
           data.date = format(parsedDate, "yyyy-MM-dd");
         }
       }
-      
+
       const url = id
         ? `${import.meta.env.VITE_BASE_URL}/api/trip/update/${id}`
         : `${import.meta.env.VITE_BASE_URL}/api/trip/create`;
@@ -512,7 +511,7 @@ useEffect(() => {
                     inputRef={(e) => {
                       dateRef.current = e
                     }}
-                    
+
                   />
                 </div>
                 <SelectField
@@ -561,27 +560,27 @@ useEffect(() => {
                   }
                 </div>
                 <div className="w-full relative">
-                  {isFixedRateCustomer?(<SelectField
+                  {isFixedRateCustomer ? (<SelectField
                     name="unload_point"
                     label="Unload Point"
                     required={id ? false : true}
                     options={unloadpointOptions}
                     control={control}
                     isCreatable={!isFixedRateCustomer}
-                  />):(
+                  />) : (
                     <SelectField
-                    name="unload_point"
-                    label="Unload Point"
-                    required={id ? false : true}
-                    options={[
+                      name="unload_point"
+                      label="Unload Point"
+                      required={id ? false : true}
+                      options={[
                         { value: "ctg", label: "CTG" },
                         { value: "ctg_ware_house", label: "CTG Ware House" },
                         { value: "ctg_godown", label: "Ctg Godown" },
-                        
+
                       ]}
-                    control={control}
-                    isCreatable={!isFixedRateCustomer}
-                  />
+                      control={control}
+                      isCreatable={!isFixedRateCustomer}
+                    />
                   )
                   }
                 </div>
@@ -696,22 +695,22 @@ useEffect(() => {
                   />
                 )}
 
-                {isFixedRateCustomer?(<><SelectField
+                {isFixedRateCustomer ? (<><SelectField
                   name="vehicle_category"
                   label="Vehicle Category"
                   options={vehicleCategoryOptions}
                   control={control}
                   required={!id}
                 />
-                <SelectField
-                  name="vehicle_size"
-                  label="Vehicle Size"
-                  options={vehicleSizeOptions}
-                  control={control}
-                  required={!id}
-                  isCreatable={!isFixedRateCustomer}
-                /></>): ""}
-                 {/* (<SelectField
+                  <SelectField
+                    name="vehicle_size"
+                    label="Vehicle Size"
+                    options={vehicleSizeOptions}
+                    control={control}
+                    required={!id}
+                    isCreatable={!isFixedRateCustomer}
+                  /></>) : ""}
+                {/* (<SelectField
                   name="vehicle_category"
                   label="Vehicle Category"
                    options={[
@@ -741,6 +740,43 @@ useEffect(() => {
               </div>
             </div>
 
+            {/* Demurrage Section — Shared by both Own & Vendor Transport */}
+            {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
+              <div className="border border-gray-300 p-5 rounded-md mt-5">
+                <h3 className="text-orange-500 font-medium text-center mb-6">
+                  Demurrage Details
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <InputField
+                    name="d_day"
+                    label="Demurrage Days"
+                    type="number"
+                    onChange={(e) => {
+                      const days = Number(e.target.value) || 0;
+                      setValue("d_day", days);
+                      setValue("d_total", days * (Number(d_amount) || 0));
+                    }}
+                  />
+                  <InputField
+                    name="d_amount"
+                    label="Demurrage Rate/Day"
+                    type="number"
+                    onChange={(e) => {
+                      const rate = Number(e.target.value) || 0;
+                      setValue("d_amount", rate);
+                      setValue("d_total", (Number(d_day) || 0) * rate);
+                    }}
+                  />
+                  <InputField
+                    name="d_total"
+                    label="Total Demurrage"
+                    type="number"
+                    readOnly
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Own Transport Expenses Section */}
             {selectedTransport === "own_transport" && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
@@ -766,7 +802,7 @@ useEffect(() => {
                   <InputField name="chada" label="Chada" type="number" />
                   <InputField name="parking_cost" label="Parking Cost" type="number" />
                   <InputField name="food_cost" label="Food Cost" type="number" />
-                  <InputField name="others_cost" label="Other Costs" type="number" />   
+                  <InputField name="others_cost" label="Other Costs" type="number" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="additional_cost" label="Additional Load Cost" type="number" />
@@ -775,7 +811,7 @@ useEffect(() => {
                   <InputField name="total_exp" label="Total Expense" readOnly />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                  <InputField name="remarks" label="Remarks"  />
+                  <InputField name="remarks" label="Remarks" />
                 </div>
               </div>
             )}
