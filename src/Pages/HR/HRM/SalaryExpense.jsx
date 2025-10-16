@@ -24,6 +24,7 @@ const SalaryExpense = () => {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const printRef = useRef()
+  const [vehicles, setVehicle] = useState([]);
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -33,6 +34,7 @@ const SalaryExpense = () => {
     pay_amount: "",
     payment_category: "",
     branch_name: "",
+    vehicle_no: "",
     remarks: "",
   })
   const [errors, setErrors] = useState({})
@@ -65,6 +67,19 @@ const SalaryExpense = () => {
 
     fetchBranches();
   }, []);
+
+   //  Fetch vehicle list
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`)
+      .then((response) => response.json())
+      .then((data) =>{// শুধু active status গুলো রাখো
+      const activeVehicles = data.data.filter(
+        (vehicle) => vehicle.status === "Active"
+      );
+      setVehicle(activeVehicles);
+    })
+      .catch((error) => console.error("Error fetching vehicle data:", error))
+  }, [])
 
 
   // Fetch employees when component mounts
@@ -161,7 +176,7 @@ const SalaryExpense = () => {
     if (!formData.pay_amount) newErrors.pay_amount = "Amount is required"
     if (!formData.branch_name) newErrors.branch_name = "Branch Name is required"
     if (!formData.payment_category) newErrors.payment_category = "Category is required"
-
+if (!formData.vehicle_no) newErrors.vehicle_no = "Vehicle is required"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -198,7 +213,7 @@ const SalaryExpense = () => {
   const filteredData = expenses.filter((item) => {
     const itemDate = dayjs(item.date).format("YYYY-MM-DD");
 
-    const matchesSearch = [item.paid_to, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
+    const matchesSearch = [item.paid_to, item.vehicle_no, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -239,12 +254,13 @@ const SalaryExpense = () => {
   // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
-      ক্রমিক: i + 1,
-      তারিখ: item.date,
-      "যাকে প্রদান": item.paid_to,
-      পরিমাণ: item.pay_amount,
-      ক্যাটাগরি: item.payment_category,
-      মন্তব্য: item.remarks,
+      SL: i + 1,
+      Date: item.date,
+      "Paid To": item.paid_to,
+      Amount: item.pay_amount,
+      Category: item.payment_category,
+      "Vehicle No": item.vehicle_no,
+      Remarks: item.remarks,
     }))
 
     const ws = XLSX.utils.json_to_sheet(data)
@@ -257,10 +273,11 @@ const SalaryExpense = () => {
   const exportPDF = () => {
     const doc = new jsPDF()
     autoTable(doc, {
-      head: [["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"]],
+      head: [["Serial", "Date", "Vehicle No", "Paid To", "Amount", "Category", "Remarks"]],
       body: filteredData.map((item, i) => [
         i + 1,
         item.date,
+        item.vehicle_no,
         item.paid_to,
         item.pay_amount,
         item.payment_category,
@@ -277,6 +294,7 @@ const SalaryExpense = () => {
       <tr>
         <th>SL</th>
         <th>Date</th>
+        <th>Vehicle No</th>
         <th>Branch</th>
         <th>Paid To</th>
         <th>Amount</th>
@@ -292,11 +310,12 @@ const SalaryExpense = () => {
         <tr>
           <td>${i + 1}</td>
           <td>${item.date || ""}</td>
+          <td>${item.vehicle_no || ""}</td>
           <td>${item.branch_name || ""}</td>
           <td>${item.paid_to || ""}</td>
           <td>${item.pay_amount || ""}</td>
           <td>${item.payment_category || ""}</td>
-          <td>${item.remarks || ""}</td>
+          <td>${item.particulars || ""}</td>
         </tr>
       `
       )
@@ -486,6 +505,7 @@ const SalaryExpense = () => {
               <tr className="">
                 <th className="px-3 py-3 text-left text-sm font-semibold w-16">SL</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Date</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">Vehicle No</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Branch</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Paid To</th>
                 <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
@@ -527,6 +547,7 @@ const SalaryExpense = () => {
                   <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="px-3 py-3 text-sm">{index + 1}</td>
                     <td className="px-3 py-3 text-sm">{tableFormatDate(item.date)}</td>
+                    <td className="px-3 py-3 text-sm">{item.vehicle_no}</td>
                     <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
@@ -559,7 +580,7 @@ const SalaryExpense = () => {
 
       {/* Modal */}
       {isModalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-5 ">
@@ -616,6 +637,25 @@ const SalaryExpense = () => {
                     {errors.payment_category && <p className="text-red-500 text-xs mt-1">{errors.payment_category}</p>}
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle No  <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={formData.vehicle_no}
+                      onChange={(e) => setFormData({ ...formData, vehicle_no: e.target.value })}
+                    >
+                      <option value="">Select Vehicle</option>
+                      {vehicles.map((v) => (
+                        <option key={v.id} value={`${v.registration_zone} ${v.registration_serial} ${v.registration_number}`}>
+                          {`${v.registration_zone} ${v.registration_serial} ${v.registration_number}`}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.branch_name && <p className="text-red-500 text-xs mt-1">{errors.branch_name}</p>}
+                  </div>                  
+
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Branch Name  <span className="text-red-500">*</span></label>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -631,10 +671,6 @@ const SalaryExpense = () => {
                     </select>
                     {errors.branch_name && <p className="text-red-500 text-xs mt-1">{errors.branch_name}</p>}
                   </div>
-
-
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Amount <span className="text-red-500">*</span></label>
                     <input

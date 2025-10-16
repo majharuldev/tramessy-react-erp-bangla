@@ -30,9 +30,10 @@ const OfficialExpense = () => {
     date: "",
     paid_to: "",
     pay_amount: "",
-    payment_category: "",
+    // payment_category: "",
     branch_name: "",
     remarks: "",
+    sub_category: "",
   })
   const [errors, setErrors] = useState({})
   // Date filter state
@@ -77,6 +78,7 @@ const OfficialExpense = () => {
           payment_category: data?.payment_category || "",
           branch_name: data?.branch_name || "",
           remarks: data?.remarks || "",
+          sub_category: data?.sub_category || "",
         })
         setEditingId(record.id)
       } catch (err) {
@@ -91,6 +93,7 @@ const OfficialExpense = () => {
         payment_category: "",
         branch_name: "",
         remarks: "",
+        sub_category: "",
       })
       setEditingId(null)
     }
@@ -102,9 +105,10 @@ const OfficialExpense = () => {
       date: "",
       paid_to: "",
       pay_amount: "",
-      payment_category: "",
+      // payment_category: "",
       branch_name: "",
       remarks: "",
+      sub_category: "",
     })
     setEditingId(null)
     setIsModalVisible(false)
@@ -138,8 +142,8 @@ const OfficialExpense = () => {
     if (!formData.paid_to) newErrors.paid_to = "Recipient is required"
     if (!formData.pay_amount) newErrors.pay_amount = "Amount is required"
     if (!formData.branch_name) newErrors.branch_name = "Branch name is required"
-    if (!formData.payment_category) newErrors.payment_category = "Category is required"
-
+    // if (!formData.payment_category) newErrors.payment_category = "Category is required"
+    if (!formData.sub_category) newErrors.sub_category = "SubCategory is required"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -153,6 +157,7 @@ const OfficialExpense = () => {
       const payload = {
         ...formData,
         date: dayjs(formData.date).format("YYYY-MM-DD"),
+        payment_category: "Utility",
       }
 
       if (editingId) {
@@ -176,7 +181,7 @@ const OfficialExpense = () => {
   const filteredData = expenses.filter((item) => {
     const itemDate = dayjs(item.date).format("YYYY-MM-DD");
 
-    const matchesSearch = [item.paid_to, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
+    const matchesSearch = [item.paid_to, item.sub_category, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -204,7 +209,7 @@ const OfficialExpense = () => {
         item.date,
         item.paid_to,
         item.pay_amount,
-        item.payment_category,
+        item.sub_category,
         item.remarks,
       ]),
     ]
@@ -221,7 +226,7 @@ const OfficialExpense = () => {
       Date: item.date,
       PaidTo: item.paid_to,
       Amount: item.pay_amount,
-      Category: item.payment_category,
+      Category: item.sub_category,
       Notes: item.remarks,
     }))
 
@@ -241,7 +246,7 @@ const OfficialExpense = () => {
         item.date,
         item.paid_to,
         item.pay_amount,
-        item.payment_category,
+        item.sub_category,
         item.remarks,
       ]),
     })
@@ -273,7 +278,7 @@ const OfficialExpense = () => {
           <td>${item.branch_name || ""}</td>
           <td>${item.paid_to || ""}</td>
           <td>${item.pay_amount || ""}</td>
-          <td>${item.payment_category || ""}</td>
+          <td>${item.sub_category || ""}</td>
           <td>${item.remarks || ""}</td>
         </tr>
       `
@@ -507,7 +512,7 @@ const OfficialExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
-                    <td className="px-3 py-3 text-sm">{item.payment_category}</td>
+                    <td className="px-3 py-3 text-sm">{item.sub_category}</td>
                     <td className="px-3 py-3 text-sm">{item.remarks}</td>
                     <td className="px-3 py-3 text-sm action_column">
                       <button
@@ -536,7 +541,7 @@ const OfficialExpense = () => {
 
       {/* Modal */}
       {isModalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-5 ">
@@ -560,22 +565,7 @@ const OfficialExpense = () => {
                     />
                     {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Paid To <span className="text-red-500">*</span></label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Paid To"
-                      value={formData.paid_to}
-                      onChange={(e) => setFormData({ ...formData, paid_to: e.target.value })}
-                    />
-                    {errors.paid_to && <p className="text-red-500 text-xs mt-1">{errors.paid_to}</p>}
-                  </div>
-
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Category <span className="text-red-500">*</span></label>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -590,6 +580,31 @@ const OfficialExpense = () => {
                       ))}
                     </select>
                     {errors.payment_category && <p className="text-red-500 text-xs mt-1">{errors.payment_category}</p>}
+                  </div> */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Sub Category<span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Sub category"
+                      value={formData.sub_category}
+                      onChange={(e) => setFormData({ ...formData, sub_category: e.target.value })}
+                    />
+                    {errors.sub_category && <p className="text-red-500 text-xs mt-1">{errors.sub_category}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Paid To <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Paid To"
+                      value={formData.paid_to}
+                      onChange={(e) => setFormData({ ...formData, paid_to: e.target.value })}
+                    />
+                    {errors.paid_to && <p className="text-red-500 text-xs mt-1">{errors.paid_to}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Amount <span className="text-red-500">*</span></label>
@@ -602,9 +617,11 @@ const OfficialExpense = () => {
                     />
                     {errors.pay_amount && <p className="text-red-500 text-xs mt-1">{errors.pay_amount}</p>}
                   </div>
+
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Branch Name  <span className="text-red-500">*</span></label>
                     <select

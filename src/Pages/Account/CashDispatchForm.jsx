@@ -231,7 +231,7 @@ useEffect(()=>{
               <div className="w-full">
                 <SelectField
                   name="branch_name"
-                  label="Branch Name"
+                  label="Received Branch Name"
                   // required={!isEditing}
                   options={branchOptions}
                   control={control}

@@ -262,7 +262,7 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
               <tr>
                 <th className="p-2">SL</th>
                 <th className="p-2">Date</th>
-                <th className="p-2">Branch</th>
+                <th className="p-2">Recieved Branch</th>
                 <th className="p-2">VehicleNo</th>
                 <th className="p-2">VehicleCategory</th>
                 <th className="p-2">PersonName</th>
