@@ -102,7 +102,7 @@ const DailyIncome = () => {
   const csvData = filteredIncome.map((dt, index) => {
     const totalRent = Number.parseFloat(dt.total_rent ?? "0") || 0
     const totalExp = Number.parseFloat(dt.total_exp ?? "0") || 0
-    const profit = (totalRent - totalExp).toFixed(2)
+    const profit = (totalRent - totalExp)
 
     return {
       index: index + 1,
@@ -111,8 +111,8 @@ const DailyIncome = () => {
       vehicle_no: dt.vehicle_no,
       load_point: dt.load_point,
       unload_point: dt.unload_point,
-      total_rent: totalRent.toFixed(2),
-      total_exp: totalExp.toFixed(2),
+      total_rent: totalRent,
+      total_exp: totalExp,
       profit: profit,
     }
   })
@@ -379,10 +379,10 @@ const DailyIncome = () => {
                     <td className="px-4 py-4">{trip.unload_point}</td>
                     <td className="px-4 py-4">{trip.total_rent}</td>
                     <td className="px-4 py-4">
-                      {Number(trip.total_exp || 0).toFixed(2)}
+                      {Number(trip.total_exp || 0)}
                     </td>
                     <td className="px-4 py-4">
-                      {(Number(trip.total_rent || 0) - Number(trip.total_exp || 0)).toFixed(2)}{" "}
+                      {(Number(trip.total_rent || 0) - Number(trip.total_exp || 0))}{" "}
                       {/* Corrected profit calculation */}
                     </td>
                     {/* <td className="action_column">
@@ -403,9 +403,9 @@ const DailyIncome = () => {
               <tfoot className="bg-gray-100 font-bold">
                 <tr>
                   <td colSpan="6" className="text-right px-4 py-3">Total:</td>
-                  <td className="px-4 py-3">{totalRent.toFixed(2)}</td>
-                  <td className="px-4 py-3">{totalExpense.toFixed(2)}</td>
-                  <td className="px-4 py-3">{totalProfit.toFixed(2)}</td>
+                  <td className="px-4 py-3">{totalRent}</td>
+                  <td className="px-4 py-3">{totalExpense}</td>
+                  <td className="px-4 py-3">{totalProfit}</td>
                 </tr>
               </tfoot>
             )}

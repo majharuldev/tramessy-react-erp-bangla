@@ -185,15 +185,15 @@ const MonthlyStatement = () => {
       ],
       body: filteredData.map(item => [
         item.month,
-        item.ownTripIncome.toFixed(2),
-        item.vendorTripIncome.toFixed(2),
-        item.ownTripCost.toFixed(2),
-        item.vendorTripCost.toFixed(2),
-        item.purchaseCost.toFixed(2),
-        item.salaryExpense.toFixed(2),
-        item.officeExpense.toFixed(2),
-        item.totalExpense.toFixed(2),
-        item.netProfit.toFixed(2)
+        item.ownTripIncome,
+        item.vendorTripIncome,
+        item.ownTripCost,
+        item.vendorTripCost,
+        item.purchaseCost,
+        item.salaryExpense,
+        item.officeExpense,
+        item.totalExpense,
+        item.netProfit
       ]),
       startY: 20
     });
@@ -260,16 +260,16 @@ const handlePrint = () => {
             <tr>
               <td style="text-align:center;">${i + 1}</td>
               <td style="text-align:left;">${item.month}</td>
-              <td>${item.ownTripIncome.toFixed(2)}</td>
-              <td>${item.vendorTripIncome.toFixed(2)}</td>
-              <td>${item.ownTripCost.toFixed(2)}</td>
-              <td>${item.vendorTripCost.toFixed(2)}</td>
-              <td>${item.purchaseCost.toFixed(2)}</td>
-              <td>${item.salaryExpense.toFixed(2)}</td>
-              <td>${item.officeExpense.toFixed(2)}</td>
-              <td><b>${item.totalExpense.toFixed(2)}</b></td>
+              <td>${item.ownTripIncome}</td>
+              <td>${item.vendorTripIncome}</td>
+              <td>${item.ownTripCost}</td>
+              <td>${item.vendorTripCost}</td>
+              <td>${item.purchaseCost}</td>
+              <td>${item.salaryExpense}</td>
+              <td>${item.officeExpense}</td>
+              <td><b>${item.totalExpense}</b></td>
               <td style="color:${item.netProfit >= 0 ? "green" : "red"};">
-                <b>${item.netProfit.toFixed(2)}</b>
+                <b>${item.netProfit}</b>
               </td>
             </tr>
           `
@@ -277,16 +277,16 @@ const handlePrint = () => {
           .join("")}
         <tr style="font-weight:bold; background:#f5f5f5;">
           <td colspan="2" style="text-align:center;">Total</td>
-          <td>${calculateTotal("ownTripIncome").toFixed(2)}</td>
-          <td>${calculateTotal("vendorTripIncome").toFixed(2)}</td>
-          <td>${calculateTotal("ownTripCost").toFixed(2)}</td>
-          <td>${calculateTotal("vendorTripCost").toFixed(2)}</td>
-          <td>${calculateTotal("purchaseCost").toFixed(2)}</td>
-          <td>${calculateTotal("salaryExpense").toFixed(2)}</td>
-          <td>${calculateTotal("officeExpense").toFixed(2)}</td>
-          <td>${calculateTotal("totalExpense").toFixed(2)}</td>
+          <td>${calculateTotal("ownTripIncome")}</td>
+          <td>${calculateTotal("vendorTripIncome")}</td>
+          <td>${calculateTotal("ownTripCost")}</td>
+          <td>${calculateTotal("vendorTripCost")}</td>
+          <td>${calculateTotal("purchaseCost")}</td>
+          <td>${calculateTotal("salaryExpense")}</td>
+          <td>${calculateTotal("officeExpense")}</td>
+          <td>${calculateTotal("totalExpense")}</td>
           <td style="color:${calculateTotal("netProfit") >= 0 ? "green" : "red"};">
-            ${calculateTotal("netProfit").toFixed(2)}
+            ${calculateTotal("netProfit")}
           </td>
         </tr>
       </tbody>
@@ -425,38 +425,38 @@ const handlePrint = () => {
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="p-2 border border-gray-400 text-center">{item.id}</td>
                     <td className="p-2 border border-gray-400">{item.month}</td>
-                    <td className="p-2 border border-gray-400 text-right">{item.ownTripIncome.toFixed(2)}</td>
-                    <td className="p-2 border border-gray-400 text-right">{item.vendorTripIncome.toFixed(2)}</td>
-                    <td className="p-2 border border-gray-400 text-right ">{item.ownTripCost.toFixed(2)}</td>
-                    <td className="p-2 border border-gray-400 text-right ">{item.vendorTripCost.toFixed(2)}</td>
-                    <td className="p-2 border border-gray-400 text-right ">{item.purchaseCost.toFixed(2)}</td>
-                    <td className="p-2 border border-gray-400 text-right ">{item.salaryExpense.toFixed(2)}</td>
-                    <td className="p-2 border border-gray-400 text-right ">{item.officeExpense.toFixed(2)}</td>
+                    <td className="p-2 border border-gray-400 text-right">{item.ownTripIncome}</td>
+                    <td className="p-2 border border-gray-400 text-right">{item.vendorTripIncome}</td>
+                    <td className="p-2 border border-gray-400 text-right ">{item.ownTripCost}</td>
+                    <td className="p-2 border border-gray-400 text-right ">{item.vendorTripCost}</td>
+                    <td className="p-2 border border-gray-400 text-right ">{item.purchaseCost}</td>
+                    <td className="p-2 border border-gray-400 text-right ">{item.salaryExpense}</td>
+                    <td className="p-2 border border-gray-400 text-right ">{item.officeExpense}</td>
                     <td className="p-2 border border-gray-400 text-right  font-semibold">
-                      {item.totalExpense.toFixed(2)}
+                      {item.totalExpense}
                     </td>
                     <td className={`p-2 border border-gray-400 text-right font-semibold ${
                       item.netProfit >= 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {item.netProfit.toFixed(2)}
+                      {item.netProfit}
                     </td>
                   </tr>
                 ))}
                 {/* Totals row */}
                 <tr className="font-semibold">
                   <td className="p-2 border border-gray-400 text-center" colSpan={2}>Total</td>
-                  <td className="p-2 border border-gray-400 text-right">{calculateTotal('ownTripIncome').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right">{calculateTotal('vendorTripIncome').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('ownTripCost').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('vendorTripCost').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('purchaseCost').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('salaryExpense').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('officeExpense').toFixed(2)}</td>
-                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('totalExpense').toFixed(2)}</td>
+                  <td className="p-2 border border-gray-400 text-right">{calculateTotal('ownTripIncome')}</td>
+                  <td className="p-2 border border-gray-400 text-right">{calculateTotal('vendorTripIncome')}</td>
+                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('ownTripCost')}</td>
+                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('vendorTripCost')}</td>
+                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('purchaseCost')}</td>
+                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('salaryExpense')}</td>
+                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('officeExpense')}</td>
+                  <td className="p-2 border border-gray-400 text-right ">{calculateTotal('totalExpense')}</td>
                   <td className={`p-2 border border-gray-400 text-right ${
                     calculateTotal('netProfit') >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {calculateTotal('netProfit').toFixed(2)}
+                    {calculateTotal('netProfit')}
                   </td>
                 </tr>
               </tbody>
