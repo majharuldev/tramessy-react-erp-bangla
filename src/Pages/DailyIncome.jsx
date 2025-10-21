@@ -125,6 +125,26 @@ const DailyIncome = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredTrips")
     XLSX.writeFile(workbook, "filtered_trips.xlsx")
   }
+//   const exportExcel = () => {
+//   const workbook = XLSX.utils.book_new()
+
+//   // Create worksheet from csvData
+//   const worksheet = XLSX.utils.json_to_sheet(csvData)
+
+//   // Calculate last row number (header row is 1)
+//   const lastRow = csvData.length + 2 // 1 for header, +1 to point to next row
+
+//   // Add formulas for totals
+//   worksheet[`G${lastRow}`] = { f: `SUM(G2:G${lastRow - 1})` } // Trip Rent
+//   worksheet[`H${lastRow}`] = { f: `SUM(H2:H${lastRow - 1})` } // Expense
+//   worksheet[`I${lastRow}`] = { f: `SUM(I2:I${lastRow - 1})` } // Profit
+
+//   // Optional: label in first column
+//   worksheet[`A${lastRow}`] = { v: "Total" }
+
+//   XLSX.utils.book_append_sheet(workbook, worksheet, "FilteredTrips")
+//   XLSX.writeFile(workbook, "filtered_trips.xlsx")
+// }
 
   // Export PDF function
   const exportPDF = () => {

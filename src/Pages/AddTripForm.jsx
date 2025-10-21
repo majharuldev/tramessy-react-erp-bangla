@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { InputField, SelectField } from "../components/Form/FormFields";
 import BtnSubmit from "../components/Button/BtnSubmit";
 import { add, format } from "date-fns";
+import FormSkeleton from "../components/Form/FormSkeleton";
 
 export default function AddTripForm() {
   const [loading, setLoading] = useState(false);
@@ -145,6 +146,7 @@ export default function AddTripForm() {
 
   // Calculate totals
   useEffect(() => {
+     if (selectedTransport === "own_transport") {
     // Calculate total expenses
     const totalExp =
       (Number(driverCommision) || 0) +
@@ -163,7 +165,7 @@ export default function AddTripForm() {
       (Number(othersCost) || 0);
 
     setValue("total_exp", totalExp);
-
+     }
     // Calculate damarage total
     const d_total = (Number(d_day) || 0) * (Number(d_amount) || 0);
     setValue("d_total", d_total);
@@ -185,6 +187,7 @@ export default function AddTripForm() {
     additional_unload_charge,
     callan_cost,
     setValue,
+    selectedTransport,
   ]);
 
   // Watch vendor transport fields
@@ -199,6 +202,7 @@ export default function AddTripForm() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
+        setLoading(true)
         // Fetch rates data first
         const ratesRes = await fetch(`${import.meta.env.VITE_BASE_URL}/api/rate/list`);
         const ratesData = await ratesRes.json();
@@ -310,6 +314,8 @@ export default function AddTripForm() {
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to load form data");
+      }finally {
+        setLoading(false) // সবশেষে loading বন্ধ
       }
     };
 
@@ -423,7 +429,7 @@ export default function AddTripForm() {
 
       if (foundRate) {
         const rateValue = parseFloat(foundRate.rate) || 0;
-        setValue("total_rent", Number(rateValue.toFixed(2)), { shouldValidate: true });
+        setValue("total_rent", Number(rateValue), { shouldValidate: true });
         setIsRateFound(true);
       } else if (!id) {
         setValue("total_rent", "", { shouldValidate: true });
@@ -488,7 +494,11 @@ export default function AddTripForm() {
   return (
     <FormProvider {...methods}>
       <Toaster />
-      <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen mt-10 p-2">
+      {loading && id ? (
+        <div className="p-4 bg-white rounded-md shadow border-t-2 border-primary">
+          <FormSkeleton />
+        </div>
+      ) : (<form onSubmit={handleSubmit(onSubmit)} className="min-h-screen mt-10 p-2">
         {/* Form Header */}
         <div className="bg-primary text-white px-4 py-2 rounded-t-md">
           <h2 className="text-lg font-medium">{id ? "Update Trip" : "Create Trip"}</h2>
@@ -839,7 +849,7 @@ export default function AddTripForm() {
             </div>
           </div>
         </div>
-      </form>
+      </form>)}
     </FormProvider>
   );
 }
