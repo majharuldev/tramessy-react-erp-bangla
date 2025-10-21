@@ -597,7 +597,7 @@ export default function AddTripForm() {
                 <div className="w-full">
                   <InputField
                     name="trip_id"
-                    label="Trip Id"
+                    label="Trip Id/No"
                     type="text"
                     required={id ? false : true}
                   />
