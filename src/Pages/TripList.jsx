@@ -75,79 +75,79 @@ const TripList = () => {
   if (loading) return <p className="text-center mt-16">Loading trip...</p>;
 
   // Excel Export
-const exportTripsToExcel = () => {
-  const tableData = filteredTrips.map((dt, index) => ({
-    "SL.": index + 1,
-    Date: tableFormatDate(dt.date),
-    TripId: dt.trip_id,
-    Customer: dt.customer || "N/A",
-    TransportType: dt.transport_type?.replace("_", " ") || "N/A",
-    VehicleNo: dt.vehicle_no || "N/A",
-    Vendor: dt.vendor_name || "N/A",
-    "Trip & Destination": `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
-    TripRent: dt.total_rent || 0,
-    TripCost: dt.total_exp || 0,
-    Profit: (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
-  }));
+  const exportTripsToExcel = () => {
+    const tableData = filteredTrips.map((dt, index) => ({
+      "SL.": index + 1,
+      Date: tableFormatDate(dt.date),
+      TripId: dt.trip_id,
+      Customer: dt.customer || "N/A",
+      TransportType: dt.transport_type?.replace("_", " ") || "N/A",
+      VehicleNo: dt.vehicle_no || "N/A",
+      Vendor: dt.vendor_name || "N/A",
+      "Trip & Destination": `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
+      TripRent: dt.total_rent || 0,
+      TripCost: dt.total_exp || 0,
+      Profit: (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
+    }));
 
-  const worksheet = XLSX.utils.json_to_sheet(tableData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
+    const worksheet = XLSX.utils.json_to_sheet(tableData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
 
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "trip_report.xlsx");
-};
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "trip_report.xlsx");
+  };
 
-// PDF Export
-const exportTripsToPDF = () => {
-  const doc = new jsPDF("landscape");
+  // PDF Export
+  const exportTripsToPDF = () => {
+    const doc = new jsPDF("landscape");
 
-  const tableColumn = [
-    "SL.",
-    "Date",
-    "TripId",
-    "Customer",
-    "TransportType",
-    "VehicleNo",
-    "Vendor",
-    "Trip & Destination",
-    "TripRent",
-    "TripCost",
-    "Profit",
-  ];
+    const tableColumn = [
+      "SL.",
+      "Date",
+      "TripId",
+      "Customer",
+      "TransportType",
+      "VehicleNo",
+      "Vendor",
+      "Trip & Destination",
+      "TripRent",
+      "TripCost",
+      "Profit",
+    ];
 
-  const tableRows = filteredTrips.map((dt, index) => [
-    index + 1,
-    tableFormatDate(dt.date),
-    dt.trip_id,
-    dt.customer || "N/A",
-    dt.transport_type?.replace("_", " ") || "N/A",
-    dt.vehicle_no || "N/A",
-    dt.vendor_name || "N/A",
-    `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
-    dt.total_rent || 0,
-    dt.total_exp || 0,
-    (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
-  ]);
+    const tableRows = filteredTrips.map((dt, index) => [
+      index + 1,
+      tableFormatDate(dt.date),
+      dt.trip_id,
+      dt.customer || "N/A",
+      dt.transport_type?.replace("_", " ") || "N/A",
+      dt.vehicle_no || "N/A",
+      dt.vendor_name || "N/A",
+      `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
+      dt.total_rent || 0,
+      dt.total_exp || 0,
+      (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
+    ]);
 
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 20,
-    styles: { fontSize: 10 },
-    headStyles: { fillColor: [17, 55, 91], textColor: [255, 255, 255] },
-    alternateRowStyles: { fillColor: [240, 240, 240] },
-    theme: "grid",
-  });
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [17, 55, 91], textColor: [255, 255, 255] },
+      alternateRowStyles: { fillColor: [240, 240, 240] },
+      theme: "grid",
+    });
 
-  doc.save("trip_report.pdf");
-};
+    doc.save("trip_report.pdf");
+  };
 
-// Print Function
-const printTripsTable = () => {
-  // Generate table HTML from filteredTrips (ignore pagination)
-  let tableHTML = `
+  // Print Function
+  const printTripsTable = () => {
+    // Generate table HTML from filteredTrips (ignore pagination)
+    let tableHTML = `
     <table>
       <thead>
         <tr>
@@ -167,11 +167,11 @@ const printTripsTable = () => {
       <tbody>
   `;
 
-  filteredTrips.forEach((dt, index) => {
-    const totalProfit = (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0);
-    const tripDestination = `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`;
+    filteredTrips.forEach((dt, index) => {
+      const totalProfit = (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0);
+      const tripDestination = `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`;
 
-    tableHTML += `
+      tableHTML += `
       <tr>
         <td>${index + 1}</td>
         <td>${tableFormatDate(dt.date)}</td>
@@ -186,12 +186,12 @@ const printTripsTable = () => {
         <td>${totalProfit}</td>
       </tr>
     `;
-  });
+    });
 
-  tableHTML += `</tbody></table>`;
+    tableHTML += `</tbody></table>`;
 
-  const WinPrint = window.open("", "", "width=900,height=650");
-  WinPrint.document.write(`
+    const WinPrint = window.open("", "", "width=900,height=650");
+    WinPrint.document.write(`
     <html>
       <head>
         <title>Print</title>
@@ -210,11 +210,11 @@ const printTripsTable = () => {
     </html>
   `);
 
-  WinPrint.document.close();
-  WinPrint.focus();
-  WinPrint.print();
-  WinPrint.close();
-};
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
 
 
   // delete by id
@@ -307,12 +307,23 @@ const printTripsTable = () => {
     );
   });
 
+
   // pagination
-  const itemsPerPage = 10;
+  const itemsPerPage = 300;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentTrip = filteredTripList.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredTripList.length / itemsPerPage);
+
+   // Filtered & paginated trips
+  const totalTripRent = currentTrip.reduce((sum, dt) => sum + parseFloat(dt.total_rent || 0), 0);
+  const totalTripCost = currentTrip.reduce((sum, dt) => sum + parseFloat(dt.total_exp || 0), 0);
+  const totalProfit = currentTrip.reduce((sum, dt) => {
+    const rent = parseFloat(dt.total_rent || 0);
+    const demurrage = parseFloat(dt.d_total || 0);
+    const exp = parseFloat(dt.total_exp || 0);
+    return sum + (rent + demurrage - exp);
+  }, 0);
 
   return (
     <main className=" md:p-2">
@@ -387,7 +398,7 @@ const printTripsTable = () => {
             )}
           </div>
         </div>
-        {/* Conditional Filter Section */}        
+        {/* Conditional Filter Section */}
         {showFilter && (
           <div className="flex flex-col md:flex-row items-stretch gap-4 border border-gray-300 rounded-md p-5 my-5 transition-all duration-300">
             <div className="flex-1 min-w-0">
@@ -555,6 +566,15 @@ const printTripsTable = () => {
                     );
                   }))}
             </tbody>
+            <tfoot className="bg-gray-100 font-bold text-sm">
+              <tr>
+                <td className="p-2 text-center" colSpan="8">Total</td>
+                <td className="p-2">{totalTripRent.toFixed(2)}</td>
+                <td className="p-2">{totalTripCost.toFixed(2)}</td>
+                <td className="p-2">{totalProfit.toFixed(2)}</td>
+                <td className="p-2"></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
         {/* pagination */}

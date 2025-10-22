@@ -40,15 +40,16 @@ const useProfitLoseData = (filterType = "year") => {
 
           if (trip.transport_type === "own_transport") {
             monthlyData[month].ownTripIncome += parseFloat(trip.total_rent) || 0;
-            monthlyData[month].ownTripCost +=
-              (parseFloat(trip.fuel_cost) || 0) +
-              (parseFloat(trip.driver_commission) || 0) +
-              (parseFloat(trip.food_cost) || 0) +
-              (parseFloat(trip.parking_cost) || 0) +
-              (parseFloat(trip.toll_cost) || 0) +
-              (parseFloat(trip.feri_cost) || 0) +
-              (parseFloat(trip.police_cost) || 0) +
-              (parseFloat(trip.labor) || 0);
+            // monthlyData[month].ownTripCost +=
+            //   (parseFloat(trip.fuel_cost) || 0) +
+            //   (parseFloat(trip.driver_commission) || 0) +
+            //   (parseFloat(trip.food_cost) || 0) +
+            //   (parseFloat(trip.parking_cost) || 0) +
+            //   (parseFloat(trip.toll_cost) || 0) +
+            //   (parseFloat(trip.feri_cost) || 0) +
+            //   (parseFloat(trip.police_cost) || 0) +
+            //   (parseFloat(trip.labor) || 0);
+            monthlyData[month].ownTripCost += parseFloat(trip.total_exp) || 0;
           } else if (trip.transport_type === "vendor_transport") {
             monthlyData[month].vendorTripIncome += parseFloat(trip.total_rent) || 0;
             monthlyData[month].vendorTripCost += parseFloat(trip.total_exp) || 0;
