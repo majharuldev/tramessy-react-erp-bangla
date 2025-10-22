@@ -309,7 +309,7 @@ const TripList = () => {
 
 
   // pagination
-  const itemsPerPage = 300;
+  const itemsPerPage = 10;
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentTrip = filteredTripList.slice(indexOfFirstItem, indexOfLastItem);
