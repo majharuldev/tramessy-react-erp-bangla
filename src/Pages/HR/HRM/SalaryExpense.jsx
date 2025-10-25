@@ -16,6 +16,7 @@ import { FiFileText, FiX } from "react-icons/fi"
 import Pagination from "../../../components/Shared/Pagination"
 import { tableFormatDate } from "../../../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
+import toNumber from "../../../hooks/toNumber"
 
 
 const SalaryExpense = () => {
@@ -257,7 +258,7 @@ if (!formData.vehicle_no) newErrors.vehicle_no = "Vehicle is required"
       SL: i + 1,
       Date: item.date,
       "Paid To": item.paid_to,
-      Amount: item.pay_amount,
+      Amount: toNumber(item.pay_amount),
       Category: item.payment_category,
       "Vehicle No": item.vehicle_no,
       Remarks: item.remarks,

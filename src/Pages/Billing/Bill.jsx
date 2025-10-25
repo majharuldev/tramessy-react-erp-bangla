@@ -10,6 +10,7 @@ import Pagination from "../../components/Shared/Pagination"
 import CreatableSelect from "react-select/creatable"
 import { tableFormatDate } from "../../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
+import toNumber from "../../hooks/toNumber"
 
 pdfMake.vfs = pdfFonts.vfs
 
@@ -87,9 +88,9 @@ const Bill = () => {
       Chalan: dt.challan,
       From: dt.load_point,
       Destination: dt.unload_point,
-      Rent: dt.total_rent,
-      Demurrage: dt.d_total,
-      Total: (Number.parseFloat(dt.total_rent) || 0) + (Number.parseFloat(dt.d_total) || 0),
+      Rent: toNumber(dt.total_rent),
+      Demurrage: toNumber(dt.d_total),
+      Total: (toNumber(dt.total_rent) || 0) + (toNumber(dt.d_total) || 0),
     }))
     const worksheet = XLSX.utils.json_to_sheet(excelData)
     const workbook = XLSX.utils.book_new()

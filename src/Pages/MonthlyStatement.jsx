@@ -9,6 +9,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Pagination from "../components/Shared/Pagination";
+import toNumber from "../hooks/toNumber";
 
 const MonthlyStatement = () => {
   const [allData, setAllData] = useState([]); // Store all data
@@ -54,26 +55,26 @@ const MonthlyStatement = () => {
         }
 
         if (trip.transport_type === "own_transport") {
-          monthlyData[month].ownTripIncome += parseFloat(trip.total_rent) || 0;
+          monthlyData[month].ownTripIncome += toNumber(trip.total_rent) || 0;
           // monthlyData[month].ownTripCost += 
-            // (parseFloat(trip.fuel_cost) || 0) +
-            // (parseFloat(trip.driver_commission) || 0) +
-            // (parseFloat(trip.food_cost) || 0) +
-            // (parseFloat(trip.parking_cost) || 0) +
-            // (parseFloat(trip.toll_cost) || 0) +
-            // (parseFloat(trip.feri_cost) || 0) +
-            // (parseFloat(trip.police_cost) || 0) +
-            // (parseFloat(trip.night_guard) || 0) +
-            // (parseFloat(trip.chada) || 0) +
-            // (parseFloat(trip.others_cost) || 0) +
-            // (parseFloat(trip.additional_cost) || 0) +
-            // (parseFloat(trip.additional_unload_charge) || 0) +
-            // (parseFloat(trip.callan_cost) || 0) +
-            // (parseFloat(trip.labor) || 0);
-          monthlyData[month].ownTripCost += parseFloat(trip.total_exp) || 0;
+            // (toNumber(trip.fuel_cost) || 0) +
+            // (toNumber(trip.driver_commission) || 0) +
+            // (toNumber(trip.food_cost) || 0) +
+            // (toNumber(trip.parking_cost) || 0) +
+            // (toNumber(trip.toll_cost) || 0) +
+            // (toNumber(trip.feri_cost) || 0) +
+            // (toNumber(trip.police_cost) || 0) +
+            // (toNumber(trip.night_guard) || 0) +
+            // (toNumber(trip.chada) || 0) +
+            // (toNumber(trip.others_cost) || 0) +
+            // (toNumber(trip.additional_cost) || 0) +
+            // (toNumber(trip.additional_unload_charge) || 0) +
+            // (toNumber(trip.callan_cost) || 0) +
+            // (toNumber(trip.labor) || 0);
+          monthlyData[month].ownTripCost += toNumber(trip.total_exp) || 0;
         } else if (trip.transport_type === "vendor_transport") {
-          monthlyData[month].vendorTripIncome += parseFloat(trip.total_rent) || 0;
-          monthlyData[month].vendorTripCost += parseFloat(trip.total_exp) || 0;
+          monthlyData[month].vendorTripIncome += toNumber(trip.total_rent) || 0;
+          monthlyData[month].vendorTripCost += toNumber(trip.total_exp) || 0;
         }
       });
 
@@ -90,7 +91,7 @@ const MonthlyStatement = () => {
             officeExpense: 0
           };
         }
-        monthlyData[month].purchaseCost += parseFloat(purchase.purchase_amount) || 0;
+        monthlyData[month].purchaseCost += toNumber(purchase.purchase_amount) || 0;
       });
 
       expenses.forEach(expense => {
@@ -108,9 +109,9 @@ const MonthlyStatement = () => {
         }
 
         if (expense.payment_category === "Salary") {
-          monthlyData[month].salaryExpense += parseFloat(expense.pay_amount) || 0;
+          monthlyData[month].salaryExpense += toNumber(expense.pay_amount) || 0;
         } else {
-          monthlyData[month].officeExpense += parseFloat(expense.pay_amount) || 0;
+          monthlyData[month].officeExpense += toNumber(expense.pay_amount) || 0;
         }
       });
 

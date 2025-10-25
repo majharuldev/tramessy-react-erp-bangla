@@ -9,6 +9,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import toNumber from "../../hooks/toNumber";
 // Extend dayjs with isBetween plugin
 dayjs.extend(isBetween);
 
@@ -47,7 +48,7 @@ export default function FuelReport() {
   // Generate fuel report from trip data
   const generateFuelReport = (trips) => {
     const fuelReport = trips
-      .filter(trip => trip.fuel_cost && parseFloat(trip.fuel_cost) > 0)
+      .filter(trip => trip.fuel_cost && toNumber(trip.fuel_cost) > 0)
       .map(trip => ({
         id: trip.id,
         date: trip.date,
@@ -56,10 +57,10 @@ export default function FuelReport() {
         driver: trip.driver_name || "N/A",
         customer: trip.customer || "N/A",
         route: `${trip.load_point || ""} to ${trip.unload_point || ""}`,
-        fuel_cost: parseFloat(trip.fuel_cost) || 0,
-        total_rent: parseFloat(trip.total_rent) || 0,
+        fuel_cost: toNumber(trip.fuel_cost) || 0,
+        total_rent: toNumber(trip.total_rent) || 0,
         fuel_percentage: trip.total_rent > 0
-          ? ((parseFloat(trip.fuel_cost) / parseFloat(trip.total_rent)) * 100).toFixed(2)
+          ? ((toNumber(trip.fuel_cost) / toNumber(trip.total_rent)) * 100)
           : "N/A",
         status: trip.status || "N/A"
       }));
@@ -152,7 +153,7 @@ export default function FuelReport() {
     }
 
     const headers = [
-      ["Date", "Ref ID", "Vehicle", "Driver", "Customer", "Route", "Fuel Cost", "Total Rent", "Fuel %"]
+      ["Date", "Ref ID", "Vehicle", "Driver", "Customer", "Route", "Fuel Cost", "Total Rent"]
     ];
 
     const data = filteredReport.map(item => [
@@ -162,9 +163,8 @@ export default function FuelReport() {
       item.driver,
       item.customer,
       item.route,
-      item.fuel_cost.toFixed(2),
-      item.total_rent.toFixed(2),
-      item.fuel_percentage + '%'
+      toNumber(item.fuel_cost),
+      toNumber(item.total_rent),
     ]);
 
     autoTable(doc, {
@@ -175,7 +175,7 @@ export default function FuelReport() {
       styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
       headStyles: { fillColor: [17, 55, 91], textColor: 255, fontStyle: 'bold' },
       foot: [
-        ['', '', '', '', '', 'Total:', totals.totalFuelCost.toFixed(2), totals.totalRent.toFixed(2), '']
+        ['', '', '', '', '', 'Total:', totals.totalFuelCost, totals.totalRent, '']
       ],
       footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' }
     });
@@ -191,11 +191,11 @@ export default function FuelReport() {
 
     // Data
     filteredReport.forEach(item => {
-      csvContent += `${item.date},${item.ref_id},${item.vehicle},${item.driver},${item.customer},"${item.route}",${item.fuel_cost.toFixed(2)},${item.total_rent.toFixed(2)},${item.fuel_percentage}%\n`;
+      csvContent += `${item.date},${item.ref_id},${item.vehicle},${item.driver},${item.customer},"${item.route}",${toNumber(item.fuel_cost)},${toNumber(item.total_rent)}\n`;
     });
 
     // Add totals row
-    csvContent += `,,,,,Total,${totals.totalFuelCost.toFixed(2)},${totals.totalRent.toFixed(2)},\n`;
+    csvContent += `,,,,,Total,${totals.totalFuelCost},${totals.totalRent},\n`;
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -217,8 +217,8 @@ export default function FuelReport() {
       <td style="border:1px solid #ddd;padding:6px">${item.driver}</td>
       <td style="border:1px solid #ddd;padding:6px">${item.customer}</td>
       <td style="border:1px solid #ddd;padding:6px">${item.route}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${item.fuel_cost.toFixed(2)}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${item.total_rent.toFixed(2)}</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${item.fuel_cost}</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${item.total_rent}</td>
     </tr>
   `).join("");
 
@@ -226,8 +226,8 @@ export default function FuelReport() {
     const totalsRow = `
     <tr style="font-weight:bold;background:#f0f0f0">
       <td colspan="6" style="border:1px solid #ddd;padding:6px;text-align:right">Total:</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${totals.totalFuelCost.toFixed(2)}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${totals.totalRent.toFixed(2)}</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${totals.totalFuelCost}</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${totals.totalRent}</td>
     </tr>
   `;
 

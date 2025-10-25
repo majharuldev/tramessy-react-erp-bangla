@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
 import { isAfter, isBefore, isSameDay } from "date-fns";
+import toNumber from "../../hooks/toNumber";
 
 const OfficeLedger = () => {
   const [branch, setBranch] = useState([]);
@@ -136,9 +137,9 @@ const itemDate = new Date(item.date);
       Mode: item.mode || "--",
       Destination: item.unload_point || "--",
       Due: item.due || "--",
-      CashIn: item.cash_in || "--",
-      CashOut: item.cash_out || "--",
-      Balance: item.runningBalance,
+      CashIn: toNumber(item.cash_in) || "--",
+      CashOut: toNumber(item.cash_out) || "--",
+      Balance: toNumber(item.runningBalance),
       Ref: item.ref || "--",
     }));
 

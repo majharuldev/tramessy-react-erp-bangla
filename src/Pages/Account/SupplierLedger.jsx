@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import toNumber from "../../hooks/toNumber";
 
 const SupplierLedger = () => {
   const [supplies, setSupplies] = useState([]); // Supplier dropdown options
@@ -100,9 +101,9 @@ console.log(supplies, "suo")
       Date: item?.date,
       Particulars: item?.remarks || "",
       Mode: item?.mode || "",
-      PurchaseAmount: item?.purchase_amount || "",
-      PaymentAmount: item?.pay_amount || "",
-      Balance: item?.runningBalance || "",
+      PurchaseAmount: toNumber(item?.purchase_amount) || "",
+      PaymentAmount: toNumber(item?.pay_amount) || "",
+      Balance: toNumber(item?.runningBalance) || "",
     }));
 
     const ws = XLSX.utils.json_to_sheet(tableData);

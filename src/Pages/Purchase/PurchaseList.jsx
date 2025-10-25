@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import toNumber from "../../hooks/toNumber";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
@@ -121,9 +122,9 @@ const PurchaseList = () => {
       "Vehicle No": item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
       "Category": item.category,
       "Item Name": item.item_name,
-      "Quantity": item.quantity,
-      "Unit Price": item.unit_price,
-      "Total": item.purchase_amount,
+      "Quantity": toNumber(item.quantity),
+      "Unit Price": toNumber(item.unit_price),
+      "Total": toNumber(item.purchase_amount),
       "Date": item.date,
       "Remarks": item.remarks || "N/A"
     }));
@@ -231,9 +232,9 @@ const PurchaseList = () => {
           <td>${item.vehicle_no !== "null" ? item.vehicle_no : "N/A"}</td>
           <td>${item.category}</td>
           <td>${item.item_name}</td>
-          <td>${item.quantity}</td>
-          <td>${item.unit_price}</td>
-          <td>${item.purchase_amount}</td>
+          <td>${toNumber(item.quantity)}</td>
+          <td>${toNumber(item.unit_price)}</td>
+          <td>${toNumber(item.purchase_amount)}</td>
         </tr>
       `
       )

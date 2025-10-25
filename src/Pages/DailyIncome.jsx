@@ -13,6 +13,7 @@ import { saveAs } from "file-saver"
 import Pagination from "../components/Shared/Pagination"
 import { tableFormatDate } from "../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
+import toNumber from "../hooks/toNumber"
 
 const DailyIncome = () => {
   const [trips, setTrips] = useState([])
@@ -100,8 +101,8 @@ const DailyIncome = () => {
   // Correct CSV data mapping
   // CSV data for export
   const csvData = filteredIncome.map((dt, index) => {
-    const totalRent = Number.parseFloat(dt.total_rent ?? "0") || 0
-    const totalExp = Number.parseFloat(dt.total_exp ?? "0") || 0
+    const totalRent = toNumber(dt.total_rent ?? 0) || 0
+    const totalExp = toNumber(dt.total_exp ?? 0) || 0
     const profit = (totalRent - totalExp)
 
     return {

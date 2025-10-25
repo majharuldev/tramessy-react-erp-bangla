@@ -9,6 +9,7 @@ import Pagination from "../../components/Shared/Pagination"
 import DatePicker from "react-datepicker"
 import { tableFormatDate } from "../../components/Shared/formatDate"
 import { isSameDay } from "date-fns"
+import toNumber from "../../hooks/toNumber"
 
 export default function VehicleProfitReport() {
   const [tripData, setTripData] = useState([])
@@ -100,8 +101,8 @@ export default function VehicleProfitReport() {
         }
 
         const vehicleDate = vehicleDateMap.get(key)
-        vehicleDate.total_revenue += Number.parseFloat(trip.total_rent) || 0
-        vehicleDate.trip_expenses += Number.parseFloat(trip.total_exp || "0")
+        vehicleDate.total_revenue += toNumber(trip.total_rent) || 0
+        vehicleDate.trip_expenses += toNumber(trip.total_exp || 0)
         vehicleDate.trip_count += 1
       })
 
@@ -142,8 +143,8 @@ export default function VehicleProfitReport() {
 
         const vehicleDate = vehicleDateMap.get(key)
         const purchaseAmount =
-          Number.parseFloat(purchase.purchase_amount || "0") ||
-          Number.parseFloat(purchase.quantity) * Number.parseFloat(purchase.unit_price)
+          toNumber(purchase.purchase_amount || 0) ||
+          toNumber(purchase.quantity) * toNumber(purchase.unit_price)
 
         if (purchase.category === "fuel") {
           vehicleDate.fuel_cost += purchaseAmount
@@ -192,7 +193,7 @@ export default function VehicleProfitReport() {
 
         const vehicleDate = vehicleDateMap.get(key)
         // Calculate engine oil cost from stock out
-        const stockOutAmount = Number.parseFloat(stock.stock_out || "0")
+        const stockOutAmount = toNumber(stock.stock_out || "0")
         // You might need to adjust this calculation based on your actual data structure
         vehicleDate.engine_oil_cost += stockOutAmount * 300 // Assuming average engine oil price
       })
@@ -241,20 +242,20 @@ export default function VehicleProfitReport() {
   }, [tripData, purchaseData, stockOutData, selectedDate, fromDate, toDate, selectedVehicle])
 
   // চাইলে আলাদা আলাদা বের করতে পারেন
-  const totalTrip = profitData.reduce((sum, v) => sum + v.trip_count, 0)
-  const totalTripCost = profitData.reduce((sum, v) => sum + v.trip_expenses, 0)
-  const totalPartsCost = profitData.reduce((sum, v) => sum + v.parts_cost, 0)
-  const totalFuelCost = profitData.reduce((sum, v) => sum + v.fuel_cost, 0)
-  const totalEngineOil = profitData.reduce((sum, v) => sum + v.engine_oil_cost, 0)
+  const totalTrip = profitData.reduce((sum, v) => sum + toNumber(v.trip_count), 0)
+  const totalTripCost = profitData.reduce((sum, v) => sum + toNumber(v.trip_expenses), 0)
+  const totalPartsCost = profitData.reduce((sum, v) => sum + toNumber(v.parts_cost), 0)
+  const totalFuelCost = profitData.reduce((sum, v) => sum + toNumber(v.fuel_cost), 0)
+  const totalEngineOil = profitData.reduce((sum, v) => sum + toNumber(v.engine_oil_cost), 0)
 
   const totalPages = Math.ceil(profitData.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentData = profitData.slice(startIndex, endIndex)
 
-  const totalProfit = profitData.reduce((sum, vehicle) => sum + vehicle.net_profit, 0)
-  const totalRevenue = profitData.reduce((sum, vehicle) => sum + vehicle.total_revenue, 0)
-  const totalCosts = profitData.reduce((sum, vehicle) => sum + (vehicle.trip_expenses + vehicle.parts_cost + vehicle.fuel_cost + vehicle.engine_oil_cost), 0)
+  const totalProfit = profitData.reduce((sum, vehicle) => sum + toNumber(vehicle.net_profit), 0)
+  const totalRevenue = profitData.reduce((sum, vehicle) => sum + toNumber(vehicle.total_revenue), 0)
+  const totalCosts = profitData.reduce((sum, vehicle) => sum + (toNumber(vehicle.trip_expenses) + toNumber(vehicle.parts_cost) + toNumber(vehicle.fuel_cost) + toNumber(vehicle.engine_oil_cost)), 0)
 
   //   // ------------------- Export Functions -------------------
   const exportToExcel = () => {
@@ -262,13 +263,13 @@ export default function VehicleProfitReport() {
       profitData.map((d) => ({
         Date: d.date,
         "Vehicle No": d.vehicle_no,
-        Trips: d.trip_count,
-        "Trip Rent": d.total_revenue,
-        "Trip Cost": d.trip_expenses,
-        "Parts Cost": d.parts_cost,
-        "Fuel Cost": d.fuel_cost,
-        "Engine Oil": d.engine_oil_cost,
-        "Net Profit": d.net_profit,
+        Trips: toNumber(d.trip_count),
+        "Trip Rent": toNumber(d.total_revenue),
+        "Trip Cost": toNumber(d.trip_expenses),
+        "Parts Cost": toNumber(d.parts_cost),
+        "Fuel Cost": toNumber(d.fuel_cost),
+        "Engine Oil": toNumber(d.engine_oil_cost),
+        "Net Profit": toNumber(d.net_profit),
       }))
     )
     const workbook = XLSX.utils.book_new()
@@ -559,7 +560,7 @@ export default function VehicleProfitReport() {
                       className="hover:bg-gray-50 transition-all"
                     >
                       <td className="px-4 py-4 font-medium text-[#11375B]">{tableFormatDate(vehicleDate.date)}</td>
-                      <td className="px-4 py-4 font-bold">{vehicleDate.vehicle_no}</td>
+                      <td className="px-4 py-4 font-semibold">{vehicleDate.vehicle_no}</td>
                       <td className="px-4 py-4 text-gray-700">{vehicleDate.trip_count}</td>
                       <td className="px-4 py-4 text-gray-700 font-semibold">
                         {vehicleDate.total_revenue.toLocaleString()}

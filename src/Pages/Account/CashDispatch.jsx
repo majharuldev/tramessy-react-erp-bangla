@@ -322,9 +322,9 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
             {currentCash.length > 0 && (
               <tfoot className="bg-gray-100 font-bold">
                 <tr>
-                  <td colSpan="5" className="p-2 text-right">Total:</td>
+                  <td colSpan="9" className="p-2 text-right">Total:</td>
                   <td className="p-2">{totalAmount}</td>
-                  <td colSpan="2"></td>
+                  <td colSpan="3"></td>
                 </tr>
               </tfoot>
             )}

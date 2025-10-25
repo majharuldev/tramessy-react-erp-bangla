@@ -6,6 +6,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
 import DatePicker from "react-datepicker";
+import toNumber from "../../hooks/toNumber";
 
 const PurchaseReport = () => {
   const [purchases, setPurchases] = useState([]);
@@ -46,7 +47,7 @@ const PurchaseReport = () => {
 
   // Summary calculations
   const totalAmount = filteredPurchases.reduce(
-    (sum, p) => sum + (Number(p.purchase_amount) || (p.quantity * p.unit_price)),
+    (sum, p) => sum + (toNumber(p.purchase_amount) || (toNumber(p.quantity) * toNumber(p.unit_price))),
     0
   );
 
@@ -55,7 +56,7 @@ const PurchaseReport = () => {
     filteredPurchases.forEach(p => {
       supplierTotals[p.supplier_name] =
         (supplierTotals[p.supplier_name] || 0) +
-        (Number(p.purchase_amount) || (p.quantity * p.unit_price));
+        (toNumber(p.purchase_amount) || (toNumber(p.quantity) * toNumber(p.unit_price)));
     });
     return Object.entries(supplierTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   })();
@@ -65,7 +66,7 @@ const PurchaseReport = () => {
     filteredPurchases.forEach(p => {
       categoryTotals[p.category] =
         (categoryTotals[p.category] || 0) +
-        (Number(p.purchase_amount) || (p.quantity * p.unit_price));
+        (toNumber(p.purchase_amount) || (toNumber(p.quantity) * toNumber(p.unit_price)));
     });
     return Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
   })();
@@ -258,18 +259,18 @@ const PurchaseReport = () => {
   // Grand totals for all filtered purchases
   // Grand totals for all filtered purchases
   const totalQty = filteredPurchases.reduce(
-    (sum, p) => sum + (Number(p.quantity) || 0),
+    (sum, p) => sum + (toNumber(p.quantity) || 0),
     0
   );
   const totalUnitPrice = filteredPurchases.reduce(
-    (sum, p) => sum + (Number(p.unit_price) || 0),
+    (sum, p) => sum + (toNumber(p.unit_price) || 0),
     0
   );
 
   const totalAmountOverall = filteredPurchases.reduce(
     (sum, p) =>
       sum +
-      ((Number(p.quantity) || 0) * (Number(p.unit_price) || 0)),
+      ((toNumber(p.quantity) || 0) * (toNumber(p.unit_price) || 0)),
     0
   );
 
@@ -315,7 +316,7 @@ const PurchaseReport = () => {
           </div>
           <div className="bg-green-50 p-4 rounded text-center">
             <p className="text-sm text-gray-500">Total Amount</p>
-            <p className="text-lg font-bold">{totalAmount.toLocaleString()} ৳</p>
+            <p className="text-lg font-bold">{toNumber(totalAmount).toLocaleString()} ৳</p>
           </div>
           <div className="bg-yellow-50 p-4 rounded text-center">
             <p className="text-sm text-gray-500">Top Supplier</p>

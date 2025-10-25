@@ -990,6 +990,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { FiFilter } from "react-icons/fi";
 import Pagination from "../../components/Shared/Pagination";
+import toNumber from "../../hooks/toNumber";
 
 const DriverReport = () => {
   const [drivers, setDrivers] = useState([]);
@@ -1175,10 +1176,10 @@ const DriverReport = () => {
       Month: d.month,
       Driver: d.name,
       Mobile: d.mobile,
-      Trips: d.totalTrips,
-      Rent: d.totalRent,
-      Expense: d.totalExp,
-      Profit: d.totalProfit,
+      Trips: toNumber(d.totalTrips),
+      Rent: toNumber(d.totalRent),
+      Expense: toNumber(d.totalExp),
+      Profit: toNumber(d.totalProfit),
     }));
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -1215,24 +1216,24 @@ const DriverReport = () => {
         <td style="border:1px solid #ccc;padding:6px;text-align:center">${d.month}</td>
         <td style="border:1px solid #ccc;padding:6px">${d.name}</td>
         <td style="border:1px solid #ccc;padding:6px">${d.mobile}</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:center">${d.totalTrips}</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:right">${d.totalRent}</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:right">${d.totalExp}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:center">${toNumber(d.totalTrips)}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:right">${toNumber(d.totalRent)}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:right">${toNumber(d.totalExp)}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right;color:${d.totalProfit >= 0 ? 'green':'red'}">${d.totalProfit}</td>
       </tr>
     `).join("");
 
     // Calculate totals
-    const totalTrips = monthlyDriverStats.reduce((sum, d) => sum + d.totalTrips, 0);
-    const totalRent = monthlyDriverStats.reduce((sum, d) => sum + d.totalRent, 0);
-    const totalExp = monthlyDriverStats.reduce((sum, d) => sum + d.totalExp, 0);
-    const totalProfit = monthlyDriverStats.reduce((sum, d) => sum + d.totalProfit, 0);
+    const totalTrips = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalTrips), 0);
+    const totalRent = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalRent), 0);
+    const totalExp = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalExp), 0);
+    const totalProfit = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalProfit), 0);
 
     const totalRow = `
       <tr style="font-weight:bold;background:#f0f0f0">
         <td colspan="4" style="border:1px solid #ccc;padding:6px;text-align:right">Total:</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:center">${totalTrips}</td>
-        <td style="border:1px solid #ccc;padding:6px;text-align:right">${totalRent}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:center">${toNumber(totalTrips)}</td>
+        <td style="border:1px solid #ccc;padding:6px;text-align:right">${toNumber(totalRent)}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right">${totalExp}</td>
         <td style="border:1px solid #ccc;padding:6px;text-align:right;color:${totalProfit >= 0 ? 'green':'red'}">${totalProfit}</td>
       </tr>
@@ -1269,10 +1270,10 @@ const DriverReport = () => {
   };
 
   // Grand Totals
-  const totalTrips = monthlyDriverStats.reduce((sum, d) => sum + d.totalTrips, 0);
-  const totalRent = monthlyDriverStats.reduce((sum, d) => sum + d.totalRent, 0);
-  const totalExp = monthlyDriverStats.reduce((sum, d) => sum + d.totalExp, 0);
-  const totalProfit = monthlyDriverStats.reduce((sum, d) => sum + d.totalProfit, 0);
+  const totalTrips = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalTrips), 0);
+  const totalRent = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalRent), 0);
+  const totalExp = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalExp), 0);
+  const totalProfit = monthlyDriverStats.reduce((sum, d) => sum + toNumber(d.totalProfit), 0);
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;

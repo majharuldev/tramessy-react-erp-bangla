@@ -13,6 +13,7 @@ import "jspdf-autotable";
 import autoTable from "jspdf-autotable"; 
 import Pagination from "../../components/Shared/Pagination";
 import { SelectField } from "../../components/Form/FormFields";
+import toNumber from "../../hooks/toNumber";
 
 const RoutePricing = () => {
   const [routePricing, setRoutePricing] = useState([]);
@@ -134,7 +135,7 @@ const exportTripsToExcel = () => {
       Size: dt.vehicle_size,
       "Load Point": dt.load_point,
       "Unload Point": dt.unload_point,
-      Rate: dt.rate,
+      Rate: toNumber(dt.rate),
     }))
   );
   const workbook = XLSX.utils.book_new();

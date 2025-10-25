@@ -16,6 +16,7 @@ import { BiEdit } from "react-icons/bi"
 import Pagination from "../../../components/Shared/Pagination"
 import { tableFormatDate } from "../../../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
+import toNumber from "../../../hooks/toNumber"
 
 
 const OfficialExpense = () => {
@@ -225,7 +226,7 @@ const OfficialExpense = () => {
       SL: i + 1,
       Date: item.date,
       PaidTo: item.paid_to,
-      Amount: item.pay_amount,
+      Amount: toNumber(item.pay_amount),
       Category: item.sub_category,
       Notes: item.remarks,
     }))

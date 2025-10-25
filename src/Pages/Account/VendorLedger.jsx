@@ -150,7 +150,7 @@ const VendorLedger = () => {
         "Trip Rent": "",
         Advance: "",
         "Pay Amount": "",
-        Due: openingBalance.toFixed(2),
+        Due: openingBalance,
       });
     }
 
@@ -178,9 +178,9 @@ const VendorLedger = () => {
       Unload: "",
       Vehicle: "",
       Driver: "",
-      "Trip Rent": totals.rent,
-      Advance: totals.advance,
-      "Pay Amount": totals.pay_amount,
+      "Trip Rent": toNumber(totals.rent),
+      Advance: toNumber(totals.advance),
+      "Pay Amount": toNumber(totals.pay_amount),
       Due: grandDue,
     });
 
@@ -202,7 +202,7 @@ const VendorLedger = () => {
 
     if (selectedVendor) {
       doc.setFontSize(10);
-      doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
+      doc.text(`Opening Balance: ${openingBalance}`, 14, 22);
     }
 
     const columns = [
@@ -310,9 +310,7 @@ const VendorLedger = () => {
             <div class="print-title">Vendor Ledger: ${selectedVendor || "All Vendors"
       }</div>
             ${selectedVendor
-        ? `<div class="opening-balance-text">Opening Balance: ${openingBalance.toFixed(
-          2
-        )}</div>`
+        ? `<div class="opening-balance-text">Opening Balance: ${openingBalance}</div>`
         : ""
       }
           </div>
@@ -470,7 +468,7 @@ const VendorLedger = () => {
                     Due{" "}
                     {selectedVendor && (
                       <p className="text-xs text-gray-600 font-normal">
-                        Opening Balance: {openingBalance.toFixed(2)}
+                        Opening Balance: {openingBalance}
                       </p>
                     )}
                   </th>

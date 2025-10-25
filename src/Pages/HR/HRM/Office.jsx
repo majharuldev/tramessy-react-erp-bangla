@@ -13,6 +13,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../../components/Shared/formatDate";
+import toNumber from "../../../hooks/toNumber";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -93,7 +94,7 @@ const exportOfficeToExcel = () => {
     Date: office.date,
     Branch: office.branch_name,
     Address: office.address,
-    "Opening Balance": office.opening_balance,
+    "Opening Balance": toNumber(office.opening_balance),
     "Factory/Company": office.factory_name,
   }));
 

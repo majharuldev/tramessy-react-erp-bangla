@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import Pagination from "../../components/Shared/Pagination";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import toNumber from "../../hooks/toNumber";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
@@ -131,9 +132,9 @@ const uniqueVehicles = [...new Set(purchase.map((p) => p.vehicle_no))];
       "Vehicle No": item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
       "Category": item.category,
       "Item Name": item.item_name,
-      "Quantity": item.quantity,
-      "Unit Price": item.unit_price,
-      "Total": item.purchase_amount,
+      "Quantity": toNumber(item.quantity),
+      "Unit Price": toNumber(item.unit_price),
+      "Total": toNumber(item.purchase_amount),
       "Date": item.date,
       "Remarks": item.remarks || "N/A"
     }));

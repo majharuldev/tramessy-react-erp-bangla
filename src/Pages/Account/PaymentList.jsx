@@ -17,6 +17,7 @@ import { format, parseISO } from "date-fns";
 import Pagination from "../../components/Shared/Pagination";
 import DatePicker from "react-datepicker";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import toNumber from "../../hooks/toNumber";
 
 const PaymentList = () => {
   const generateRefId = useRefId();
@@ -88,15 +89,15 @@ const PaymentList = () => {
       SupplierName: dt.supplier_name,
       Category: dt.category,
       ItemName: dt.item_name,
-      Quantity: dt.quantity,
-      UnitPrice: dt.unit_price,
-      TotalAmount: dt.total,
-      PayAmount: dt.pay_amount,
-      DueAmount: parseFloat(dt.total) - parseFloat(dt.pay_amount),
+      Quantity: toNumber(dt.quantity),
+      UnitPrice: toNumber(dt.unit_price),
+      TotalAmount: toNumber(dt.total),
+      PayAmount: toNumber(dt.pay_amount),
+      DueAmount: toNumber(dt.total) - toNumber(dt.pay_amount),
       Status:
-        parseFloat(dt.pay_amount) === 0
+        toNumber(dt.pay_amount) === 0
           ? "Unpaid"
-          : parseFloat(dt.pay_amount) >= parseFloat(dt.total)
+          : toNumber(dt.pay_amount) >= toNumber(dt.total)
             ? "Paid"
             : "Partial",
     }));
@@ -140,10 +141,10 @@ const PaymentList = () => {
       dt.unit_price,
       dt.total_amount,
       dt.pay_amount,
-      parseFloat(dt.total_amount) - parseFloat(dt.pay_amount),
-      parseFloat(dt.pay_amount) === 0
+      toNumber(dt.total_amount) - toNumber(dt.pay_amount),
+      toNumber(dt.pay_amount) === 0
         ? "Unpaid"
-        : parseFloat(dt.pay_amount) >= parseFloat(dt.total_amount)
+        : toNumber(dt.pay_amount) >= toNumber(dt.total_amount)
           ? "Paid"
           : "Partial",
     ]);
@@ -171,10 +172,10 @@ const PaymentList = () => {
         <td>${dt.unit_price}</td>
         <td>${dt.total_amount}</td>
         <td>${dt.pay_amount}</td>
-        <td>${parseFloat(dt.total_amount) - parseFloat(dt.pay_amount)}</td>
-        <td>${parseFloat(dt.pay_amount) === 0
+        <td>${toNumber(dt.total_amount) - toNumber(dt.pay_amount)}</td>
+        <td>${toNumber(dt.pay_amount) === 0
           ? "Unpaid"
-          : parseFloat(dt.pay_amount) >= parseFloat(dt.total_amount)
+          : toNumber(dt.pay_amount) >= toNumber(dt.total_amount)
             ? "Paid"
             : "Partial"
         }</td>

@@ -60,15 +60,15 @@ const DailyTripExpense = () => {
   const csvData = trip.map((item, index) => {
     const totalRent = Number.parseFloat(item.total_rent ?? "0") || 0 // Changed trip_price to total_rent
     const totalExp = Number.parseFloat(item.total_exp ?? "0") || 0 // Using total_exp directly
-    const totalTripCost = (totalRent + totalExp).toFixed(2)
+    const totalTripCost = (totalRent + totalExp)
 
     return {
       index: index + 1,
       date: new Date(item.date).toLocaleDateString("en-GB"), // Changed trip_date to date
       vehicle_no: item.vehicle_no, // Changed vehicle_number to vehicle_no
       driver_name: item.driver_name,
-      total_rent: totalRent.toFixed(2), // Changed trip_price to total_rent
-      total_exp: totalExp.toFixed(2), // Using total_exp directly
+      total_rent: totalRent, // Changed trip_price to total_rent
+      total_exp: totalExp, // Using total_exp directly
       totalTripCost,
     }
   })
@@ -305,7 +305,7 @@ const DailyTripExpense = () => {
                 currentTrip?.map((item, index) => {
                   const totalRent = Number.parseFloat(item.total_rent ?? "0") || 0
                   const totalExp = Number.parseFloat(item.total_exp ?? "0") || 0
-                  const totalTripCost = (totalRent + totalExp).toFixed(2)
+                  const totalTripCost = (totalRent + totalExp)
 
                   return (
                     <tr key={item.id} className="hover:bg-gray-50 transition-all">
@@ -313,8 +313,8 @@ const DailyTripExpense = () => {
                       <td className="px-4 py-4">{item.date}</td> {/* Changed trip_date to date */}
                       <td className="px-4 py-4">{item.vehicle_no}</td> {/* Changed vehicle_number to vehicle_no */}
                       <td className="px-4 py-4">{item.driver_name}</td>
-                      <td className="px-4 py-4">{totalRent.toFixed(2)}</td> {/* Changed trip_price to total_rent */}
-                      <td className="px-4 py-4">{totalExp.toFixed(2)}</td> {/* Changed totalCost to total_exp */}
+                      <td className="px-4 py-4">{totalRent}</td> {/* Changed trip_price to total_rent */}
+                      <td className="px-4 py-4">{totalExp}</td> {/* Changed totalCost to total_exp */}
                       <td className="px-4 py-4">{totalTripCost}</td>
                       {/* <td className="action_column">
                         <div className="flex justify-center">

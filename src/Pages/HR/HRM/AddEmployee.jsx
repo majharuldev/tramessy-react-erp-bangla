@@ -31,7 +31,6 @@ const AddEmployee = () => {
   const [previewImage, setPreviewImage] = useState(null);
   // const generateRefId = useRefId();
   const onSubmit = async (data) => {
-    console.log("add fuel data", data);
     try {
       const formData = new FormData();
       for (const key in data) {

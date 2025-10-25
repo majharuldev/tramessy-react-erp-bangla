@@ -18,6 +18,7 @@ import autoTable from "jspdf-autotable";
 import Pagination from "../components/Shared/Pagination";
 import { formatDate, tableFormatDate } from "../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import toNumber from "../hooks/toNumber";
 const TripList = () => {
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,9 +86,9 @@ const TripList = () => {
       VehicleNo: dt.vehicle_no || "N/A",
       Vendor: dt.vendor_name || "N/A",
       "Trip & Destination": `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
-      TripRent: dt.total_rent || 0,
-      TripCost: dt.total_exp || 0,
-      Profit: (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
+      TripRent: toNumber(dt.total_rent),
+      TripCost: toNumber(dt.total_exp),
+      Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(tableData);
@@ -126,9 +127,9 @@ const TripList = () => {
       dt.vehicle_no || "N/A",
       dt.vendor_name || "N/A",
       `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
-      dt.total_rent || 0,
-      dt.total_exp || 0,
-      (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0),
+      toNumber(dt.total_rent) || 0,
+      toNumber(dt.total_exp) || 0,
+      (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0),
     ]);
 
     autoTable(doc, {
@@ -168,7 +169,7 @@ const TripList = () => {
   `;
 
     filteredTrips.forEach((dt, index) => {
-      const totalProfit = (parseFloat(dt.total_rent || 0) + parseFloat(dt.d_total || 0)) - parseFloat(dt.total_exp || 0);
+      const totalProfit = (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0);
       const tripDestination = `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`;
 
       tableHTML += `
@@ -316,12 +317,12 @@ const TripList = () => {
   const totalPages = Math.ceil(filteredTripList.length / itemsPerPage);
 
    // Filtered & paginated trips
-  const totalTripRent = currentTrip.reduce((sum, dt) => sum + parseFloat(dt.total_rent || 0), 0);
-  const totalTripCost = currentTrip.reduce((sum, dt) => sum + parseFloat(dt.total_exp || 0), 0);
+  const totalTripRent = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_rent || 0), 0);
+  const totalTripCost = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_exp || 0), 0);
   const totalProfit = currentTrip.reduce((sum, dt) => {
-    const rent = parseFloat(dt.total_rent || 0);
-    const demurrage = parseFloat(dt.d_total || 0);
-    const exp = parseFloat(dt.total_exp || 0);
+    const rent = toNumber(dt.total_rent || 0);
+    const demurrage = toNumber(dt.d_total || 0);
+    const exp = toNumber(dt.total_exp || 0);
     return sum + (rent + demurrage - exp);
   }, 0);
 
@@ -507,9 +508,9 @@ const TripList = () => {
                     </td>
                   </tr>)
                   : (currentTrip?.map((dt, index) => {
-                    const totalRent = parseFloat(dt.total_rent || 0);
-                    const demurrage = parseFloat(dt.d_total || 0);
-                    const totalExpenses = parseFloat(dt.total_exp || 0);
+                    const totalRent = toNumber(dt.total_rent || 0);
+                    const demurrage = toNumber(dt.d_total || 0);
+                    const totalExpenses = toNumber(dt.total_exp || 0);
                     const totalProfit = (totalRent + demurrage) - totalExpenses;
                     return (
                       <tr
@@ -569,9 +570,9 @@ const TripList = () => {
             <tfoot className="bg-gray-100 font-bold text-sm">
               <tr>
                 <td className="p-2 text-center" colSpan="8">Total</td>
-                <td className="p-2">{totalTripRent.toFixed(2)}</td>
-                <td className="p-2">{totalTripCost.toFixed(2)}</td>
-                <td className="p-2">{totalProfit.toFixed(2)}</td>
+                <td className="p-2">{totalTripRent}</td>
+                <td className="p-2">{totalTripCost}</td>
+                <td className="p-2">{totalProfit}</td>
                 <td className="p-2"></td>
               </tr>
             </tfoot>

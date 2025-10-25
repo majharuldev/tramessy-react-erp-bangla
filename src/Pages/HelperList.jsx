@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
+import toNumber from "../hooks/toNumber";
 const HelperList = () => {
   const [helper, setHelper] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,7 +98,7 @@ const HelperList = () => {
       Name: Helper.Helper_name,
       Mobile: Helper.phone,
       Address: Helper.address,
-      Emergency: Helper.salary,
+      Emergency: toNumber(Helper.salary),
       Status: Helper.status,
     }));
 

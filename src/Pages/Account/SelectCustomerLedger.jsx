@@ -7,6 +7,7 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import toNumber from "../../hooks/toNumber";
 
 const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const [startDate, setStartDate] = useState("");
@@ -33,7 +34,7 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   const selectedCustomer = customerList.find(
     cust => cust.customer_name === selectedCustomerName
   );
-  const dueAmount = selectedCustomer ? parseFloat(selectedCustomer.due) : 0;
+  const dueAmount = selectedCustomer ? toNumber(selectedCustomer.due) : 0;
 
   // filter date 
   const filteredLedger = customer.filter((entry) => {
@@ -53,14 +54,14 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   // Calculate totals including opening balance
   const totals = filteredLedger.reduce(
     (acc, item) => {
-      acc.rent += Number(item.bill_amount || 0);
-      acc.rec_amount += Number(item.rec_amount || 0);
+      acc.rent += toNumber(item.bill_amount || 0);
+      acc.rec_amount += toNumber(item.rec_amount || 0);
       return acc;
     },
     { rent: 0,  rec_amount: 0}
   );
   // Now calculate due from total trip - advance - pay_amount
-totals.due = totals.rent  - totals.rec_amount;
+totals.due = toNumber(totals.rent)  - toNumber(totals.rec_amount);
 
   const grandDue =  totals.due+dueAmount;
 
@@ -74,75 +75,127 @@ totals.due = totals.rent  - totals.rec_amount;
   // };
 
   const totalRent = filteredLedger.reduce(
-    (sum, entry) => sum + parseFloat(entry.rec_amount || 0),
+    (sum, entry) => sum + toNumber(entry.rec_amount || 0),
     0
   );
 
   const customerName = filteredLedger[0]?.customer_name || "All Customers";
+//  Excel Export - Table er moto same to same
+const exportToExcel = () => {
+  let cumulativeDue = dueAmount; // Opening Balance
 
-  const exportToExcel = () => {
-    const rows = filteredLedger.map((dt, index) => ({
+  const rows = filteredLedger.map((item, index) => {
+    const billAmount = toNumber(item.bill_amount || 0);
+    const receivedAmount = toNumber(item.rec_amount || 0);
+    cumulativeDue += billAmount;
+    cumulativeDue -= receivedAmount;
+
+    return {
       SL: index + 1,
-      Date: dt.bill_date,
-      Customer: dt.customer_name,
-      "Vehicle No": dt.vehicle_no,
-      "Loading Point": dt.load_point,
-      "Unloading Point": dt.unload_point,
-      "Total Rent": dt.body_cost,
-    }));
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Ledger");
-    XLSX.writeFile(workbook, `${customerName}-Ledger.xlsx`);
-  };
-
-  const exportToPDF = () => {
-    const docDefinition = {
-      content: [
-        { text: `${customerName} Ledger`, style: "header" },
-        {
-          table: {
-            headerRows: 1,
-            widths: ["auto", "auto", "*", "auto", "auto", "auto", "auto"],
-            body: [
-              [
-                "SL.",
-                "Date",
-                "Customer",
-                "Vehicle No",
-                "Loading Point",
-                "Unloading Point",
-                "Total Rent",
-              ],
-              ...filteredLedger.map((dt, index) => [
-                index + 1,
-                dt.bill_date,
-                dt.customer_name,
-                dt.vehicle_no,
-                dt.load_point,
-                dt.unload_point,
-                dt.body_cost,
-              ]),
-              [
-                { text: "Total", colSpan: 6, alignment: "right" },
-                {}, {}, {}, {}, {},
-                totalRent.toFixed(2),
-              ],
-            ],
-          },
-        },
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10],
-        },
-      },
+      Date: tableFormatDate(item.bill_date),
+      Customer: item.customer_name,
+      Load: item.load_point || "--",
+      Unload: item.unload_point || "--",
+      Vehicle: item.vehicle_no || "--",
+      Driver: item.driver_name || "--",
+      "Bill Amount": billAmount || 0,
+      "Received Amount": receivedAmount || 0,
+      "Due": cumulativeDue,
     };
-    pdfMake.createPdf(docDefinition).download(`${customerName}-Ledger.pdf`);
+  });
+
+  // Add total row
+  rows.push({
+    SL: "",
+    Date: "",
+    Customer: "",
+    Load: "",
+    Unload: "",
+    Vehicle: "",
+    Driver: "Total",
+    "Bill Amount": toNumber(totals.rent),
+    "Received Amount": toNumber(totals.rec_amount),
+    "Due": toNumber(grandDue),
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Ledger");
+  XLSX.writeFile(workbook, `${customerName}-Ledger.xlsx`);
+};
+
+//  PDF Export - Table er moto same to same
+const exportToPDF = () => {
+  let cumulativeDue = dueAmount; // Opening Balance
+
+  const tableBody = [
+    [
+      "SL.",
+      "Date",
+      "Customer",
+      "Load/Unload",
+      "Vehicle",
+      "Driver",
+      "Bill Amount",
+      "Received Amount",
+      "Due",
+    ],
+    ...filteredLedger.map((item, index) => {
+      const billAmount = parseFloat(item.bill_amount || 0);
+      const receivedAmount = parseFloat(item.rec_amount || 0);
+      cumulativeDue += billAmount;
+      cumulativeDue -= receivedAmount;
+
+      return [
+        index + 1,
+        tableFormatDate(item.bill_date),
+        item.customer_name,
+        `${item.load_point || "--"} / ${item.unload_point || "--"}`,
+        item.vehicle_no || "--",
+        item.driver_name || "--",
+        billAmount || 0,
+        receivedAmount || 0,
+        cumulativeDue,
+      ];
+    }),
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Total",
+      totals.rent,
+      totals.rec_amount,
+      grandDue,
+    ],
+  ];
+
+  const docDefinition = {
+    content: [
+      { text: `${customerName} Ledger`, style: "header" },
+      {
+        table: {
+          headerRows: 1,
+          widths: [25, 60, "*", "*", "*", "*", 60, 70, 60],
+          body: tableBody,
+        },
+        layout: "lightHorizontalLines",
+      },
+    ],
+    styles: {
+      header: {
+        fontSize: 16,
+        bold: true,
+        alignment: "center",
+        margin: [0, 0, 0, 10],
+      },
+    },
+    pageOrientation: "landscape",
   };
 
+  pdfMake.createPdf(docDefinition).download(`${customerName}-Ledger.pdf`);
+};
   const handlePrint = () => {
     const printContent = tableRef.current;
     const printWindow = window.open("", "", "width=900,height=600");
@@ -265,7 +318,7 @@ totals.due = totals.rent  - totals.rec_amount;
                 <th className="border border-gray-700 px-2 py-1">
                     {selectedCustomerName && (
                       <p className="text-sm font-medium text-gray-800">
-                        Opening Amount: ৳{dueAmount?.toFixed(2)}
+                        Opening Amount: ৳{dueAmount}
                       </p>
                     )}
                     Due 
@@ -321,7 +374,7 @@ totals.due = totals.rent  - totals.rec_amount;
       Final Due (Opening Due +)
     </td>
     <td className="border border-black px-2 py-1 text-right text-black">
-      ৳{grandDue?.toFixed(2)}
+      ৳{grandDue}
     </td>
   </tr> */}
 </tfoot>
