@@ -12,13 +12,20 @@ import Pagination from "../../components/Shared/Pagination";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
 import toNumber from "../../hooks/toNumber";
+import { IoMdClose } from "react-icons/io";
+import useAdmin from "../../hooks/useAdmin";
 
 const PurchaseList = () => {
   const [purchase, setPurchase] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isAdmin = useAdmin();
   // Date filter state
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+    // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOfficialProductId, setSelectedOfficialProductId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
   // search
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilter, setShowFilter] = useState(false);
@@ -101,6 +108,38 @@ const PurchaseList = () => {
       toast.error("Purchase Information could not be loaded.");
     }
   };
+
+   // delete by id
+    const handleDelete = async (id) => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/api/purchase/delete/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to delete Purchase");
+        }
+        // Remove trip from local list
+        setPurchase((prev) => prev.filter((trip) => trip.id !== id));
+        toast.success("Purchase deleted successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+  
+        setIsOpen(false);
+        setSelectedOfficialProductId(null);
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error("There was a problem deleting!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    };
+
   if (loading) return <p className="text-center mt-16">Loading data...</p>;
   // pagination
   const itemsPerPage = 10;
@@ -480,9 +519,15 @@ const PurchaseList = () => {
                         >
                           <FaEye className="text-[12px]" />
                         </button>
-                        {/* <button className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                        <FaTrashAlt className="text-[12px]" />
-                      </button> */}
+                        {isAdmin &&<button
+                          onClick={() => {
+                            setSelectedOfficialProductId(dt.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>}
                       </div>
                     </td>
                   </tr>
@@ -502,6 +547,7 @@ const PurchaseList = () => {
           />
         )}
       </div>
+      {/* view modal */}
       {viewModalOpen && selectedPurchase && (
         <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50 p-4">
           <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-5 relative">
@@ -571,6 +617,42 @@ const PurchaseList = () => {
           </div>
         </div>
       )}
+      {/* delete modal */}
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Customer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedOfficialProductId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        </div>
     </div>
   );
 };

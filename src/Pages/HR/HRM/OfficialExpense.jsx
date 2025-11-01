@@ -5,7 +5,7 @@ import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import dayjs from "dayjs"
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTruck } from "react-icons/fa"
+import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTrashAlt, FaTruck } from "react-icons/fa"
 import { GrFormNext, GrFormPrevious } from "react-icons/gr"
 import toast, { Toaster } from "react-hot-toast"
 import { FaPlus } from "react-icons/fa6"
@@ -17,6 +17,8 @@ import Pagination from "../../../components/Shared/Pagination"
 import { tableFormatDate } from "../../../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
 import toNumber from "../../../hooks/toNumber"
+import { IoMdClose } from "react-icons/io"
+import useAdmin from "../../../hooks/useAdmin"
 
 
 const OfficialExpense = () => {
@@ -42,6 +44,11 @@ const OfficialExpense = () => {
   const [endDate, setEndDate] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+   // delete
+    const [selectedExpenseId, setSelectedExpenseId] = useState(null)
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleModal = () => setIsOpen(!isOpen);
+    const isAdmin = useAdmin();
 
   const salaryCategories = [
     "Utility",
@@ -320,6 +327,37 @@ const OfficialExpense = () => {
     win.close();
   };
 
+   // delete by id
+      const handleDelete = async (id) => {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_BASE_URL}/api/expense/delete/${id}`,
+            {
+              method: "DELETE",
+            }
+          );
+    
+          if (!response.ok) {
+            throw new Error("Failed to delete Payment receive");
+          }
+          // Remove trip from local list
+          setExpenses((prev) => prev.filter((trip) => trip.id !== id));
+          toast.success("Payment receive deleted successfully", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+    
+          setIsOpen(false);
+          setSelectedExpenseId(null);
+        } catch (error) {
+          console.error("Delete error:", error);
+          toast.error("There was a problem deleting!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+      }
+
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -515,13 +553,22 @@ const OfficialExpense = () => {
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
                     <td className="px-3 py-3 text-sm">{item.sub_category}</td>
                     <td className="px-3 py-3 text-sm">{item.remarks}</td>
-                    <td className="px-3 py-3 text-sm action_column">
+                    <td className="px-3 py-3 text-sm action_column flex items-center gap-2">
                       <button
                         onClick={() => showModal(item)}
                         className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors"
                       >
                         <BiEdit size={12} />
                       </button>
+                      {isAdmin && <button
+                        onClick={() => {
+                          setSelectedExpenseId(item.id);
+                          setIsOpen(true);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                      >
+                        <FaTrashAlt className="text-[12px]" />
+                      </button>}
                     </td>
                   </tr>
                 ))
@@ -622,7 +669,7 @@ const OfficialExpense = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Branch Name  <span className="text-red-500">*</span></label>
                     <select
@@ -672,6 +719,42 @@ const OfficialExpense = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Official expense?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedExpenseId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

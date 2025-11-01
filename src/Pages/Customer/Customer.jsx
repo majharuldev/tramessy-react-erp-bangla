@@ -7,6 +7,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
+import useAdmin from "../../hooks/useAdmin";
 
 const Customer = () => {
   const [customer, setCustomer] = useState([]);
@@ -15,6 +16,7 @@ const Customer = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin()
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   // Fetch customer data
@@ -179,7 +181,7 @@ const Customer = () => {
                       {/* <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
                         <FaEye className="text-[12px]" />
                       </button> */}
-                      <button
+                      {isAdmin && <button
                         onClick={() => {
                           setSelectedCustomerId(dt.id);
                           setIsOpen(true);
@@ -187,7 +189,7 @@ const Customer = () => {
                         className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>

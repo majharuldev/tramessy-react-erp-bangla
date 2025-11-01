@@ -14,6 +14,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import { tableFormatDate } from "../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
+import useAdmin from "../hooks/useAdmin";
 
 const VendorList = () => {
   const [vendor, setVendor] = useState([]);
@@ -26,6 +27,7 @@ const VendorList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedvendorId, setselectedvendorId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin()
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   // search
@@ -393,7 +395,7 @@ const VendorList = () => {
                               <FaPen className="text-[12px]" />
                             </button>
                           </Link>
-                          <button
+                          {isAdmin && <button
                             onClick={() => {
                               setselectedvendorId(dt.id);
                               setIsOpen(true);
@@ -401,7 +403,7 @@ const VendorList = () => {
                             className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                           >
                             <FaTrashAlt className="text-[12px]" />
-                          </button>
+                          </button>}
                         </div>
                       </td>
                     </tr>

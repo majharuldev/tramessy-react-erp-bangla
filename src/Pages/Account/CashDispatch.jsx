@@ -5,10 +5,13 @@ import { FaPlus } from "react-icons/fa6";
 import { FiFilter } from "react-icons/fi";
 import { HiCurrencyBangladeshi } from "react-icons/hi2";
 import { Link } from "react-router-dom";
-import { isAfter, isBefore,  isSameDay } from "date-fns";
+import { isAfter, isBefore, isSameDay } from "date-fns";
 import Pagination from "../../components/Shared/Pagination";
 import DatePicker from "react-datepicker";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import useAdmin from "../../hooks/useAdmin";
+import toast from "react-hot-toast";
+import { IoMdClose } from "react-icons/io";
 
 const CashDispatch = () => {
   const [account, setAccount] = useState([]);
@@ -20,6 +23,11 @@ const CashDispatch = () => {
   const [branch, setBranch] = useState([])
   const [selectedPerson, setSelectedPerson] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
+  // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedFundTransferId, setSelectedFundTransferId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin();
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   // Fetch office data
@@ -43,7 +51,7 @@ const CashDispatch = () => {
     const persons = account.map((a) => a.person_name).filter(Boolean);
     return [...new Set(persons)]; // unique persons
   }, [account]);
-const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.date));
   //  filter accounts by date range
   const filteredAccounts = useMemo(() => {
     return sortedAccount.filter((item) => {
@@ -62,11 +70,11 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
 
       // If both startDate and endDate are set, filter range
       if (startDate && endDate) {
-      return (
-        (isAfter(itemDate, startDate) || isSameDay(itemDate, startDate)) &&
-        (isBefore(itemDate, endDate) || isSameDay(itemDate, endDate))
-      );
-    }
+        return (
+          (isAfter(itemDate, startDate) || isSameDay(itemDate, startDate)) &&
+          (isBefore(itemDate, endDate) || isSameDay(itemDate, endDate))
+        );
+      }
       // branch filter
       if (selectedBranch && item.branch_name !== selectedBranch) {
         return false;
@@ -76,7 +84,7 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
         return false;
       }
 
-      // 🔎 search filter (check all fields)
+      //  search filter (check all fields)
       if (searchTerm) {
         const lowerSearch = searchTerm.toLowerCase();
         const values = Object.values(item).join(" ").toLowerCase();
@@ -104,6 +112,37 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
     value: dt.branch_name,
     label: dt.branch_name,
   }))
+
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/account/delete/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete Fund Transfer");
+      }
+      // Remove trip from local list
+      setAccount((prev) => prev.filter((trip) => trip.id !== id));
+      toast.success("Fund Transfer deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedFundTransferId(null);
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  }
 
   // pagination
   const itemsPerPage = 10;
@@ -307,12 +346,15 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
                             <FaPen className="text-[12px]" />
                           </button>
                         </Link>
-                        {/* <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                        <FaEye className="text-[12px]" />
-                      </button>
-                      <button className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer">
-                        <FaTrashAlt className="text-[12px]" />
-                      </button> */}
+                        {isAdmin && <button
+                          onClick={() => {
+                            setSelectedFundTransferId(dt.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>}
                       </div>
                     </td>
                   </tr>
@@ -338,6 +380,41 @@ const sortedAccount = [...account].sort((a, b) => new Date(b.date) - new Date(a.
             onPageChange={(page) => setCurrentPage(page)}
             maxVisible={8}
           />
+        )}
+      </div>
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Fund Transfer?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedFundTransferId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

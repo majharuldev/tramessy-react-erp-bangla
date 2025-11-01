@@ -14,6 +14,7 @@ import { IoIosRemoveCircle, IoMdClose } from "react-icons/io";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { FaTruck } from "react-icons/fa6";
 import Pagination from "../components/Shared/Pagination";
+import useAdmin from "../hooks/useAdmin";
 
 const RentList = () => {
   const [fuel, setFuel] = useState([]);
@@ -26,6 +27,7 @@ const RentList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFuelId, setselectedFuelId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin()
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
   // search
@@ -371,7 +373,7 @@ const RentList = () => {
                           <FaPen className="text-[12px]" />
                         </button>
                       </Link>
-                      <button
+                      {isAdmin && <button
                         onClick={() => {
                           setselectedFuelId(dt.id);
                           setIsOpen(true);
@@ -379,7 +381,7 @@ const RentList = () => {
                         className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>

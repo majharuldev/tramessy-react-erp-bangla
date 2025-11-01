@@ -16,13 +16,15 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Pagination from "../components/Shared/Pagination";
-import { formatDate, tableFormatDate } from "../components/Shared/formatDate";
+import { tableFormatDate } from "../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
 import toNumber from "../hooks/toNumber";
+import useAdmin from "../hooks/useAdmin";
 const TripList = () => {
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
+  const isAdmin = useAdmin();
   // delete modal
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTripId, setselectedTripId] = useState(null);
@@ -316,7 +318,7 @@ const TripList = () => {
   const currentTrip = filteredTripList.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredTripList.length / itemsPerPage);
 
-   // Filtered & paginated trips
+  // Filtered & paginated trips
   const totalTripRent = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_rent || 0), 0);
   const totalTripCost = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_exp || 0), 0);
   const totalProfit = currentTrip.reduce((sum, dt) => {
@@ -551,16 +553,24 @@ const TripList = () => {
                         <td className="p-2 action_column">
                           <div className="flex gap-1">
                             <Link to={`/tramessy/UpdateTripForm/${dt.id}`}>
-                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer">
+                              <button className="text-primary hover:bg-primary hover:text-white px-2 py-2 rounded shadow-md transition-all cursor-pointer">
                                 <FaPen className="text-[12px]" />
                               </button>
                             </Link>
                             <button
                               onClick={() => handleView(dt.id)}
-                              className="text-primary hover:bg-primary hover:text-white px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                              className="text-primary hover:bg-primary hover:text-white px-2 py-2 rounded shadow-md transition-all cursor-pointer"
                             >
                               <FaEye className="text-[12px]" />
                             </button>
+                           {isAdmin && <button
+                              onClick={() => {
+                                setselectedTripId(dt.id);
+                                setIsOpen(true);
+                              }}
+                              className="flex items-center w-full px-2 py-2 text-sm text-gray-700 hover:bg-primary shadow-md"                                >
+                              <FaTrashAlt className="mr-2 h-4 w-3 text-red-500" />
+                            </button>}
                           </div>
                         </td>
                       </tr>

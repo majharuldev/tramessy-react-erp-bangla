@@ -14,6 +14,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { tableFormatDate } from "../../../components/Shared/formatDate";
 import toNumber from "../../../hooks/toNumber";
+import useAdmin from "../../../hooks/useAdmin";
 
 const Office = () => {
   const [office, setOffice] = useState([]);
@@ -22,6 +23,7 @@ const Office = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOfficeId, setSelectedOfficeId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin()
   // search
   const [searchTerm, setSearchTerm] = useState("");
   // pagination
@@ -322,7 +324,7 @@ const printOfficeTable = () => {
                           <FaPen className="text-[12px]" />
                         </button>
                       </Link>
-                      <button
+                      {isAdmin && <button
                         onClick={() => {
                           setSelectedOfficeId(dt.id);
                           setIsOpen(true);
@@ -330,7 +332,7 @@ const printOfficeTable = () => {
                         className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>

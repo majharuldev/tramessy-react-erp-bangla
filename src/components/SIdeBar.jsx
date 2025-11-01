@@ -1282,7 +1282,7 @@ const Sidebar = () => {
                     <FaChevronDown />
                   </span>
                 </div>
-                <div
+                {isAdmin &&<div
                   className={`transition-all duration-900 ease-in-out overflow-hidden ${
                     openMenu.user ? "max-h-[100px]" : "max-h-0"
                   }`}
@@ -1302,7 +1302,7 @@ const Sidebar = () => {
                       </Link>
                     </li>
                   </ul>
-                </div>
+                </div>}
               </li>
               </>)}
               </>

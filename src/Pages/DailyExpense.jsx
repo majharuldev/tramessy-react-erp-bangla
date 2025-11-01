@@ -48,12 +48,12 @@ const DailyTripExpense = () => {
   // Correct headers matching your table
   const headers = [
     { label: "#", key: "index" },
-    { label: "তারিখ", key: "date" }, // Changed trip_date to date
-    { label: "গাড়ি নাম্বার", key: "vehicle_no" }, // Changed vehicle_number to vehicle_no
-    { label: "ড্রাইভারের নাম", key: "driver_name" },
-    { label: "ট্রিপ খরচ", key: "total_rent" }, // Changed trip_price to total_rent
-    { label: "অন্যান্য খরচ", key: "total_exp" }, // Changed totalCost to total_exp
-    { label: "টোটাল খরচ", key: "totalTripCost" },
+    { label: "Date", key: "date" }, // Changed trip_date to date
+    { label: "vehicle no", key: "vehicle_no" }, // Changed vehicle_number to vehicle_no
+    { label: "Driver", key: "driver_name" },
+    { label: "Rent", key: "total_rent" }, // Changed trip_price to total_rent
+    { label: "Expense", key: "total_exp" }, // Changed totalCost to total_exp
+    { label: "total Expense", key: "totalTripCost" },
   ]
 
   // Correct CSV data mapping
@@ -158,15 +158,6 @@ const DailyTripExpense = () => {
   const currentTrip = filteredExpense.slice(indexOfFirstItem, indexOfLastItem)
   const totalPages = Math.ceil(filteredExpense.length / itemsPerPage)
 
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((currentPage) => currentPage - 1)
-  }
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((currentPage) => currentPage + 1)
-  }
-  const handlePageClick = (number) => {
-    setCurrentPage(number)
-  }
 
   return (
     <main className="md:p-2">

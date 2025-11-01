@@ -5,7 +5,7 @@ import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { saveAs } from "file-saver"
 import dayjs from "dayjs"
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTruck } from "react-icons/fa"
+import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTrashAlt, FaTruck } from "react-icons/fa"
 import { GrFormNext, GrFormPrevious } from "react-icons/gr"
 import toast, { Toaster } from "react-hot-toast"
 import { FaPlus } from "react-icons/fa6"
@@ -17,6 +17,8 @@ import Pagination from "../../../components/Shared/Pagination"
 import { tableFormatDate } from "../../../components/Shared/formatDate"
 import DatePicker from "react-datepicker"
 import toNumber from "../../../hooks/toNumber"
+import useAdmin from "../../../hooks/useAdmin"
+import { IoMdClose } from "react-icons/io"
 
 
 const SalaryExpense = () => {
@@ -38,6 +40,11 @@ const SalaryExpense = () => {
     vehicle_no: "",
     remarks: "",
   })
+  // delete
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin();
   const [errors, setErrors] = useState({})
   // Date filter state
   const [startDate, setStartDate] = useState("");
@@ -182,6 +189,37 @@ if (!formData.vehicle_no) newErrors.vehicle_no = "Vehicle is required"
     return Object.keys(newErrors).length === 0
   }
 
+  // delete by id
+    const handleDelete = async (id) => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/api/expense/delete/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to delete Payment receive");
+        }
+        // Remove trip from local list
+        setExpenses((prev) => prev.filter((trip) => trip.id !== id));
+        toast.success("Payment receive deleted successfully", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+  
+        setIsOpen(false);
+        setSelectedExpenseId(null);
+      } catch (error) {
+        console.error("Delete error:", error);
+        toast.error("There was a problem deleting!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    }
+
   const handleFormSubmit = async (e) => {
     e.preventDefault()
 
@@ -287,8 +325,8 @@ if (!formData.vehicle_no) newErrors.vehicle_no = "Vehicle is required"
     })
     doc.save("general_expense.pdf")
   }
-  // print
 
+  // print
   const printTable = () => {
     const tableHeader = `
     <thead>
@@ -554,13 +592,22 @@ if (!formData.vehicle_no) newErrors.vehicle_no = "Vehicle is required"
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
                     <td className="px-3 py-3 text-sm">{item.payment_category}</td>
                     <td className="px-3 py-3 text-sm">{item.remarks}</td>
-                    <td className="px-3 py-3 text-sm action_column">
+                    <td className="px-3 py-3 text-sm action_column flex items-center gap-2">
                       <button
                         onClick={() => showModal(item)}
                         className="flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors"
                       >
                         <BiEdit size={12} />
                       </button>
+                     { isAdmin && <button
+                        onClick={() => {
+                          setSelectedExpenseId(item.id);
+                          setIsOpen(true);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                      >
+                        <FaTrashAlt className="text-[12px]" />
+                      </button>}
                     </td>
                   </tr>
                 ))
@@ -716,6 +763,41 @@ if (!formData.vehicle_no) newErrors.vehicle_no = "Vehicle is required"
           </div>
         </div>
       )}
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this Salary expense?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedExpenseId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

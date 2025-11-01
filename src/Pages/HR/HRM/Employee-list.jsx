@@ -6,6 +6,7 @@ import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
 import Pagination from "../../../components/Shared/Pagination";
+import useAdmin from "../../../hooks/useAdmin";
 
 const EmployeeList = () => {
   const [employee, setEmployee] = useState([]);
@@ -21,6 +22,7 @@ const handleView = (employee) => {
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => setIsOpen(!isOpen);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const isAdmin = useAdmin();
   // search
   const [searchTerm, setSearchTerm] = useState("");
   // pagination
@@ -198,7 +200,7 @@ const handleView = (employee) => {
                         >
                           <FaEye className="text-[12px]" />
                         </button>
-                        <button
+                        {isAdmin && <button
                           onClick={() => {
                             setSelectedEmployeeId(dt.id);
                             setIsOpen(true);
@@ -206,7 +208,7 @@ const handleView = (employee) => {
                           className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                         >
                           <FaTrashAlt className="text-[12px]" />
-                        </button>
+                        </button>}
                       </div>
                     </td>
                   </tr>

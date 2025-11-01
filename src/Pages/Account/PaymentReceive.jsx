@@ -9,6 +9,9 @@ import { Link } from "react-router-dom";
 import Pagination from "../../components/Shared/Pagination";
 import DatePicker from "react-datepicker";
 import { tableFormatDate } from "../../components/Shared/formatDate";
+import useAdmin from "../../hooks/useAdmin";
+import toast from "react-hot-toast";
+import { IoMdClose } from "react-icons/io";
 
 const PaymentReceive = () => {
   const [payment, setPayment] = useState([]);
@@ -17,6 +20,11 @@ const PaymentReceive = () => {
   const [endDate, setEndDate] = useState(null);
   const [showFilter, setShowFilter] = useState(false);
   const [filteredPayment, setFilteredPayment] = useState([]);
+  // delete modal
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState(null);
+  const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin();
 
   // Fetch payment data
   useEffect(() => {
@@ -46,23 +54,23 @@ const PaymentReceive = () => {
     const result = sortedPayment.filter((item) => {
       if (!item.date) return false;
       const itemDate = new Date(item.date);
-// যদি শুধু startDate দেওয়া হয় → সেই দিনের ডেটা
-    if (startDate && !endDate) {
-      return isSameDay(itemDate, startDate);
-    }
+      // যদি শুধু startDate দেওয়া হয় → সেই দিনের ডেটা
+      if (startDate && !endDate) {
+        return isSameDay(itemDate, startDate);
+      }
 
-    // যদি শুধু endDate দেওয়া হয় → সেই দিনের ডেটা
-    if (endDate && !startDate) {
-      return isSameDay(itemDate, endDate);
-    }
+      // যদি শুধু endDate দেওয়া হয় → সেই দিনের ডেটা
+      if (endDate && !startDate) {
+        return isSameDay(itemDate, endDate);
+      }
 
-    // যদি দুইটাই দেওয়া হয় → range এর মধ্যে
-   if (startDate && endDate) {
-  return (
-    (isAfter(itemDate, startDate) || isSameDay(itemDate, startDate)) &&
-    (isBefore(itemDate, endDate) || isSameDay(itemDate, endDate))
-  );
-}
+      // যদি দুইটাই দেওয়া হয় → range এর মধ্যে
+      if (startDate && endDate) {
+        return (
+          (isAfter(itemDate, startDate) || isSameDay(itemDate, startDate)) &&
+          (isBefore(itemDate, endDate) || isSameDay(itemDate, endDate))
+        );
+      }
 
       return true;
     });
@@ -83,6 +91,36 @@ const PaymentReceive = () => {
   const totalPages = Math.ceil(filteredPayment.length / itemsPerPage);
 
 
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/paymentRecived/delete/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete Payment receive");
+      }
+      // Remove trip from local list
+      setPayment((prev) => prev.filter((trip) => trip.id !== id));
+      toast.success("Payment receive deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedPaymentId(null);
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  }
 
   // filter clear func
   const handleClearFilter = () => {
@@ -198,11 +236,16 @@ const PaymentReceive = () => {
                           <FaPen className="text-[12px]" />
                         </button>
                       </Link>
-                      {/* <button
-                        className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                      {isAdmin &&<button
+                        onClick={() => {
+                          setSelectedPaymentId(dt.id);
+                          setIsOpen(true);
+                        }}
+                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button> */}
+                      </button>}
+
                     </div>
                   </td>
                 </tr>
@@ -228,6 +271,41 @@ const PaymentReceive = () => {
             onPageChange={(page) => setCurrentPage(page)}
             maxVisible={8}
           />
+        )}
+      </div>
+      {/* Delete Modal */}
+      <div className="flex justify-center items-center">
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-[#000000ad] z-50">
+            <div className="relative bg-white rounded-lg shadow-lg p-6 w-72 max-w-sm border border-gray-300">
+              <button
+                onClick={toggleModal}
+                className="text-2xl absolute top-2 right-2 text-white bg-red-500 hover:bg-red-700 cursor-pointer rounded-sm"
+              >
+                <IoMdClose />
+              </button>
+              <div className="flex justify-center mb-4 text-red-500 text-4xl">
+                <FaTrashAlt />
+              </div>
+              <p className="text-center text-gray-700 font-medium mb-6">
+                Are you sure you want to delete this payment Receive?
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-primary hover:text-white cursor-pointer"
+                >
+                  No
+                </button>
+                <button
+                  onClick={() => handleDelete(selectedPaymentId)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 cursor-pointer"
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

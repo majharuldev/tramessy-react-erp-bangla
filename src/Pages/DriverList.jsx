@@ -12,6 +12,7 @@ import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import { tableFormatDate } from "../components/Shared/formatDate";
+import useAdmin from "../hooks/useAdmin";
 const CarList = () => {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,7 @@ const CarList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDriverId, setSelectedDriverId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin()
   // get single driver info by id
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
@@ -411,7 +413,7 @@ const CarList = () => {
                       >
                         <FaEye className="text-[12px]" />
                       </button>
-                      <button
+                    {isAdmin &&  <button
                         onClick={() => {
                           setSelectedDriverId(driver.id);
                           setIsOpen(true);
@@ -419,7 +421,7 @@ const CarList = () => {
                         className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>

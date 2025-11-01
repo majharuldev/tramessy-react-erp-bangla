@@ -12,6 +12,7 @@ import { saveAs } from "file-saver";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import toNumber from "../hooks/toNumber";
+import useAdmin from "../hooks/useAdmin";
 const HelperList = () => {
   const [helper, setHelper] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,7 @@ const HelperList = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedHelperId, setSelectedHelperId] = useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin()
   // get single Helper info by id
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedHelper, setSelectedHelper] = useState(null);
@@ -357,7 +359,7 @@ const HelperList = () => {
                       >
                         <FaEye className="text-[12px]" />
                       </button> */}
-                      <button
+                      {isAdmin && <button
                         onClick={() => {
                           setSelectedHelperId(helper.id);
                           setIsOpen(true);
@@ -365,7 +367,7 @@ const HelperList = () => {
                         className="text-red-900 hover:text-white hover:bg-red-900 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
                       >
                         <FaTrashAlt className="text-[12px]" />
-                      </button>
+                      </button>}
                     </div>
                   </td>
                 </tr>
