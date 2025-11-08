@@ -568,8 +568,8 @@ const TripList = () => {
                                 setselectedTripId(dt.id);
                                 setIsOpen(true);
                               }}
-                              className="flex items-center w-full px-2 py-2 text-sm text-gray-700 hover:bg-primary shadow-md"                                >
-                              <FaTrashAlt className="mr-2 h-4 w-3 text-red-500" />
+                              className="flex items-center w-full px-2 py-2 text-sm text-gray-700 hover:bg-primary shadow-md rounded"                                >
+                              <FaTrashAlt className=" h-4 w-3 text-red-500" />
                             </button>}
                           </div>
                         </td>
@@ -636,7 +636,7 @@ const TripList = () => {
       </div>
       {/* get trip information by id */}
       {viewModalOpen && selectedTrip && (
-        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50">
+        <div className="fixed inset-0 w-full h-full flex items-center justify-center bg-[#000000ad] z-50 overflow-auto scroll-hidden">
           <div className="w-4xl p-5 bg-gray-100 rounded-xl mt-10">
             <h3 className="text-primary font-semibold">Trip Info</h3>
             <div className="mt-5">
@@ -685,6 +685,20 @@ const TripList = () => {
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Driver Commission</p>{" "}
                   <p>{selectedTrip.driver_commission ? selectedTrip.driver_commission : 0}</p>
+                </li>
+              </ul>
+              <ul className="flex border-b border-r border-l border-gray-300">
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Demurrage Day</p>{" "}
+                  <p>{selectedTrip.d_day ? selectedTrip.d_day : 0}</p>
+                </li>
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Demurrage Rate</p>{" "}
+                  <p>{selectedTrip.d_amount ? selectedTrip.d_amount : 0}</p>
+                </li>
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Demurrage Total</p>{" "}
+                  <p>{selectedTrip.d_total ? selectedTrip.d_total : 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">

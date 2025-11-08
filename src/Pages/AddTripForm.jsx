@@ -751,7 +751,7 @@ export default function AddTripForm() {
             </div>
 
             {/* Demurrage Section — Shared by both Own & Vendor Transport */}
-            {/* {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
+             {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
                 <h3 className="text-orange-500 font-medium text-center mb-6">
                   Demurrage Details
@@ -785,7 +785,7 @@ export default function AddTripForm() {
                   />
                 </div>
               </div>
-            )} */}
+            )} 
 
             {/* Own Transport Expenses Section */}
             {selectedTransport === "own_transport" && (

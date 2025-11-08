@@ -430,6 +430,7 @@ const Bill = () => {
             body_cost: dt.body_fare,
             fuel_cost: dt.fuel_cost,
             driver_name: dt.driver_name,
+            d_total: dt.d_total,
             bill_amount: dt.total_rent,
           }),
         }).then(() =>
@@ -708,7 +709,7 @@ const Bill = () => {
                 <th className="border border-gray-700 px-2 py-1">Load Point</th>
                 <th className="border border-gray-700 px-2 py-1">Unload Point</th>
                 <th className="border border-gray-700 px-2 py-1">Bill Amount</th>
-                {/* <th className="border border-gray-700 px-2 py-1">Demurrage</th> */}
+                <th className="border border-gray-700 px-2 py-1">Demurrage</th>
                 <th className="border border-gray-700 px-2 py-1">Total</th>
                 <th className="border border-gray-700 px-2 py-1">BillStatus</th>
               </tr>
@@ -724,7 +725,7 @@ const Bill = () => {
                   <td className="border border-gray-700 p-1">{dt.load_point}</td>
                   <td className="border border-gray-700 p-1">{dt.unload_point}</td>
                   <td className="border border-gray-700 p-1">{dt.total_rent}</td>
-                  {/* <td className="border border-gray-700 p-1">{dt.d_total || 0}</td> */}
+                  <td className="border border-gray-700 p-1">{dt.d_total || 0}</td>
                   <td className="border border-gray-700 p-1">
                     {(Number.parseFloat(dt.total_rent) || 0) + (Number.parseFloat(dt.d_total) || 0)}
                   </td>
@@ -769,7 +770,7 @@ const Bill = () => {
                   Total
                 </td>
                 <td className="border border-black px-2 py-1">{totalRent}</td>
-                {/* <td className="border border-black px-2 py-1">{totalDemurrage}</td> */}
+                <td className="border border-black px-2 py-1">{totalDemurrage}</td>
                 <td className="border border-black px-2 py-1">{grandTotal}</td>
                 <td className="border border-black px-2 py-1"></td>
               </tr>

@@ -4,7 +4,6 @@ import { FaFileExcel, FaFilePdf, FaFilter, FaPrint } from "react-icons/fa6";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
 import { tableFormatDate } from "../../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
 import toNumber from "../../hooks/toNumber";
@@ -52,27 +51,35 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   });
 
   // Calculate totals including opening balance
+  // const totals = filteredLedger.reduce(
+  //   (acc, item) => {
+  //     const demurrage = toNumber(item.d_total || 0);
+  //     acc.rent += toNumber(item.bill_amount || 0);
+  //     acc.rec_amount += toNumber(item.rec_amount || 0);
+  //     return acc;
+  //   },
+  //   { rent: 0,  rec_amount: 0}
+  // );
   const totals = filteredLedger.reduce(
-    (acc, item) => {
-      acc.rent += toNumber(item.bill_amount || 0);
-      acc.rec_amount += toNumber(item.rec_amount || 0);
-      return acc;
-    },
-    { rent: 0,  rec_amount: 0}
-  );
+  (acc, item) => {
+    const demurrage = toNumber(item.d_total || 0);
+    const bill = toNumber(item.bill_amount || 0);
+    const received = toNumber(item.rec_amount || 0);
+
+    // add demurrage total separately
+    acc.d_total += demurrage;
+
+    // total bill amount includes demurrage
+    acc.rent += bill + demurrage;
+    acc.rec_amount += received;
+    return acc;
+  },
+  { rent: 0, rec_amount: 0, d_total: 0 }
+);
   // Now calculate due from total trip - advance - pay_amount
 totals.due = toNumber(totals.rent)  - toNumber(totals.rec_amount);
 
   const grandDue =  totals.due+dueAmount;
-
-  // Pagination logic
-  // const pageCount = Math.ceil(filteredLedger.length / itemsPerPage);
-  // const offset = currentPage * itemsPerPage;
-  // const currentItems = filteredLedger.slice(offset, offset + itemsPerPage);
-
-  // const handlePageClick = ({ selected }) => {
-  //   setCurrentPage(selected);
-  // };
 
   const totalRent = filteredLedger.reduce(
     (sum, entry) => sum + toNumber(entry.rec_amount || 0),
@@ -85,8 +92,10 @@ const exportToExcel = () => {
   let cumulativeDue = dueAmount; // Opening Balance
 
   const rows = filteredLedger.map((item, index) => {
-    const billAmount = toNumber(item.bill_amount || 0);
+    // const billAmount = toNumber(item.bill_amount || 0);
     const receivedAmount = toNumber(item.rec_amount || 0);
+    const billAmount = parseFloat(item.bill_amount || 0) + parseFloat(item.d_total || 0);
+
     cumulativeDue += billAmount;
     cumulativeDue -= receivedAmount;
 
@@ -98,6 +107,7 @@ const exportToExcel = () => {
       Unload: item.unload_point || "--",
       Vehicle: item.vehicle_no || "--",
       Driver: item.driver_name || "--",
+      Demurrage: item.d_total|| "--",
       "Bill Amount": billAmount || 0,
       "Received Amount": receivedAmount || 0,
       "Due": cumulativeDue,
@@ -112,7 +122,8 @@ const exportToExcel = () => {
     Load: "",
     Unload: "",
     Vehicle: "",
-    Driver: "Total",
+    Driver: "Total",    
+    Demurrage: toNumber(totals.d_total),
     "Bill Amount": toNumber(totals.rent),
     "Received Amount": toNumber(totals.rec_amount),
     "Due": toNumber(grandDue),
@@ -294,6 +305,9 @@ const exportToPDF = () => {
     <td colSpan={7} className="border border-black px-2 py-1 text-right">
       Total 
     </td>
+     <td className="border border-black px-2 py-1 text-right">
+      ৳{totals.d_total}
+    </td>
     <td className="border border-black px-2 py-1 text-right">
       ৳{totals.rent}
     </td>
@@ -312,8 +326,8 @@ const exportToPDF = () => {
                 <th className="border px-2 py-1">Unload</th>
                 <th className="border px-2 py-1">Vehicle</th>
                 <th className="border px-2 py-1">Driver</th>
-                <th className="border px-2 py-1">Bill Amount</th>
-            
+                <th className="border px-2 py-1">Demurrage Amount</th>
+            <th className="border px-2 py-1">Bill Amount</th>
                 <th className="border px-2 py-1">Recieved Amount</th>
                 <th className="border border-gray-700 px-2 py-1">
                     {selectedCustomerName && (
@@ -329,8 +343,10 @@ const exportToPDF = () => {
   {(() => {
     let cumulativeDue = dueAmount; // Opening balance
     return filteredLedger.map((item, idx) => {
-      const billAmount = parseFloat(item.bill_amount || 0);
+            const d_total = parseFloat(item.d_total|| 0);
+      // const billAmount = parseFloat(item.bill_amount || 0);
       const receivedAmount = parseFloat(item.rec_amount || 0);
+const billAmount = parseFloat(item.bill_amount || 0) + parseFloat(item.d_total || 0);
 
       cumulativeDue += billAmount;
       cumulativeDue -= receivedAmount;
@@ -351,6 +367,9 @@ const exportToPDF = () => {
           </td>
           <td className="border px-2 py-1">
             {item.driver_name || <span className="flex justify-center items-center">--</span>}
+          </td>
+          <td className="border px-2 py-1">
+            {d_total? d_total : "--"}
           </td>
           <td className="border px-2 py-1">
             {billAmount ? billAmount : "--"}
