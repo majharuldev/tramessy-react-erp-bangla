@@ -55,6 +55,7 @@ export default function AddTripForm() {
       chada: "",
       food_cost: "",
       callan_cost: "",
+      depo_cost: "",
       total_exp: 0,
       total: 0,
       transport_type: "",
@@ -125,6 +126,7 @@ export default function AddTripForm() {
     additional_cost,
     additional_unload_charge,
     callan_cost,
+    depo_cost
   ] = watch([
     "fuel_cost",
     "toll_cost",
@@ -142,6 +144,7 @@ export default function AddTripForm() {
     "additional_cost",
     "additional_unload_charge",
     "callan_cost",
+    "depo_cost"
   ]);
 
   // Calculate totals
@@ -162,6 +165,7 @@ export default function AddTripForm() {
       (Number(additional_cost) || 0) +
       (Number(additional_unload_charge) || 0) +
       (Number(callan_cost) || 0) +
+      (Number(depo_cost)|| 0) +
       (Number(othersCost) || 0);
 
     setValue("total_exp", totalExp);
@@ -186,6 +190,7 @@ export default function AddTripForm() {
     additional_cost,
     additional_unload_charge,
     callan_cost,
+    depo_cost,
     setValue,
     selectedTransport,
   ]);
@@ -295,6 +300,7 @@ export default function AddTripForm() {
               parking_cost: Number(tripData.parking_cost) || 0,
               night_guard: Number(tripData.night_guard) || 0,
               feri_cost: Number(tripData.feri_cost) || 0,
+              depo_cost: Number(tripData.depo_cost) || 0,
               chada: Number(tripData.chada) || 0,
               food_cost: Number(tripData.food_cost) || 0,
               d_day: Number(tripData.d_day) || 0,
@@ -563,6 +569,11 @@ export default function AddTripForm() {
                         { value: "savar_depz", label: "Savar Depz" },
                         { value: "airport", label: "Airport" },
                         { value: "aepz", label: "Aepz" },
+                        { value: "ctg. port", label: "CTG. Port" },
+                        { value: "cepz", label: "CEPZ" },
+                        { value: "kepz", label: "Kepz" },
+                        { value: "anwara epz", label: "Anwara EPZ" },
+                        { value: "ctg. warehouse", label: "CTG. Warehouse" },
                       ]}
                       control={control}
                       isCreatable={true}
@@ -584,8 +595,16 @@ export default function AddTripForm() {
                       required={id ? false : true}
                       options={[
                         { value: "ctg", label: "CTG" },
+                        { value: "savar epz", label: "Savar EPZ" },
+                        { value: "savar garage", label: "Savar Garage" },
+                        { value: "adamjee epz", label: "Adamjee EPZ" },
+                        { value: "valuka epz", label: "Valuka EPZ" },
+                        { value: "dhaka airport", label: "Dhaka Airport" },
                         { value: "ctg_ware_house", label: "CTG Ware House" },
                         { value: "ctg_godown", label: "Ctg Godown" },
+                        { value: "tongi", label: "Tongi" },
+                        { value: "gazipur", label: "Gazipur" },
+                        { value: "cumilla EPZ", label: "Cumilla EPZ" },
 
                       ]}
                       control={control}
@@ -818,9 +837,11 @@ export default function AddTripForm() {
                   <InputField name="additional_cost" label="Additional Load Cost" type="number" />
                   <InputField name="additional_unload_charge" label="Additional Unload Cost" type="number" />
                   <InputField name="callan_cost" label="Challan Cost" type="number" />
-                  <InputField name="total_exp" label="Total Expense" readOnly />
+                  <InputField name="depo_cost" label="Depo Cost" type="number" />
+                  
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+                  <InputField name="total_exp" label="Total Expense" readOnly />
                   <InputField name="remarks" label="Remarks" />
                 </div>
               </div>

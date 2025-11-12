@@ -24,6 +24,7 @@ export default function VehicleProfitReport() {
   const [showFilter, setShowFilter] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [searchTerm, setSearchTerm] = useState();
 
   const fetchData = async () => {
     setLoading(true)
@@ -90,6 +91,7 @@ export default function VehicleProfitReport() {
           vehicleDateMap.set(key, {
             vehicle_no: trip.vehicle_no,
             date: trip.date,
+            trip_id: trip.trip_id || "",
             total_revenue: 0,
             trip_expenses: 0,
             parts_cost: 0,
@@ -247,11 +249,17 @@ export default function VehicleProfitReport() {
   const totalPartsCost = profitData.reduce((sum, v) => sum + toNumber(v.parts_cost), 0)
   const totalFuelCost = profitData.reduce((sum, v) => sum + toNumber(v.fuel_cost), 0)
   const totalEngineOil = profitData.reduce((sum, v) => sum + toNumber(v.engine_oil_cost), 0)
+  // Filter data by searchTerm (trip_id)
+const filteredData = profitData.filter((item) =>
+  searchTerm
+    ? item.trip_id?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    : true
+)
 
-  const totalPages = Math.ceil(profitData.length / itemsPerPage)
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentData = profitData.slice(startIndex, endIndex)
+  const currentData = filteredData.slice(startIndex, endIndex)
 
   const totalProfit = profitData.reduce((sum, vehicle) => sum + toNumber(vehicle.net_profit), 0)
   const totalRevenue = profitData.reduce((sum, vehicle) => sum + toNumber(vehicle.total_revenue), 0)
@@ -260,8 +268,9 @@ export default function VehicleProfitReport() {
   //   // ------------------- Export Functions -------------------
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
-      profitData.map((d) => ({
+      filteredData.map((d) => ({
         Date: d.date,
+        "Trip ID" : d.trip_id,
         "Vehicle No": d.vehicle_no,
         Trips: toNumber(d.trip_count),
         "Trip Rent": toNumber(d.total_revenue),
@@ -277,6 +286,7 @@ export default function VehicleProfitReport() {
     XLSX.writeFile(workbook, "vehicle_profit_report.xlsx")
   }
 
+  // 
   const exportToPDF = () => {
     try {
       const doc = new jsPDF()
@@ -290,6 +300,7 @@ export default function VehicleProfitReport() {
       // Table Columns
       const tableColumn = [
         "Date",
+        "Trip Id",
         "Vehicle No",
         "Trips",
         "Trip Rent",
@@ -301,8 +312,9 @@ export default function VehicleProfitReport() {
       ]
 
       // Table Rows
-      const tableRows = profitData.map((d) => [
+      const tableRows = filteredData.map((d) => [
         d.date,
+        d.trip_id,
         d.vehicle_no,
         d.trip_count,
         `${d.total_revenue.toLocaleString()}`,
@@ -329,11 +341,12 @@ export default function VehicleProfitReport() {
     }
   }
 
-
+// print function
   const printTable = () => {
-    const allRows = profitData.map((d) => `
+    const allRows = filteredData.map((d) => `
     <tr>
       <td>${d.date}</td>
+      <td>${d.trip_id}</td>
       <td>${d.vehicle_no}</td>
       <td>${d.trip_count}</td>
       <td>${d.total_revenue.toLocaleString()}</td>
@@ -347,7 +360,7 @@ export default function VehicleProfitReport() {
 
     const totalRow = `
     <tr style="font-weight:bold; background-color:#f0f0f0;">
-      <td colspan="2" style="text-align:right;">Total:</td>
+      <td colspan="3" style="text-align:right;">Total:</td>
       <td>${totalTrip}</td>
       <td>${totalRevenue.toLocaleString()}</td>
       <td>${totalTripCost.toLocaleString()}</td>
@@ -377,6 +390,7 @@ export default function VehicleProfitReport() {
           <thead>
             <tr>
               <th>Date</th>
+              <th>Trip Id</th>
               <th>Vehicle No</th>
               <th>Trips</th>
               <th>Trip Rent</th>
@@ -429,6 +443,8 @@ export default function VehicleProfitReport() {
           </div>
         </div>
 
+        {/* export & filtered */}
+        <div className="flex justify-between">
         <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
           <button
             onClick={exportToExcel}
@@ -449,7 +465,33 @@ export default function VehicleProfitReport() {
             Print
           </button>
         </div>
-
+        {/* search */}
+            <div className="mt-3 md:mt-0">
+              <span className="text-primary font-semibold pr-3">Search: </span>
+              <input
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  // setCurrentPage(1);
+                }}
+                type="text"
+                placeholder="Search..."
+                className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              />
+              {/*  Clear button */}
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    // setCurrentPage(1);
+                  }}
+                  className="absolute right-6 top-[5.6rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            </div>
         {showFilter && (
           <div className="border border-gray-300 rounded-md p-5 my-5 transition-all duration-300 pb-5">
             <div className="flex flex-col md:flex-row gap-4 mb-4">
@@ -467,7 +509,6 @@ export default function VehicleProfitReport() {
                   isClearable
                 />
               </div>
-
               <div className="flex-1 min-w-0">
                 <DatePicker
                   selected={toDate}
@@ -518,6 +559,7 @@ export default function VehicleProfitReport() {
             <thead className="bg-[#11375B] text-white capitalize text-xs">
               <tr>
                 <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Trip Id</th>
                 <th className="px-4 py-3">Vehicle No</th>
                 <th className="px-4 py-3">Trips</th>
                 <th className="px-4 py-3">Trip Rent</th>
@@ -560,6 +602,7 @@ export default function VehicleProfitReport() {
                       className="hover:bg-gray-50 transition-all"
                     >
                       <td className="px-4 py-4 font-medium text-[#11375B]">{tableFormatDate(vehicleDate.date)}</td>
+                      <td className="px-4 py-4 font-semibold">{vehicleDate.trip_id}</td>
                       <td className="px-4 py-4 font-semibold">{vehicleDate.vehicle_no}</td>
                       <td className="px-4 py-4 text-gray-700">{vehicleDate.trip_count}</td>
                       <td className="px-4 py-4 text-gray-700 font-semibold">
@@ -588,7 +631,7 @@ export default function VehicleProfitReport() {
             {currentData.length > 0 && (
               <tfoot className="bg-gray-100 font-bold">
                 <tr>
-                  <td colSpan="2" className="text-right px-4 py-3">Total:</td>
+                  <td colSpan="3" className="text-right px-4 py-3">Total:</td>
                   <td className="px-4 py-3">{totalTrip}</td>
                   <td className="px-4 py-3">{totalRevenue.toLocaleString()}</td>
                   <td className="px-4 py-3">{totalTripCost.toLocaleString()}</td>

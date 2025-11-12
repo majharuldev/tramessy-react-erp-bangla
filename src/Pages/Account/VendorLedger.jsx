@@ -16,6 +16,8 @@ const VendorLedger = () => {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [vendorList, setVendorList] = useState([]);
+  // search
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch vendor list (for opening balance)
   useEffect(() => {
@@ -85,14 +87,38 @@ const VendorLedger = () => {
   const vendorNames = [...new Set(vendorData.map((v) => v.vendor_name))];
 
   // Filter data based on selected vendor and month, then sort by date
-  const filteredVendors = vendorData.filter((v) => {
+  // const filteredVendors = vendorData.filter((v) => {
+  //   const matchesVendor = selectedVendor ? v.vendor_name === selectedVendor : true;
+  //   const matchesMonth = selectedMonth
+  //     ? v.date && new Date(v.date).toISOString().slice(0, 7) === selectedMonth
+  //     : true;
+  //   return matchesVendor && matchesMonth;
+  // }).sort((a, b) => {
+  //   // Sort by date to ensure correct running balance calculation
+  //   const dateA = new Date(a.date);
+  //   const dateB = new Date(b.date);
+  //   return dateA.getTime() - dateB.getTime();
+  // });
+
+  const filteredVendors = vendorData
+  .filter((v) => {
     const matchesVendor = selectedVendor ? v.vendor_name === selectedVendor : true;
     const matchesMonth = selectedMonth
       ? v.date && new Date(v.date).toISOString().slice(0, 7) === selectedMonth
       : true;
-    return matchesVendor && matchesMonth;
-  }).sort((a, b) => {
-    // Sort by date to ensure correct running balance calculation
+
+    // ✅ New Search Logic (Trip ID, Driver Name, Vendor Name)
+    const matchesSearch = searchTerm
+      ? (
+          v.trip_id?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          v.driver_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          v.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : true;
+
+    return matchesVendor && matchesMonth && matchesSearch;
+  })
+  .sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateA.getTime() - dateB.getTime();
@@ -142,6 +168,7 @@ const VendorLedger = () => {
     if (selectedVendor) {
       dataToExport.push({
         Date: "",
+        "Trip Id" : "",
         Vendor: "Opening Balance",
         Load: "",
         Unload: "",
@@ -158,6 +185,7 @@ const VendorLedger = () => {
     rowsWithRunningBalance.forEach((item) => {
       dataToExport.push({
         Date: item.date,
+        "Trip Id": item.trip_id,
         Vendor: item.vendor_name,
         Load: item.load_point || "--",
         Unload: item.unload_point || "--",
@@ -208,6 +236,7 @@ const VendorLedger = () => {
     const columns = [
       "SL.",
       "Date",
+      "Trip Id",
       "Vendor",
       "Load",
       "Unload",
@@ -223,6 +252,7 @@ const VendorLedger = () => {
       return [
         idx + 1,
         item.date || "",
+        item.trip_id,
         item.vendor_name || "",
         item.load_point || "--",
         item.unload_point || "--",
@@ -237,6 +267,7 @@ const VendorLedger = () => {
 
     // Add totals row
     rows.push([
+      "",
       "",
       "",
       "TOTAL",
@@ -363,6 +394,32 @@ const VendorLedger = () => {
                 Print
               </button>
             </div>
+            {/* search */}
+            <div className="mt-3 md:mt-0">
+              <span className="text-primary font-semibold pr-3">Search: </span>
+              <input
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  // setCurrentPage(1);
+                }}
+                type="text"
+                placeholder="Search..."
+                className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
+              />
+              {/*  Clear button */}
+              {searchTerm && (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    // setCurrentPage(1);
+                  }}
+                  className="absolute right-11 top-[10.3rem] -translate-y-1/2 text-gray-400 hover:text-red-500 text-sm"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
           <div>
             {/* Month Filter Section */}
@@ -434,7 +491,7 @@ const VendorLedger = () => {
             <table className="min-w-full text-sm text-left text-gray-900">
               <thead className="bg-gray-100">
                 <tr className="font-bold bg-gray-100">
-                  <td colSpan={7} className="border px-2 py-1 text-right">
+                  <td colSpan={8} className="border px-2 py-1 text-right">
                     TOTAL:
                   </td>
                   <td className="border px-2 py-1">{totals.rent}</td>
@@ -456,6 +513,7 @@ const VendorLedger = () => {
                 <tr>
                   <th className="border px-2 py-1">SL.</th>
                   <th className="border px-2 py-1">Date</th>
+                  <th className="border px-2 py-1">Trip ID</th>
                   <th className="border px-2 py-1">Vendor</th>
                   <th className="border px-2 py-1">Load</th>
                   <th className="border px-2 py-1">Unload</th>
@@ -480,6 +538,7 @@ const VendorLedger = () => {
                     <tr key={idx}>
                       <td className="border px-2 py-1">{idx + 1}</td>
                       <td className="border px-2 py-1">{tableFormatDate(item.date)}</td>
+                      <td className="border px-2 py-1">{item.trip_id}</td>
                       <td className="border px-2 py-1">{item.vendor_name}</td>
                       <td className="border px-2 py-1">
                         {item.load_point || (

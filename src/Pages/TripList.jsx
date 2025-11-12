@@ -299,14 +299,7 @@ const TripList = () => {
       dt.date?.toLowerCase().includes(term) ||
       dt.driver_name?.toLowerCase().includes(term) ||
       dt.driver_mobile?.toLowerCase().includes(term) ||
-      dt.vehicle_no?.toLowerCase().includes(term) ||
-      dt.registration_number?.toLowerCase().includes(term) ||
-      dt.registration_serial?.toLowerCase().includes(term) ||
-      dt.registration_zone?.toLowerCase().includes(term) ||
-      dt.registration_date?.toLowerCase().includes(term) ||
-      dt.text_date?.toLowerCase().includes(term) ||
-      dt.road_permit_date?.toLowerCase().includes(term) ||
-      dt.fitness_date?.toLowerCase().includes(term)
+      dt.vehicle_no?.toLowerCase().includes(term) 
     );
   });
 
@@ -751,6 +744,9 @@ const TripList = () => {
                 </li>
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Additional Unload Cost</p> <p>{selectedTrip.additional_unload_charge ? selectedTrip.additional_unload_charge : 0}</p>
+                </li>
+                <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
+                  <p className="w-48">Depo Cost</p> <p>{selectedTrip.depo_cost ? selectedTrip.depo_cost : 0}</p>
                 </li>
               </ul>
               <ul className="flex border-b border-r border-l border-gray-300">

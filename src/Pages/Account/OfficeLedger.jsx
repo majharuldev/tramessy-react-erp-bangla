@@ -121,6 +121,16 @@ const itemDate = new Date(item.date);
 
   const branchDataWithBalance = calculateBalance();
 
+  // Total CashIn, CashOut
+const totalCashIn = filteredBranch.reduce(
+  (sum, item) => sum + (parseFloat(item.cash_in) || 0),
+  0
+);
+const totalCashOut = filteredBranch.reduce(
+  (sum, item) => sum + (parseFloat(item.cash_out) || 0),
+  0
+);
+
   // Closing balance
   const closingBalance =
     branchDataWithBalance.length > 0
@@ -354,9 +364,12 @@ const itemDate = new Date(item.date);
           <table className="w-full text-sm text-left">
             <thead className="text-black capitalize font-bold">
               <tr className="bg-gray-100 font-bold text-black">
-                <td colSpan="8" className="text-right border border-gray-700 px-2 py-2">
-                  Closing Balance:
+               
+                <td colSpan="6" className="text-right border border-gray-700 px-2 py-2">
+                  Total Balance:
                 </td>
+                 <td className="border border-gray-700 px-2 py-2">{totalCashIn}</td>
+  <td className="border border-gray-700 px-2 py-2">{totalCashOut}</td>
                 <td className="border border-gray-700 px-2 py-2">
                   {closingBalance < 0
                     ? `${Math.abs(closingBalance)}`

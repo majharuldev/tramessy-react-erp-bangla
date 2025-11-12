@@ -665,7 +665,7 @@ const DriverLedger = () => {
                   <th rowSpan="2" className="border px-2 py-1">
                     Advance
                   </th>
-                  <th colSpan="14" className="border px-2 py-1">
+                  <th colSpan="15" className="border px-2 py-1">
                     Expense
                   </th>
                   <th rowSpan="2" className="border py-1">
@@ -694,6 +694,7 @@ const DriverLedger = () => {
                   <th className="border px-2 py-1">Add.LoadCost</th>
                   <th className="border px-2 py-1">Add.UnloadCost</th>
                   <th className="border px-2 py-1">Callan</th>
+                  <th className="border px-2 py-1">Depo Cost</th>
                   <th className="border px-2 py-1">Others</th>
                   <th className="border px-2 py-1">Total</th>
                 </tr>
@@ -718,6 +719,7 @@ const DriverLedger = () => {
                     <td className="border px-2 py-1">{toNumber(item.additional_cost)}</td>
                     <td className="border px-2 py-1">{toNumber(item.additional_unload_charge)}</td>
                     <td className="border px-2 py-1">{toNumber(item.callan_cost)}</td>
+                    <td className="border px-2 py-1">{toNumber(item.depo_cost)}</td>
                     <td className="border px-2 py-1">{toNumber(item.others_cost)}</td>
                     <td className="border px-2 py-1">{toNumber(item.totalExpense)}</td>
                     <td className="border px-2 py-1">
