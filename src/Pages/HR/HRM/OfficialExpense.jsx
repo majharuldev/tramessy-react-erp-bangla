@@ -1,34 +1,39 @@
-import { useEffect, useState, useRef } from "react"
-import axios from "axios"
-import jsPDF from "jspdf"
-import autoTable from "jspdf-autotable"
-import * as XLSX from "xlsx"
-import { saveAs } from "file-saver"
-import dayjs from "dayjs"
-import { FaFileExcel, FaFilePdf, FaFilter, FaPrint, FaTrashAlt, FaTruck } from "react-icons/fa"
-import { GrFormNext, GrFormPrevious } from "react-icons/gr"
-import toast, { Toaster } from "react-hot-toast"
-import { FaPlus } from "react-icons/fa6"
-import { Link } from "react-router-dom"
-import BtnSubmit from "../../../components/Button/BtnSubmit"
-import { FiFileText, FiX } from "react-icons/fi"
-import { BiEdit } from "react-icons/bi"
-import Pagination from "../../../components/Shared/Pagination"
-import { tableFormatDate } from "../../../components/Shared/formatDate"
-import DatePicker from "react-datepicker"
-import toNumber from "../../../hooks/toNumber"
-import { IoMdClose } from "react-icons/io"
-import useAdmin from "../../../hooks/useAdmin"
-
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import dayjs from "dayjs";
+import {
+  FaFileExcel,
+  FaFilePdf,
+  FaFilter,
+  FaPrint,
+  FaTrashAlt,
+  FaTruck,
+} from "react-icons/fa";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import toast, { Toaster } from "react-hot-toast";
+import { FaPlus } from "react-icons/fa6";
+import { Link } from "react-router-dom";
+import BtnSubmit from "../../../components/Button/BtnSubmit";
+import { FiFileText, FiX } from "react-icons/fi";
+import { BiEdit } from "react-icons/bi";
+import Pagination from "../../../components/Shared/Pagination";
+import { tableFormatDate } from "../../../components/Shared/formatDate";
+import DatePicker from "react-datepicker";
+import toNumber from "../../../hooks/toNumber";
+import { IoMdClose } from "react-icons/io";
+import useAdmin from "../../../hooks/useAdmin";
 
 const OfficialExpense = () => {
-  const [expenses, setExpenses] = useState([])
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const printRef = useRef()
-  const [isModalVisible, setIsModalVisible] = useState(false)
-  const [editingId, setEditingId] = useState(null)
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const printRef = useRef();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     date: "",
     paid_to: "",
@@ -37,22 +42,22 @@ const OfficialExpense = () => {
     branch_name: "",
     remarks: "",
     sub_category: "",
-  })
-  const [errors, setErrors] = useState({})
+  });
+  const [errors, setErrors] = useState({});
   // Date filter state
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-   // delete
-    const [selectedExpenseId, setSelectedExpenseId] = useState(null)
-    const [isOpen, setIsOpen] = useState(false);
-    const toggleModal = () => setIsOpen(!isOpen);
-    const isAdmin = useAdmin();
+  // delete
+  const [selectedExpenseId, setSelectedExpenseId] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleModal = () => setIsOpen(!isOpen);
+  const isAdmin = useAdmin();
 
-  const salaryCategories = [
-    "Utility",
-  ];
+  // const salaryCategories = [
+  //   "Utility",
+  // ];
 
   //   branch api
   const [branches, setBranches] = useState([]);
@@ -60,7 +65,9 @@ const OfficialExpense = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/office/list`);
+        const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/office/list`
+        );
         if (response?.data?.status === "Success") {
           setBranches(response?.data?.data);
         }
@@ -77,8 +84,10 @@ const OfficialExpense = () => {
   const showModal = async (record = null) => {
     if (record) {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/${record.id}`)
-        const data = res.data?.data
+        const res = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/expense/${record.id}`
+        );
+        const data = res.data?.data;
         setFormData({
           date: data?.date || "",
           paid_to: data?.paid_to || "",
@@ -87,11 +96,11 @@ const OfficialExpense = () => {
           branch_name: data?.branch_name || "",
           remarks: data?.remarks || "",
           sub_category: data?.sub_category || "",
-        })
-        setEditingId(record.id)
+        });
+        setEditingId(record.id);
       } catch (err) {
         // showToast("ডেটা লোড করতে সমস্যা হয়েছে", "error")
-        console.log("error show modal")
+        console.log(err, "error show modal");
       }
     } else {
       setFormData({
@@ -102,11 +111,11 @@ const OfficialExpense = () => {
         branch_name: "",
         remarks: "",
         sub_category: "",
-      })
-      setEditingId(null)
+      });
+      setEditingId(null);
     }
-    setIsModalVisible(true)
-  }
+    setIsModalVisible(true);
+  };
 
   const handleCancel = () => {
     setFormData({
@@ -117,79 +126,99 @@ const OfficialExpense = () => {
       branch_name: "",
       remarks: "",
       sub_category: "",
-    })
-    setEditingId(null)
-    setIsModalVisible(false)
-    setErrors({})
-  }
+    });
+    setEditingId(null);
+    setIsModalVisible(false);
+    setErrors({});
+  };
 
   useEffect(() => {
-    fetchExpenses()
-  }, [])
+    fetchExpenses();
+  }, []);
 
   //   expense
   const fetchExpenses = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`)
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/expense/list`
+      );
       const allExpenses = response.data?.data || [];
-      const utilityExpenses = allExpenses.filter(expense =>
-        expense.payment_category === 'Utility'
+      const utilityExpenses = allExpenses.filter(
+        (expense) => expense.payment_category === "Utility"
       );
 
       setExpenses(utilityExpenses);
-      setLoading(false)
+      setLoading(false);
     } catch (err) {
-      console.log("Data feching issue", "error")
-      setLoading(false)
+      console.log(err, "Data feching issue", "error");
+      setLoading(false);
     }
-  }
+  };
 
   const validateForm = () => {
-    const newErrors = {}
-    if (!formData.date) newErrors.date = "Date is required"
-    if (!formData.paid_to) newErrors.paid_to = "Recipient is required"
-    if (!formData.pay_amount) newErrors.pay_amount = "Amount is required"
-    if (!formData.branch_name) newErrors.branch_name = "Branch name is required"
+    const newErrors = {};
+    if (!formData.date) newErrors.date = "Date is required";
+    if (!formData.paid_to) newErrors.paid_to = "Recipient is required";
+    if (!formData.pay_amount) newErrors.pay_amount = "Amount is required";
+    if (!formData.branch_name)
+      newErrors.branch_name = "Branch name is required";
     // if (!formData.payment_category) newErrors.payment_category = "Category is required"
-    if (!formData.sub_category) newErrors.sub_category = "SubCategory is required"
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    if (!formData.sub_category)
+      newErrors.sub_category = "SubCategory is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
     setIsSubmitting(true);
     try {
       const payload = {
         ...formData,
         date: dayjs(formData.date).format("YYYY-MM-DD"),
         payment_category: "Utility",
-      }
+      };
 
       if (editingId) {
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/api/expense/update/${editingId}`, payload)
-        toast.success("Expense Data Update successful")
+        await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/api/expense/update/${editingId}`,
+          payload
+        );
+        toast.success("Expense Data Update successful");
       } else {
-        await axios.post(`${import.meta.env.VITE_BASE_URL}/api/expense/save`, payload)
-        toast.success("Epense Added successful")
+        await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/api/expense/save`,
+          payload
+        );
+        toast.success("Epense Added successful");
       }
 
-      handleCancel()
-      fetchExpenses()
+      handleCancel();
+      fetchExpenses();
     } catch (err) {
-      console.error(err)
-      toast.error("Operation failed", "error")
+      console.error(err);
+      toast.error("Operation failed", "error");
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  const filteredData = expenses.filter((item) => {
+  };
+  // Sort trips by date descending (latest first)
+  const sortedExpense = [...expenses].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+  const filteredData = sortedExpense.filter((item) => {
     const itemDate = dayjs(item.date).format("YYYY-MM-DD");
 
-    const matchesSearch = [item.paid_to, item.sub_category, item.pay_amount, item.payment_category, item.remarks, item.branch_name]
+    const matchesSearch = [
+      item.paid_to,
+      item.sub_category,
+      item.pay_amount,
+      item.payment_category,
+      item.remarks,
+      item.branch_name,
+    ]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -207,7 +236,7 @@ const OfficialExpense = () => {
     }
 
     return matchesSearch && matchesDate;
-  })
+  });
   // csv
   const exportCSV = () => {
     const csvContent = [
@@ -222,11 +251,11 @@ const OfficialExpense = () => {
       ]),
     ]
       .map((row) => row.join(","))
-      .join("\n")
+      .join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    saveAs(blob, "general_expense.csv")
-  }
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "general_expense.csv");
+  };
   // excel
   const exportExcel = () => {
     const data = filteredData.map((item, i) => ({
@@ -236,17 +265,17 @@ const OfficialExpense = () => {
       Amount: toNumber(item.pay_amount),
       Category: item.sub_category,
       Notes: item.remarks,
-    }))
+    }));
 
-    const ws = XLSX.utils.json_to_sheet(data)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "General Expense")
-    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" })
-    saveAs(new Blob([buffer]), "general_expense.xlsx")
-  }
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "General Expense");
+    const buffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([buffer]), "general_expense.xlsx");
+  };
   // pdf
   const exportPDF = () => {
-    const doc = new jsPDF()
+    const doc = new jsPDF();
     autoTable(doc, {
       head: [["Serial", "Date", "Paid To", "Amount", "Category", "Remarks"]],
       body: filteredData.map((item, i) => [
@@ -257,9 +286,9 @@ const OfficialExpense = () => {
         item.sub_category,
         item.remarks,
       ]),
-    })
-    doc.save("general_expense.pdf")
-  }
+    });
+    doc.save("general_expense.pdf");
+  };
   // print
 
   const printTable = () => {
@@ -327,36 +356,36 @@ const OfficialExpense = () => {
     win.close();
   };
 
-   // delete by id
-      const handleDelete = async (id) => {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/expense/delete/${id}`,
-            {
-              method: "DELETE",
-            }
-          );
-    
-          if (!response.ok) {
-            throw new Error("Failed to delete Payment receive");
-          }
-          // Remove trip from local list
-          setExpenses((prev) => prev.filter((trip) => trip.id !== id));
-          toast.success("Payment receive deleted successfully", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-    
-          setIsOpen(false);
-          setSelectedExpenseId(null);
-        } catch (error) {
-          console.error("Delete error:", error);
-          toast.error("There was a problem deleting!", {
-            position: "top-right",
-            autoClose: 3000,
-          });
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/expense/delete/${id}`,
+        {
+          method: "DELETE",
         }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete Payment receive");
       }
+      // Remove trip from local list
+      setExpenses((prev) => prev.filter((trip) => trip.id !== id));
+      toast.success("Payment receive deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedExpenseId(null);
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -365,7 +394,6 @@ const OfficialExpense = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const filteredExpense = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
 
   return (
     <div className=" min-h-screen p-2">
@@ -379,7 +407,10 @@ const OfficialExpense = () => {
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             {/* <Link to="/tramessy/AddSallaryExpenseForm"> */}
-            <button onClick={() => showModal()} className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+            <button
+              onClick={() => showModal()}
+              className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+            >
               <FaPlus /> Add
             </button>
             {/* </Link> */}
@@ -395,7 +426,6 @@ const OfficialExpense = () => {
         {/* Controls */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 gap-4">
           <div className="flex flex-wrap gap-2">
-
             <button
               onClick={exportCSV}
               className="flex items-center gap-2 py-2 px-5 hover:bg-primary bg-gray-50 shadow-md shadow-cyan-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
@@ -487,10 +517,10 @@ const OfficialExpense = () => {
             <div className="mt-3 md:mt-0 flex gap-2">
               <button
                 onClick={() => {
-                  setCurrentPage(1)
-                  setStartDate("")
-                  setEndDate("")
-                  setShowFilter(false)
+                  setCurrentPage(1);
+                  setStartDate("");
+                  setEndDate("");
+                  setShowFilter(false);
                 }}
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
@@ -501,30 +531,55 @@ const OfficialExpense = () => {
         )}
 
         {/* Table */}
-        <div className="mt-5 overflow-x-auto rounded-xl border border-gray-200" ref={printRef}>
+        <div
+          className="mt-5 overflow-x-auto rounded-xl border border-gray-200"
+          ref={printRef}
+        >
           <table className="min-w-full text-sm text-left">
             <thead className="bg-primary text-white capitalize text-xs">
               <tr className="">
-                <th className="px-3 py-3 text-left text-sm font-semibold w-16">SL</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Date</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Branch Name</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Paid To</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Amount</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Category</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold">Remarks</th>
-                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">Action</th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-16">
+                  SL
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">
+                  Date
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">
+                  Branch Name
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">
+                  Paid To
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">
+                  Amount
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">
+                  Category
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold">
+                  Remarks
+                </th>
+                <th className="px-3 py-3 text-left text-sm font-semibold w-24 action_column">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-3 py-10 text-center text-gray-500">
+                  <td
+                    colSpan="7"
+                    className="px-3 py-10 text-center text-gray-500"
+                  >
                     Loading...
                   </td>
                 </tr>
               ) : filteredExpense.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-10 text-gray-500 italic">
+                  <td
+                    colSpan="8"
+                    className="text-center py-10 text-gray-500 italic"
+                  >
                     <div className="flex flex-col items-center">
                       <svg
                         className="w-12 h-12 text-gray-300 mb-2"
@@ -545,9 +600,14 @@ const OfficialExpense = () => {
                 </tr>
               ) : (
                 filteredExpense.map((item, index) => (
-                  <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <tr
+                    key={item.id}
+                    className="border-b border-gray-200 hover:bg-gray-50"
+                  >
                     <td className="px-3 py-3 text-sm">{index + 1}</td>
-                    <td className="px-3 py-3 text-sm">{tableFormatDate(item.date)}</td>
+                    <td className="px-3 py-3 text-sm">
+                      {tableFormatDate(item.date)}
+                    </td>
                     <td className="px-3 py-3 text-sm">{item.branch_name}</td>
                     <td className="px-3 py-3 text-sm">{item.paid_to}</td>
                     <td className="px-3 py-3 text-sm">{item.pay_amount}</td>
@@ -560,15 +620,17 @@ const OfficialExpense = () => {
                       >
                         <BiEdit size={12} />
                       </button>
-                      {isAdmin && <button
-                        onClick={() => {
-                          setSelectedExpenseId(item.id);
-                          setIsOpen(true);
-                        }}
-                        className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                      >
-                        <FaTrashAlt className="text-[12px]" />
-                      </button>}
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            setSelectedExpenseId(item.id);
+                            setIsOpen(true);
+                          }}
+                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                        >
+                          <FaTrashAlt className="text-[12px]" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -593,8 +655,13 @@ const OfficialExpense = () => {
           <div className="relative bg-white rounded-lg shadow-lg p-6  max-w-2xl border border-gray-300">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-5 ">
-              <h2 className="text-lg font-semibold text-gray-900">{editingId ? "Update Daily Expense" : "Add Daily Expense"}</h2>
-              <button onClick={handleCancel} className="p-1 hover:bg-gray-100 rounded transition-colors">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {editingId ? "Update Daily Expense" : "Add Daily Expense"}
+              </h2>
+              <button
+                onClick={handleCancel}
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
+              >
                 <FiX size={20} />
               </button>
             </div>
@@ -604,14 +671,20 @@ const OfficialExpense = () => {
               <div className="p-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Date <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="date"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={formData.date}
-                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, date: e.target.value })
+                      }
                     />
-                    {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                    {errors.date && (
+                      <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+                    )}
                   </div>
                   {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Category <span className="text-red-500">*</span></label>
@@ -630,52 +703,84 @@ const OfficialExpense = () => {
                     {errors.payment_category && <p className="text-red-500 text-xs mt-1">{errors.payment_category}</p>}
                   </div> */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Sub Category<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Sub Category<span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Sub category"
                       value={formData.sub_category}
-                      onChange={(e) => setFormData({ ...formData, sub_category: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          sub_category: e.target.value,
+                        })
+                      }
                     />
-                    {errors.sub_category && <p className="text-red-500 text-xs mt-1">{errors.sub_category}</p>}
+                    {errors.sub_category && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.sub_category}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Paid To <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Paid To <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Paid To"
                       value={formData.paid_to}
-                      onChange={(e) => setFormData({ ...formData, paid_to: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, paid_to: e.target.value })
+                      }
                     />
-                    {errors.paid_to && <p className="text-red-500 text-xs mt-1">{errors.paid_to}</p>}
+                    {errors.paid_to && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.paid_to}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Amount <span className="text-red-500">*</span>
+                    </label>
                     <input
                       type="number"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Amount"
                       value={formData.pay_amount}
-                      onChange={(e) => setFormData({ ...formData, pay_amount: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, pay_amount: e.target.value })
+                      }
                     />
-                    {errors.pay_amount && <p className="text-red-500 text-xs mt-1">{errors.pay_amount}</p>}
+                    {errors.pay_amount && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.pay_amount}
+                      </p>
+                    )}
                   </div>
-
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Branch Name  <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Branch Name <span className="text-red-500">*</span>
+                    </label>
                     <select
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       value={formData.branch_name}
-                      onChange={(e) => setFormData({ ...formData, branch_name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          branch_name: e.target.value,
+                        })
+                      }
                     >
                       <option value="">Select branch</option>
                       {branches.map((branch) => (
@@ -684,17 +789,25 @@ const OfficialExpense = () => {
                         </option>
                       ))}
                     </select>
-                    {errors.branch_name && <p className="text-red-500 text-xs mt-1">{errors.branch_name}</p>}
+                    {errors.branch_name && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {errors.branch_name}
+                      </p>
+                    )}
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Remarks
+                    </label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Remarks"
                       value={formData.remarks}
-                      onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, remarks: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -709,11 +822,7 @@ const OfficialExpense = () => {
                 >
                   Cancel
                 </button>
-                <BtnSubmit
-                  loading={isSubmitting}
-                >
-                  Submit
-                </BtnSubmit>
+                <BtnSubmit loading={isSubmitting}>Submit</BtnSubmit>
               </div>
             </form>
           </div>
@@ -756,7 +865,7 @@ const OfficialExpense = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OfficialExpense
+export default OfficialExpense;

@@ -22,9 +22,10 @@ const PurchaseList = () => {
   // Date filter state
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-    // delete modal
+  // delete modal
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOfficialProductId, setSelectedOfficialProductId] = useState(null);
+  const [selectedOfficialProductId, setSelectedOfficialProductId] =
+    useState(null);
   const toggleModal = () => setIsOpen(!isOpen);
   // search
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,9 +51,12 @@ const PurchaseList = () => {
   }, []);
   // state
   const [vehicleFilter, setVehicleFilter] = useState("");
-
+  // Sort salary by date descending (latest first)
+  const sortedData = [...purchase].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
   // Filter by date
-  const filtered = purchase.filter((dt) => {
+  const filtered = sortedData.filter((dt) => {
     const dtDate = new Date(dt.date);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
@@ -109,36 +113,36 @@ const PurchaseList = () => {
     }
   };
 
-   // delete by id
-    const handleDelete = async (id) => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/api/purchase/delete/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
-  
-        if (!response.ok) {
-          throw new Error("Failed to delete Purchase");
+  // delete by id
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/purchase/delete/${id}`,
+        {
+          method: "DELETE",
         }
-        // Remove trip from local list
-        setPurchase((prev) => prev.filter((trip) => trip.id !== id));
-        toast.success("Purchase deleted successfully", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-  
-        setIsOpen(false);
-        setSelectedOfficialProductId(null);
-      } catch (error) {
-        console.error("Delete error:", error);
-        toast.error("There was a problem deleting!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete Purchase");
       }
-    };
+      // Remove trip from local list
+      setPurchase((prev) => prev.filter((trip) => trip.id !== id));
+      toast.success("Purchase deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
+      setIsOpen(false);
+      setSelectedOfficialProductId(null);
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("There was a problem deleting!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
 
   if (loading) return <p className="text-center mt-16">Loading data...</p>;
   // pagination
@@ -159,13 +163,13 @@ const PurchaseList = () => {
       "Supplier Name": item.supplier_name,
       "Driver Name": item.driver_name !== "null" ? item.driver_name : "N/A",
       "Vehicle No": item.vehicle_no !== "null" ? item.vehicle_no : "N/A",
-      "Category": item.category,
+      Category: item.category,
       "Item Name": item.item_name,
-      "Quantity": toNumber(item.quantity),
+      Quantity: toNumber(item.quantity),
       "Unit Price": toNumber(item.unit_price),
-      "Total": toNumber(item.purchase_amount),
-      "Date": item.date,
-      "Remarks": item.remarks || "N/A"
+      Total: toNumber(item.purchase_amount),
+      Date: item.date,
+      Remarks: item.remarks || "N/A",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -334,7 +338,8 @@ const PurchaseList = () => {
             </button>
             <Link to="/tramessy/Purchase/add-maintenance">
               <button className="bg-gradient-to-r from-primary to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus />Maintentance
+                <FaPlus />
+                Maintentance
               </button>
             </Link>
           </div>
@@ -477,8 +482,9 @@ const PurchaseList = () => {
                   <td colSpan="8" className="text-center p-4 text-gray-500">
                     No purchase found
                   </td>
-                </tr>)
-                : (currentPurchase?.map((dt, index) => (
+                </tr>
+              ) : (
+                currentPurchase?.map((dt, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-50 transition-all border border-gray-200"
@@ -489,9 +495,17 @@ const PurchaseList = () => {
                     <td className="p-2">{tableFormatDate(dt.date)}</td>
                     <td className="p-2">{dt.id}</td>
                     <td className="p-2">{dt.supplier_name}</td>
-                    <td className="px-2 py-2">{dt.driver_name !== "null" ? dt.driver_name : "N/A"}</td>
-                    <td className="px-2 py-2">{dt.vehicle_category !== "null" ? dt.vehicle_category : "N/A"}</td>
-                    <td className="px-2 py-2">{dt.vehicle_no !== "null" ? dt.vehicle_no : "N/A"}</td>
+                    <td className="px-2 py-2">
+                      {dt.driver_name !== "null" ? dt.driver_name : "N/A"}
+                    </td>
+                    <td className="px-2 py-2">
+                      {dt.vehicle_category !== "null"
+                        ? dt.vehicle_category
+                        : "N/A"}
+                    </td>
+                    <td className="px-2 py-2">
+                      {dt.vehicle_no !== "null" ? dt.vehicle_no : "N/A"}
+                    </td>
                     <td className="p-2">{dt.category}</td>
                     <td className="p-2">{dt.item_name}</td>
                     <td className="p-2">{dt.quantity}</td>
@@ -519,20 +533,22 @@ const PurchaseList = () => {
                         >
                           <FaEye className="text-[12px]" />
                         </button>
-                        {isAdmin &&<button
-                          onClick={() => {
-                            setSelectedOfficialProductId(dt.id);
-                            setIsOpen(true);
-                          }}
-                          className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
-                        >
-                          <FaTrashAlt className="text-[12px]" />
-                        </button>}
+                        {isAdmin && (
+                          <button
+                            onClick={() => {
+                              setSelectedOfficialProductId(dt.id);
+                              setIsOpen(true);
+                            }}
+                            className="text-red-500 hover:text-white hover:bg-red-600 px-2 py-1 rounded shadow-md transition-all cursor-pointer"
+                          >
+                            <FaTrashAlt className="text-[12px]" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
-                )))
-              }
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -599,7 +615,9 @@ const PurchaseList = () => {
               <div className="flex flex-col items-start p-2">
                 <span className="font-medium mb-2">Bill Image:</span>
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}/public/uploads/purchase/${selectedPurchase.bill_image}`}
+                  src={`${
+                    import.meta.env.VITE_BASE_URL
+                  }/public/uploads/purchase/${selectedPurchase.bill_image}`}
                   alt="Bill"
                   className="w-32 h-32 object-cover rounded-lg border"
                 />
@@ -652,7 +670,7 @@ const PurchaseList = () => {
             </div>
           </div>
         )}
-        </div>
+      </div>
     </div>
   );
 };

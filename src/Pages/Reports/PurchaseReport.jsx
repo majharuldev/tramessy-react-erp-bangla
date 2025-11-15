@@ -1,5 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { FaFilter, FaUserSecret, FaFilePdf, FaPrint, FaFileExcel } from "react-icons/fa";
+import {
+  FaFilter,
+  FaUserSecret,
+  FaFilePdf,
+  FaPrint,
+  FaFileExcel,
+} from "react-icons/fa";
 import * as XLSX from "xlsx";
 import axios from "axios";
 import jsPDF from "jspdf";
@@ -22,16 +28,20 @@ const PurchaseReport = () => {
 
   // Load purchase data
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_BASE_URL}/api/purchase/list`)
-      .then(res => {
+    axios
+      .get(`${import.meta.env.VITE_BASE_URL}/api/purchase/list`)
+      .then((res) => {
         if (res.data.status === "Success") {
           setPurchases(res.data.data);
         }
       });
   }, []);
-
+  // Sort salary by date descending (latest first)
+  const sortedData = [...purchases].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
   // Filter Logic
-  const filteredPurchases = purchases.filter(p => {
+  const filteredPurchases = sortedData.filter((p) => {
     const dateMatch =
       (!startDate || new Date(p.date) >= new Date(startDate)) &&
       (!endDate || new Date(p.date) <= new Date(endDate));
@@ -47,96 +57,74 @@ const PurchaseReport = () => {
 
   // Summary calculations
   const totalAmount = filteredPurchases.reduce(
-    (sum, p) => sum + (toNumber(p.purchase_amount) || (toNumber(p.quantity) * toNumber(p.unit_price))),
+    (sum, p) =>
+      sum +
+      (toNumber(p.purchase_amount) ||
+        toNumber(p.quantity) * toNumber(p.unit_price)),
     0
   );
 
   const topSupplier = (() => {
     const supplierTotals = {};
-    filteredPurchases.forEach(p => {
+    filteredPurchases.forEach((p) => {
       supplierTotals[p.supplier_name] =
         (supplierTotals[p.supplier_name] || 0) +
-        (toNumber(p.purchase_amount) || (toNumber(p.quantity) * toNumber(p.unit_price)));
+        (toNumber(p.purchase_amount) ||
+          toNumber(p.quantity) * toNumber(p.unit_price));
     });
-    return Object.entries(supplierTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+    return (
+      Object.entries(supplierTotals).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+      "N/A"
+    );
   })();
 
   const topCategory = (() => {
     const categoryTotals = {};
-    filteredPurchases.forEach(p => {
+    filteredPurchases.forEach((p) => {
       categoryTotals[p.category] =
         (categoryTotals[p.category] || 0) +
-        (toNumber(p.purchase_amount) || (toNumber(p.quantity) * toNumber(p.unit_price)));
+        (toNumber(p.purchase_amount) ||
+          toNumber(p.quantity) * toNumber(p.unit_price));
     });
-    return Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
+    return (
+      Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] ||
+      "N/A"
+    );
   })();
-
-
 
   // Export to Excel
   const exportExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredPurchases);
+    const excelData = filteredPurchases.map((p, i) => {
+      const total =
+        p.purchase_amount !== null && p.purchase_amount !== undefined
+          ? Number(p.purchase_amount)
+          : (Number(p.quantity) || 0) * (Number(p.unit_price) || 0);
+
+      return {
+        SL: i + 1,
+        Date: p.date,
+        Supplier: p.supplier_name,
+        Category: p.category,
+        Item: p.item_name,
+        Quantity: Number(p.quantity) || 0,
+        Unit_Price: Number(p.unit_price) || 0,
+        Total: Number(total), // <-- force to number
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    // Force number format for all numeric cells
+    Object.keys(ws).forEach((cell) => {
+      if (cell[0] === "!" || typeof ws[cell].v !== "number") return;
+      ws[cell].t = "n";
+    });
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Purchase Report");
+
     XLSX.writeFile(wb, "purchase_report.xlsx");
   };
-
-  // Export to PDF
-  // const exportPdf = () => {
-  //   const doc = new jsPDF();
-  //   const title = "Purchase Report";
-
-  //   // Add title
-  //   doc.setFontSize(16);
-  //   doc.text(title, 14, 16);
-
-  //   // Add summary information
-  //   doc.setFontSize(10);
-  //   doc.text(`Total Purchases: ${filteredPurchases.length}`, 14, 26);
-  //   doc.text(`Total Amount: ${totalAmount.toLocaleString()} ৳`, 14, 32);
-  //   doc.text(`Top Supplier: ${topSupplier}`, 14, 38);
-  //   doc.text(`Top Category: ${topCategory}`, 14, 44);
-
-  //   // Add table
-  //   const headers = [
-  //     "#", 
-  //     "Date", 
-  //     "Supplier", 
-  //     "Category", 
-  //     "Item", 
-  //     "Qty", 
-  //     "Unit Price", 
-  //     "Total"
-  //   ];
-
-  //   const data = filteredPurchases.map((p, i) => [
-  //     i + 1,
-  //     p.date,
-  //     p.supplier_name,
-  //     p.category,
-  //     p.item_name,
-  //     p.quantity,
-  //     p.unit_price,
-  //     p.purchase_amount ?? (p.quantity * p.unit_price)
-  //   ]);
-
-  //   doc.autoTable({
-  //     head: [headers],
-  //     body: data,
-  //     startY: 50,
-  //     styles: {
-  //       fontSize: 8,
-  //       cellPadding: 2,
-  //       halign: 'center'
-  //     },
-  //     headStyles: {
-  //       fillColor: [17, 55, 91],
-  //       textColor: 255
-  //     }
-  //   });
-
-  //   doc.save('purchase_report.pdf');
-  // };
 
   const exportPdf = () => {
     const doc = new jsPDF();
@@ -155,7 +143,16 @@ const PurchaseReport = () => {
 
     // Add table
     const headers = [
-      ["#", "Date", "Supplier", "Category", "Item", "Qty", "Unit Price", "Total"]
+      [
+        "#",
+        "Date",
+        "Supplier",
+        "Category",
+        "Item",
+        "Qty",
+        "Unit Price",
+        "Total",
+      ],
     ];
 
     const data = filteredPurchases.map((p, i) => [
@@ -166,7 +163,7 @@ const PurchaseReport = () => {
       p.item_name,
       p.quantity,
       p.unit_price,
-      p.purchase_amount ?? (p.quantity * p.unit_price)
+      p.purchase_amount ?? p.quantity * p.unit_price,
     ]);
 
     autoTable(doc, {
@@ -176,33 +173,46 @@ const PurchaseReport = () => {
       styles: {
         fontSize: 8,
         cellPadding: 2,
-        halign: "center"
+        halign: "center",
       },
       headStyles: {
         fillColor: [17, 55, 91],
-        textColor: 255
-      }
+        textColor: 255,
+      },
     });
 
     doc.save("purchase_report.pdf");
   };
 
-
   // Simple print function
   const handlePrint = () => {
     // Generate table rows for all filtered purchases
-    const rowsHtml = filteredPurchases.map((p, i) => `
+    const rowsHtml = filteredPurchases
+      .map(
+        (p, i) => `
     <tr>
-      <td style="border:1px solid #ddd;padding:6px;text-align:center">${i + 1}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:center">${p.date}</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:center">${
+        i + 1
+      }</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:center">${
+        p.date
+      }</td>
       <td style="border:1px solid #ddd;padding:6px">${p.supplier_name}</td>
       <td style="border:1px solid #ddd;padding:6px">${p.category}</td>
       <td style="border:1px solid #ddd;padding:6px">${p.item_name}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.quantity}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.unit_price}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${p.purchase_amount ?? (p.quantity * p.unit_price)}</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${
+        p.quantity
+      }</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${
+        p.unit_price
+      }</td>
+      <td style="border:1px solid #ddd;padding:6px;text-align:right">${
+        p.purchase_amount ?? p.quantity * p.unit_price
+      }</td>
     </tr>
-  `).join("");
+  `
+      )
+      .join("");
 
     // Totals row
     const totalsRow = `
@@ -257,7 +267,6 @@ const PurchaseReport = () => {
   };
 
   // Grand totals for all filtered purchases
-  // Grand totals for all filtered purchases
   const totalQty = filteredPurchases.reduce(
     (sum, p) => sum + (toNumber(p.quantity) || 0),
     0
@@ -269,13 +278,11 @@ const PurchaseReport = () => {
 
   const totalAmountOverall = filteredPurchases.reduce(
     (sum, p) =>
-      sum +
-      ((toNumber(p.quantity) || 0) * (toNumber(p.unit_price) || 0)),
+      sum + (toNumber(p.quantity) || 0) * (toNumber(p.unit_price) || 0),
     0
   );
 
   // Weighted average unit price (if totalQty > 0)
-
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -301,7 +308,7 @@ const PurchaseReport = () => {
             Purchase Report
           </h1>
           <button
-            onClick={() => setShowFilter(prev => !prev)}
+            onClick={() => setShowFilter((prev) => !prev)}
             className="bg-gradient-to-r from-primary to-blue-800 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2"
           >
             <FaFilter /> Filter
@@ -316,7 +323,9 @@ const PurchaseReport = () => {
           </div>
           <div className="bg-green-50 p-4 rounded text-center">
             <p className="text-sm text-gray-500">Total Amount</p>
-            <p className="text-lg font-bold">{toNumber(totalAmount).toLocaleString()} ৳</p>
+            <p className="text-lg font-bold">
+              {toNumber(totalAmount).toLocaleString()} ৳
+            </p>
           </div>
           <div className="bg-yellow-50 p-4 rounded text-center">
             <p className="text-sm text-gray-500">Top Supplier</p>
@@ -363,22 +372,26 @@ const PurchaseReport = () => {
             </div>
             <select
               value={supplierFilter}
-              onChange={e => setSupplierFilter(e.target.value)}
+              onChange={(e) => setSupplierFilter(e.target.value)}
               className="border p-2 rounded"
             >
               <option value="">All Suppliers</option>
-              {[...new Set(purchases.map(p => p.supplier_name))].map(s => (
-                <option key={s} value={s}>{s}</option>
+              {[...new Set(purchases.map((p) => p.supplier_name))].map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
             <select
               value={categoryFilter}
-              onChange={e => setCategoryFilter(e.target.value)}
+              onChange={(e) => setCategoryFilter(e.target.value)}
               className="border p-2 rounded"
             >
               <option value="">All Categories</option>
-              {[...new Set(purchases.map(p => p.category))].map(c => (
-                <option key={c} value={c}>{c}</option>
+              {[...new Set(purchases.map((p) => p.category))].map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
@@ -411,7 +424,7 @@ const PurchaseReport = () => {
               type="text"
               placeholder="Search..."
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="border rounded px-3 py-1"
             />
           </div>
@@ -448,29 +461,45 @@ const PurchaseReport = () => {
               {currentPurchase.map((p, i) => (
                 <tr key={p.id} className="">
                   <td className="p-2">{i + 1}</td>
-                  <td className="p-2">{p.date}</td>
+                  <td className="p-2">
+                    {new Date(p.date).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      timeZone: "UTC",
+                    })}
+                  </td>
                   <td className="p-2">{p.supplier_name}</td>
                   <td className="p-2">{p.category}</td>
                   <td className="p-2">{p.item_name}</td>
-                  <td className="p-2">{p.quantity}</td>
-                  <td className="p-2">{p.unit_price}</td>
-                  <td className="p-2">{p.purchase_amount ?? (p.quantity * p.unit_price)}</td>
+                  <td className="p-2">{Number(p.quantity) || 0}</td>
+                  <td className="p-2">{Number(p.unit_price) || 0}</td>
+                  <td className="p-2">
+                    {p.purchase_amount ??
+                      (Number(p.quantity) || 0) * (Number(p.unit_price) || 0)}
+                  </td>
                 </tr>
               ))}
               {currentPurchase.length === 0 && (
                 <tr>
-                  <td colSpan="9" className="p-4 text-center text-gray-500">No data found</td>
+                  <td colSpan="9" className="p-4 text-center text-gray-500">
+                    No data found
+                  </td>
                 </tr>
               )}
             </tbody>
-            {currentPurchase.length > 0 && <tfoot className="bg-gray-100 font-bold">
-              <tr>
-                <td colSpan="5" className="text-right p-2">Total:</td>
-                <td className="p-2">{totalQty}</td>
-                <td className="p-2">{totalUnitPrice}</td>
-                <td className="p-2">{totalAmountOverall}</td>
-              </tr>
-            </tfoot>}
+            {currentPurchase.length > 0 && (
+              <tfoot className="bg-gray-100 font-bold">
+                <tr>
+                  <td colSpan="5" className="text-right p-2">
+                    Total:
+                  </td>
+                  <td className="p-2">{totalQty}</td>
+                  <td className="p-2">{totalUnitPrice}</td>
+                  <td className="p-2">{totalAmountOverall}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
 
