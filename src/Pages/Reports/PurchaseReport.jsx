@@ -100,15 +100,25 @@ const PurchaseReport = () => {
           ? Number(p.purchase_amount)
           : (Number(p.quantity) || 0) * (Number(p.unit_price) || 0);
 
+      // Format date as DD/MM/YYYY
+      const dateObj = new Date(p.date);
+      const formattedDate = `${String(dateObj.getDate()).padStart(
+        2,
+        "0"
+      )}/${String(dateObj.getMonth() + 1).padStart(
+        2,
+        "0"
+      )}/${dateObj.getFullYear()}`;
+
       return {
         SL: i + 1,
-        Date: p.date,
+        Date: formattedDate, // <-- formatted as DD/MM/YYYY
         Supplier: p.supplier_name,
         Category: p.category,
         Item: p.item_name,
         Quantity: Number(p.quantity) || 0,
         Unit_Price: Number(p.unit_price) || 0,
-        Total: Number(total), // <-- force to number
+        Total: Number(total),
       };
     });
 
@@ -188,30 +198,38 @@ const PurchaseReport = () => {
   const handlePrint = () => {
     // Generate table rows for all filtered purchases
     const rowsHtml = filteredPurchases
-      .map(
-        (p, i) => `
-    <tr>
-      <td style="border:1px solid #ddd;padding:6px;text-align:center">${
-        i + 1
-      }</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:center">${
-        p.date
-      }</td>
-      <td style="border:1px solid #ddd;padding:6px">${p.supplier_name}</td>
-      <td style="border:1px solid #ddd;padding:6px">${p.category}</td>
-      <td style="border:1px solid #ddd;padding:6px">${p.item_name}</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${
-        p.quantity
-      }</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${
-        p.unit_price
-      }</td>
-      <td style="border:1px solid #ddd;padding:6px;text-align:right">${
-        p.purchase_amount ?? p.quantity * p.unit_price
-      }</td>
-    </tr>
-  `
-      )
+      .map((p, i) => {
+        // Format date as DD/MM/YYYY
+        const dateObj = new Date(p.date);
+        const formattedDate = `${String(dateObj.getDate()).padStart(
+          2,
+          "0"
+        )}/${String(dateObj.getMonth() + 1).padStart(
+          2,
+          "0"
+        )}/${dateObj.getFullYear()}`;
+
+        return `
+        <tr>
+          <td style="border:1px solid #ddd;padding:6px;text-align:center">${
+            i + 1
+          }</td>
+          <td style="border:1px solid #ddd;padding:6px;text-align:center">${formattedDate}</td>
+          <td style="border:1px solid #ddd;padding:6px">${p.supplier_name}</td>
+          <td style="border:1px solid #ddd;padding:6px">${p.category}</td>
+          <td style="border:1px solid #ddd;padding:6px">${p.item_name}</td>
+          <td style="border:1px solid #ddd;padding:6px;text-align:right">${
+            Number(p.quantity) || 0
+          }</td>
+          <td style="border:1px solid #ddd;padding:6px;text-align:right">${
+            Number(p.unit_price) || 0
+          }</td>
+          <td style="border:1px solid #ddd;padding:6px;text-align:right">${Number(
+            p.purchase_amount ?? Number(p.quantity) * Number(p.unit_price)
+          )}</td>
+        </tr>
+      `;
+      })
       .join("");
 
     // Totals row
