@@ -99,6 +99,8 @@ import PartyLedger from "../Pages/Console/PartyLedger";
 import DistributorLedger from "../Pages/Console/DistributorLedger";
 import Booking from "../Pages/Console/Booking";
 import BookingForm from "../Pages/Console/BookingForm";
+import AdjustmentForm from "../Pages/Adjustment/AdjustmentForm";
+import AdjustmentList from "../Pages/Adjustment/AdjustmentList";
 export const router = createBrowserRouter([
   {
     path: "/tramessy",
@@ -295,15 +297,15 @@ export const router = createBrowserRouter([
         path: "/tramessy/VendorList",
         element: (
           <PrivateRoute>
-          <VendorList />
+            <VendorList />
           </PrivateRoute>
         ),
       },
       {
         path: "/tramessy/AddVendorForm",
         element: (
-           <PrivateRoute>
-          <AddVendorForm />
+          <PrivateRoute>
+            <AddVendorForm />
           </PrivateRoute>
         ),
       },
@@ -323,7 +325,7 @@ export const router = createBrowserRouter([
         path: "/tramessy/RentList",
         element: (
           <PrivateRoute>
-          <RentList />
+            <RentList />
           </PrivateRoute>
         ),
       },
@@ -331,7 +333,7 @@ export const router = createBrowserRouter([
         path: "/tramessy/AddRentVehicleForm",
         element: (
           <PrivateRoute>
-          <AddRentVehicleForm />
+            <AddRentVehicleForm />
           </PrivateRoute>
         ),
       },
@@ -343,9 +345,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
         loader: ({ params }) =>
-          fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/rent/show/${params.id}`
-          ),
+          fetch(`${import.meta.env.VITE_BASE_URL}/api/rent/show/${params.id}`),
       },
       {
         path: "/tramessy/DailyIncome",
@@ -515,9 +515,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
         loader: ({ params }) =>
-          fetch(
-            `${import.meta.env.VITE_BASE_URL}/api/leave/show/${params.id}`
-          ),
+          fetch(`${import.meta.env.VITE_BASE_URL}/api/leave/show/${params.id}`),
       },
       {
         path: "/tramessy/Purchase/maintenance",
@@ -525,7 +523,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/tramessy/Purchase/official-product",
-        element: <OfficialProduct/>,
+        element: <OfficialProduct />,
       },
       {
         path: "/tramessy/Purchase/add-maintenance",
@@ -649,23 +647,43 @@ export const router = createBrowserRouter([
       // Reports
       {
         path: "/tramessy/Reports/Employee-Report",
-        element: <AdminRoute><EmployeeReport /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <EmployeeReport />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/Reports/Driver-Report",
-        element: <AdminRoute><DriverReport /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <DriverReport />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/Reports/vehicle-report",
-        element: <AdminRoute><VehicleReport/></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <VehicleReport />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/Reports/Fuel-Report",
-        element: <AdminRoute><FuelReport /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <FuelReport />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/Reports/Purchase-Report",
-        element: <AdminRoute><PurchaseReport /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <PurchaseReport />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/Reports/Inventory-Report",
@@ -673,73 +691,165 @@ export const router = createBrowserRouter([
       },
       {
         path: "/tramessy/Reports/Trip-Report",
-        element: <AdminRoute><TripReport /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <TripReport />
+          </AdminRoute>
+        ),
       },
       // billing
       {
         path: "/tramessy/billing/bill",
-        element: <AdminRoute><Bill /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <Bill />
+          </AdminRoute>
+        ),
       },
       // Account
       {
         path: "/tramessy/account/CashDispatch",
-        element: <AdminRoute><CashDispatch /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <CashDispatch />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/CashDispatchForm",
-        element: <AdminRoute><CashDispatchForm /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <CashDispatchForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/update-CashDispatch/:id",
-        element: <AdminRoute><CashDispatchForm /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <CashDispatchForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/PaymentList",
-        element: <AdminRoute><PaymentList /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <PaymentList />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/PaymentReceive",
-        element: <AdminRoute><PaymentReceive /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <PaymentReceive />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/PaymentReceiveForm",
-        element: <AdminRoute><PaymentReceiveForm /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <PaymentReceiveForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/update-PaymentReceiveForm/:id",
-        element: <AdminRoute><PaymentReceiveForm /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <PaymentReceiveForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/vendor-payment",
-        element: <AdminRoute><VendorPayment /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <VendorPayment />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/add-vendor-payment",
-        element: <AdminRoute><VendorPaymentForm /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <VendorPaymentForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/update-vendor-payment/:id",
-        element: <AdminRoute><VendorPaymentForm /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <VendorPaymentForm />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/CustomerLedger",
-        element: <AdminRoute><CustomerLedger /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <CustomerLedger />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/SupplierLedger",
-        element: <AdminRoute><SupplierLedger /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <SupplierLedger />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/DriverLedger",
-        element: <AdminRoute><DriverLedger /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <DriverLedger />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/VendorLedger",
-        element: <AdminRoute><VendorLedger /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <VendorLedger />
+          </AdminRoute>
+        ),
       },
       {
         path: "/tramessy/account/OfficeLedger",
-        element: <AdminRoute><OfficeLedger /></AdminRoute>,
+        element: (
+          <AdminRoute>
+            <OfficeLedger />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/tramessy/AdjustmentForm",
+        element: (
+          <AdminRoute>
+            <AdjustmentForm />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/tramessy/updateAdjustment/:id",
+        element: (
+          <AdminRoute>
+            <AdjustmentForm />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/tramessy/AdjustmentList",
+        element: (
+          <AdminRoute>
+            <AdjustmentList />
+          </AdminRoute>
+        ),
       },
     ],
   },
