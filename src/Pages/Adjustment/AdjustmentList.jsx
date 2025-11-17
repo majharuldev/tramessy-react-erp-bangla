@@ -81,7 +81,7 @@ const AdjustmentList = () => {
 
   // EXCEL EXPORT FIXED
   const exportToExcel = () => {
-    const rows = filteredAdjustments.map((item, index) => ({
+    const rows = currentList.map((item, index) => ({
       SL: index + 1,
       Date: item.date,
       Indentor: item.indentor,
@@ -113,7 +113,7 @@ const AdjustmentList = () => {
 
   // PRINT FIXED
   const printTable = () => {
-    const rows = filteredAdjustments
+    const rows = currentList
       .map(
         (item, i) => `
     <tr>
@@ -238,17 +238,9 @@ const AdjustmentList = () => {
                 <th className="p-1">Date</th>
                 <th className="p-1">Indentor</th>
                 <th className="p-1">Vehicle No</th>
-                <th className="p-1">Vehicle Type</th>
-                <th className="p-1">Purpose</th>
-                <th className="p-1">Rate</th>
-                <th className="p-1">Qty</th>
+                <th className="p-1">Particulars</th>
+                <th className="p-1">Adv Paid</th>
                 <th className="p-1">Branch</th>
-                <th className="p-1">Total</th>
-                <th className="p-1">Adv Date</th>
-                <th className="p-1">Adv Amt</th>
-                <th className="p-1">Balance</th>
-                <th className="p-1">Paid To</th>
-                <th className="p-1">Remarks</th>
                 <th className="p-1">Status</th>
                 <th className="p-1">Action</th>
               </tr>
@@ -257,42 +249,32 @@ const AdjustmentList = () => {
             <tbody className="text-primary">
               {currentList.length === 0 ? (
                 <tr>
-                  <td colSpan="17" className="text-center p-4 text-gray-500">
+                  <td colSpan="9" className="text-center p-4 text-gray-500">
                     No Adjustment Found
                   </td>
                 </tr>
               ) : (
                 currentList.map((item, index) => (
                   <tr
-                    key={index}
+                    key={item.id}
                     className="border border-gray-200 hover:bg-gray-50 transition-all"
                   >
                     <td className="p-1">{indexOfFirst + index + 1}</td>
 
+                    {/* Date */}
                     <td className="p-1">
-                      {new Date(item.date).toLocaleDateString("en-GB")}
+                      {item.indent_date
+                        ? new Date(item.indent_date).toLocaleDateString("en-GB")
+                        : "-"}
                     </td>
 
                     <td className="p-1">{item.indentor}</td>
                     <td className="p-1">{item.vehicle_no}</td>
-                    <td className="p-1">{item.vehicle_type}</td>
-                    <td className="p-1">{item.purpose_of_expenses}</td>
-                    <td className="p-1">{item.rate}</td>
-                    <td className="p-1">{item.quantity}</td>
+                    <td className="p-1">{item.particulars}</td>
+                    <td className="p-1">{item.adv_paid}</td>
                     <td className="p-1">{item.branch_name}</td>
-                    <td className="p-1">{item.total_amount}</td>
 
-                    <td className="p-1">
-                      {new Date(item.advance_paid_date).toLocaleDateString(
-                        "en-GB"
-                      )}
-                    </td>
-
-                    <td className="p-1">{item.advance_amount}</td>
-                    <td className="p-1">{item.balance_amount}</td>
-                    <td className="p-1">{item.paid_to}</td>
-                    <td className="p-1">{item.remarks}</td>
-
+                    {/* Status */}
                     <td className="p-1">
                       <span
                         className={`text-white px-3 py-1 rounded-md text-xs ${
@@ -305,6 +287,7 @@ const AdjustmentList = () => {
                       </span>
                     </td>
 
+                    {/* Action */}
                     <td className="p-1">
                       <div className="flex gap-1">
                         <Link to={`/tramessy/updateAdjustment/${item.id}`}>

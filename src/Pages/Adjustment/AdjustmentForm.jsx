@@ -1,4 +1,4 @@
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
@@ -6,85 +6,158 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InputField, SelectField } from "../../components/Form/FormFields";
 import BtnSubmit from "../../components/Button/BtnSubmit";
-import { FiCalendar } from "react-icons/fi";
+import { FiCalendar, FiX } from "react-icons/fi";
 
 const AdjustmentForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
-  const methods = useForm();
-  const { handleSubmit, reset, setValue, register } = methods;
+
+  const methods = useForm({
+    defaultValues: {
+      indent_date: "",
+      indentor: "",
+      vehicle_no: "",
+      particulars: "",
+      adv_paid: "",
+      branch_name: "",
+      status: "",
+      items: [
+        {
+          given_date: "",
+          token: "",
+          present_km: "",
+          prev_km: "",
+          use_km: "",
+          ltr: "",
+          vehicle_no: "",
+          amount: "",
+          remarks: "",
+        },
+      ],
+    },
+  });
+
+  const { handleSubmit, reset, register, control } = methods;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "items",
+  });
+
   const dateRef = useRef(null);
-  const advanceDateRef = useRef(null);
-  // Fetch helper data if in edit mode
+
+  // 🔥 EDIT MODE: Fetch Data
   useEffect(() => {
     if (isEditMode) {
-      const fetchHelperData = async () => {
+      const fetchData = async () => {
         try {
           const response = await axios.get(
             `${import.meta.env.VITE_BASE_URL}/api/adjustment/show/${id}`
           );
-          const helperData = response.data.data;
 
-          // Set form values with fetched data
-          Object.keys(helperData).forEach((key) => {
-            setValue(key, helperData[key]);
+          const data = response.data.data[0];
+
+          // Convert top-level date
+          const indentDate = data.indent_date
+            ? new Date(data.indent_date)
+            : null;
+
+          // Convert items given_date
+          const items = (data.items || []).map((item) => ({
+            ...item,
+            given_date: item.given_date ? new Date(item.given_date) : null,
+          }));
+
+          reset({
+            indent_date: indentDate,
+            indentor: data.indentor,
+            vehicle_no: data.vehicle_no,
+            particulars: data.particulars,
+            adv_paid: data.adv_paid,
+            branch_name: data.branch_name,
+            status: data.status,
+            items: items,
           });
-        } catch (error) {
-          console.error("Error fetching helper data:", error);
-          toast.error("Failed to load helper data");
+        } catch (err) {
+          console.error(err);
+          toast.error("Failed to load adjustment");
         }
       };
-      fetchHelperData();
+
+      fetchData();
     }
-  }, [id, isEditMode, setValue]);
+  }, [id, isEditMode, reset]);
+
+  const emptyItem = {
+    given_date: "",
+    token: "",
+    present_km: "",
+    prev_km: "",
+    use_km: "",
+    ltr: "",
+    vehicle_no: "",
+    amount: "",
+    remarks: "",
+  };
 
   const onSubmit = async (data) => {
     try {
-      // Convert JS Date → YYYY-MM-DD
-      const formatDate = (date) => {
-        if (!date) return null;
-        return new Date(date).toISOString().split("T")[0];
-      };
-
-      // Fix the date fields before appending
-      const fixedData = {
-        ...data,
-        date: formatDate(data.date),
-        advance_paid_date: formatDate(data.advance_paid_date),
-      };
-
       const formData = new FormData();
-      for (const key in fixedData) {
-        if (fixedData[key] !== undefined && fixedData[key] !== null) {
-          formData.append(key, fixedData[key]);
-        }
-      }
+
+      // top-level
+      formData.append(
+        "indent_date",
+        data.indent_date
+          ? new Date(data.indent_date).toISOString().split("T")[0]
+          : ""
+      );
+      formData.append("indentor", data.indentor);
+      formData.append("vehicle_no", data.vehicle_no);
+      formData.append("particulars", data.particulars);
+      formData.append("adv_paid", data.adv_paid);
+      formData.append("branch_name", data.branch_name);
+      formData.append("status", data.status);
+
+      // items array
+      data.items.forEach((item, index) => {
+        formData.append(
+          `items[${index}][given_date]`,
+          item.given_date
+            ? new Date(item.given_date).toISOString().split("T")[0]
+            : ""
+        );
+        formData.append(`items[${index}][token]`, item.token || "");
+        formData.append(`items[${index}][present_km]`, item.present_km || "");
+        formData.append(`items[${index}][prev_km]`, item.prev_km || "");
+        formData.append(`items[${index}][use_km]`, item.use_km || "");
+        formData.append(`items[${index}][ltr]`, item.ltr || "");
+        formData.append(`items[${index}][vehicle_no]`, item.vehicle_no || "");
+        formData.append(`items[${index}][amount]`, item.amount || "");
+        formData.append(`items[${index}][remarks]`, item.remarks || "");
+      });
 
       const url = isEditMode
         ? `${import.meta.env.VITE_BASE_URL}/api/adjustment/update/${id}`
         : `${import.meta.env.VITE_BASE_URL}/api/adjustment/create`;
 
-      const response = await axios.post(url, formData);
+      const response = await axios.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      const resData = response.data;
+      console.log("API Response:", response.data);
 
-      if (resData.success === true) {
+      if (response.data.success === true) {
         toast.success(
-          `Adjustment ${isEditMode ? "updated" : "saved"} successfully`,
-          { position: "top-right" }
+          `Adjustment ${isEditMode ? "updated" : "created"} successfully`
         );
-
-        if (!isEditMode) reset();
         navigate("/tramessy/AdjustmentList");
       } else {
-        toast.error("Server issue: " + (resData.message || "Unknown issue"));
+        toast.error(response.data.message || "Failed to save");
       }
     } catch (error) {
-      console.error(error);
-      const errorMessage =
-        error.response?.data?.message || error.message || "Unknown error";
-      toast.error("Server issue: " + errorMessage);
+      console.error("Submit Error:", error);
+      toast.error("Server Error: " + (error.response?.data?.message || ""));
     }
   };
 
@@ -94,146 +167,206 @@ const AdjustmentForm = () => {
       <h3 className="px-6 py-2 bg-primary text-white font-semibold rounded-t-md">
         {isEditMode ? "Update Adjustment" : "Create Adjustment"}
       </h3>
-      <div className="mx-auto p-6  rounded-md shadow">
+
+      <div className="mx-auto p-6 rounded-md shadow">
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Name & Contact */}
-            <div className="md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField
-                  name="date"
-                  label="Date"
-                  type="date"
-                  required
-                  inputRef={(e) => {
-                    register("date").ref(e);
-                    dateRef.current = e;
-                  }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                      onClick={() => dateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-white cursor-pointer" />
-                    </span>
-                  }
-                />
+            {/* Top Fields */}
+            <div className="border border-gray-200 p-3 rounded-md">
+              <div className="md:flex justify-between gap-3">
+                <div className="w-full">
+                  <InputField
+                    name="indent_date"
+                    label="Indent Date"
+                    type="date"
+                    required
+                    inputRef={(e) => {
+                      register("indent_date").ref(e);
+                      dateRef.current = e;
+                    }}
+                    icon={
+                      <span
+                        className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
+                        onClick={() => dateRef.current?.showPicker?.()}
+                      >
+                        <FiCalendar className="text-white cursor-pointer" />
+                      </span>
+                    }
+                  />
+                </div>
+
+                <div className="w-full">
+                  <InputField name="indentor" label="Indentor" required />
+                </div>
+
+                <div className="w-full">
+                  <InputField name="vehicle_no" label="Vehicle Number" />
+                </div>
               </div>
-              <div className="w-full">
-                <InputField name="indentor" label="Indentor" required />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="branch_name"
-                  label="Branch Name"
-                  type="text"
-                  required
-                />
-              </div>
-            </div>
-            {/*  */}
-            <div className="md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField name="vehicle_no" label="Vehicle Number" />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="vehicle_type"
-                  label="Vehicle Type"
-                  type="text"
-                />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="purpose_of_expenses"
-                  label="Purpose of Expenses"
-                  type="text"
-                  required
-                />
-              </div>
-            </div>
-            {/*  */}
-            <div className="md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField name="rate" label="Rate" type="number" />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField name="quantity" label="Quantity" type="text" />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="total_amount"
-                  label="Total Amount"
-                  type="text"
-                />
-              </div>
-            </div>
-            {/*  */}
-            <div className="md:flex justify-between gap-3">
-              <div className="w-full">
-                <InputField
-                  name="advance_paid_date"
-                  label="Advance Paid Date"
-                  type="date"
-                  required
-                  inputRef={(e) => {
-                    register("advance_paid_date").ref(e);
-                    advanceDateRef.current = e;
-                  }}
-                  icon={
-                    <span
-                      className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
-                      onClick={() => advanceDateRef.current?.showPicker?.()}
-                    >
-                      <FiCalendar className="text-white cursor-pointer" />
-                    </span>
-                  }
-                />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="advance_amount"
-                  label="Advance Amount"
-                  type="number"
-                  required
-                />
-              </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="balance_amount"
-                  label="Balance Amount"
-                  type="number"
-                  required
-                />
+
+              <div className="md:flex justify-between gap-3">
+                <div className="mt-2 w-full">
+                  <InputField
+                    name="particulars"
+                    label="Particulars"
+                    type="text"
+                    required
+                  />
+                </div>
+
+                <div className="mt-2 w-full">
+                  <InputField
+                    name="adv_paid"
+                    label="Advance Amount"
+                    type="number"
+                    required
+                  />
+                </div>
+
+                <div className="mt-2 w-full">
+                  <InputField
+                    name="branch_name"
+                    label="Branch Name"
+                    type="text"
+                    required
+                  />
+                </div>
+
+                <div className="w-full relative">
+                  <SelectField
+                    name="status"
+                    label="Status"
+                    required
+                    options={[
+                      { value: "Active", label: "Active" },
+                      { value: "Inactive", label: "Inactive" },
+                      { value: "Pending", label: "Pending" },
+                    ]}
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="md:flex justify-between gap-3">
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField
-                  name="paid_to"
-                  label="Paid To"
-                  type="text"
-                  required
-                />
+            {/* Dynamic Items */}
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="border border-gray-200 p-3 rounded-md mt-6 relative"
+              >
+                <h5 className="flex justify-between items-center">
+                  Item {index + 1}
+                  <FiX
+                    className="text-red-500 cursor-pointer"
+                    onClick={() => remove(index)}
+                  />
+                </h5>
+
+                <div className="md:flex justify-between gap-3 mt-2">
+                  <div className="w-full relative">
+                    <InputField
+                      name={`items.${index}.given_date`}
+                      label="Given Date"
+                      type="date"
+                      required
+                      inputRef={(e) =>
+                        register(`items.${index}.given_date`).ref(e)
+                      }
+                      icon={
+                        <span
+                          className="py-[11px] absolute right-0 px-3 top-[22px] transform -translate-y-1/2 bg-primary rounded-r"
+                          onClick={(ev) => {
+                            const input =
+                              ev.currentTarget.parentElement.querySelector(
+                                "input[type=date]"
+                              );
+                            input?.showPicker?.();
+                          }}
+                        >
+                          <FiCalendar className="text-white cursor-pointer" />
+                        </span>
+                      }
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.token`}
+                      label="Token"
+                      type="text"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.present_km`}
+                      label="Present km"
+                      type="text"
+                    />
+                  </div>
+                </div>
+
+                <div className="md:flex justify-between gap-3 mt-2">
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.prev_km`}
+                      label="Prev km"
+                      type="text"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.use_km`}
+                      label="Use km"
+                      type="text"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <InputField name={`items.${index}.ltr`} label="Litter" />
+                  </div>
+                </div>
+
+                <div className="md:flex justify-between gap-3 mt-2">
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.vehicle_no`}
+                      label="Vehicle Number"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.amount`}
+                      label="Amount"
+                      type="number"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <InputField
+                      name={`items.${index}.remarks`}
+                      label="Remarks"
+                      type="text"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="mt-2 md:mt-0 w-full">
-                <InputField name="remarks" label="Remarks" type="text" />
-              </div>
-              <div className="w-full relative">
-                <SelectField
-                  name="status"
-                  label="Status"
-                  required
-                  options={[
-                    { value: "Active", label: "Active" },
-                    { value: "Inactive", label: "Inactive" },
-                  ]}
-                />
-              </div>
+            ))}
+
+            {/* Add More */}
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => append(emptyItem)}
+                className="mt-4 bg-primary text-white text-sm px-6 py-2 rounded hover:bg-secondary transition-all duration-300 cursor-pointer"
+              >
+                Add More
+              </button>
             </div>
 
-            <div className="mt-6 text-left">
+            {/* Submit */}
+            <div className="mt-6">
               <BtnSubmit>
                 {isEditMode ? "Update Adjustment" : "Make Adjustment"}
               </BtnSubmit>
