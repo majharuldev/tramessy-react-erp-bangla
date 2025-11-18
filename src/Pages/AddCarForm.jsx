@@ -34,7 +34,14 @@ const AddCarForm = () => {
   const selectedCategory = watch("vehicle_category");
   const vehicleSizes = {
     pickup: ["1 Ton", "2 Ton", "3 Ton", "7 Feet", "9 Feet"],
-    covered_van: ["12 Feet", "14 Feet", "16 Feet", "18 Feet", "20 Feet", "23 Feet"],
+    covered_van: [
+      "12 Feet",
+      "14 Feet",
+      "16 Feet",
+      "18 Feet",
+      "20 Feet",
+      "23 Feet",
+    ],
     open_truck: ["3 Ton", "5 Ton", "10 Ton", "15 Ton", "30 Ton"],
     trailer: ["20 Feet", "23 Feet", "40 Feet", "30 Ton"],
     freezer_van: ["1 Ton", "3 Ton", "5 Ton", "10 Ton"],
@@ -46,9 +53,9 @@ const AddCarForm = () => {
   const sizeOptions =
     selectedCategory && vehicleSizes[selectedCategory]
       ? vehicleSizes[selectedCategory].map((size) => ({
-        value: size.toLowerCase().replace(" ", "_"),
-        label: size,
-      }))
+          value: size.toLowerCase().replace(" ", "_"),
+          label: size,
+        }))
       : [];
 
   // post vehicle
@@ -69,7 +76,7 @@ const AddCarForm = () => {
       if (resData.status === "Success") {
         toast.success("Vehicle saved successfully!", { position: "top-right" });
         reset();
-        navigate("/tramessy/CarList")
+        navigate("/tramessy/CarList");
       } else {
         toast.error("Server error: " + (resData.message || "Unknown issue"));
       }
@@ -111,15 +118,11 @@ const AddCarForm = () => {
               <InputField name="engine_no" label="Enginee No" required />
             </div>
             <div className="relative mt-2 md:mt-0 w-full">
-              <InputField
-                name="chasis_no"
-                label="Chasis No"
-                required={true}
-              />
+              <InputField name="chasis_no" label="Chasis No" required={true} />
             </div>
             <div className="relative mt-2 md:mt-0 w-full">
               <InputField
-              type="number"
+                type="number"
                 name="kpl"
                 label="KPL"
                 required={true}
@@ -145,43 +148,9 @@ const AddCarForm = () => {
                   { value: "bus", label: "Bus" },
                   { value: "micro_bus", label: "Micro Bus" },
                 ]}
-
               />
             </div>
 
-            {/* <div className="relative mt-2 md:mt-0 w-full">
-              <SelectField
-                name="vehicle_size"
-                label="Vehicle Size/Capacity"
-                required
-                options={[
-                  { value: "", label: "Select Vehicle size..." },
-                  { value: "1 Ton", label: "1 Ton" },
-                  { value: "2 Ton", label: "2 Ton" },
-                  { value: "3 Ton", label: "3 Ton" },
-                  { value: "4 Ton", label: "4 Ton" },
-                  { value: "5 Ton", label: "5 Ton" },
-                  { value: "6 Ton", label: "6 Ton" },
-                  { value: "7 Ton", label: "7 Ton" },
-                  { value: "8 Ton", label: "8 Ton" },
-                  { value: "9 Ton", label: "9 Ton" },
-                  { value: "10 Ton", label: "10 Ton" },
-                  { value: "12 Ton", label: "12 Ton" },
-                  { value: "15 Ton", label: "15 Ton" },
-                  { value: "30 Ton", label: "30 Ton" },
-                  { value: "7 Feet", label: "7 Feet" },
-                  { value: "9 Feet", label: "9 Feet" },
-                  { value: "12 Feet", label: "12 Feet" },
-                  { value: "14 Feet", label: "14 Feet" },
-                  { value: "16 Feet", label: "16 Feet" },
-                  { value: "18 Feet", label: "18 Feet" },
-                  { value: "20 Feet", label: "20 Feet" },
-                  { value: "23 Feet", label: "23 Feet" },
-                  { value: "40 Feet", label: "40 Feet" },
-                  { value: "3xl", label: "3xl" },
-                ]}
-              />
-            </div> */}
             <div className="relative w-full">
               <SelectField
                 name="vehicle_size"

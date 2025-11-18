@@ -2,7 +2,7 @@ import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { InputField, SelectField } from "../../components/Form/FormFields";
 import BtnSubmit from "../../components/Button/BtnSubmit";
@@ -12,7 +12,6 @@ const AdjustmentForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditMode = Boolean(id);
-
   const methods = useForm({
     defaultValues: {
       indent_date: "",
@@ -37,15 +36,38 @@ const AdjustmentForm = () => {
       ],
     },
   });
-
   const { handleSubmit, reset, register, control } = methods;
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: "items",
   });
-
   const dateRef = useRef(null);
+  // select vehicle from api
+  const [vehicle, setVehicle] = useState([]);
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/vehicle/list`)
+      .then((response) => response.json())
+      .then((data) => setVehicle(data.data))
+      .catch((error) => console.error("Error fetching vehicle data:", error));
+  }, []);
+
+  const vehicleOptions = vehicle.map((dt) => ({
+    value: dt.registration_number,
+    label: dt.registration_number,
+  }));
+  // select branch from api
+  const [office, setOffice] = useState([]);
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_BASE_URL}/api/office/list`)
+      .then((response) => response.json())
+      .then((data) => setOffice(data.data))
+      .catch((error) => console.error("Error fetching office data:", error));
+  }, []);
+
+  const officeOptions = office.map((dt) => ({
+    value: dt.branch_name,
+    label: dt.branch_name,
+  }));
 
   // 🔥 EDIT MODE: Fetch Data
   useEffect(() => {
@@ -56,7 +78,7 @@ const AdjustmentForm = () => {
             `${import.meta.env.VITE_BASE_URL}/api/adjustment/show/${id}`
           );
 
-          const data = response.data.data[0];
+          const data = response.data.data;
 
           // Convert top-level date
           const indentDate = data.indent_date
@@ -113,7 +135,13 @@ const AdjustmentForm = () => {
           : ""
       );
       formData.append("indentor", data.indentor);
-      formData.append("vehicle_no", data.vehicle_no);
+      formData.append(
+        "vehicle_no",
+        Array.isArray(data.vehicle_no)
+          ? data.vehicle_no.map((v) => v.value).join(",") // send as CSV
+          : data.vehicle_no
+      );
+
       formData.append("particulars", data.particulars);
       formData.append("adv_paid", data.adv_paid);
       formData.append("branch_name", data.branch_name);
@@ -200,12 +228,19 @@ const AdjustmentForm = () => {
                 </div>
 
                 <div className="w-full">
-                  <InputField name="vehicle_no" label="Vehicle Number" />
+                  <SelectField
+                    name="vehicle_no"
+                    label="Vehicle Number"
+                    required={true}
+                    options={vehicleOptions}
+                    control={control}
+                    isMulti={true}
+                  />
                 </div>
               </div>
 
               <div className="md:flex justify-between gap-3">
-                <div className="mt-2 w-full">
+                <div className="w-full">
                   <InputField
                     name="particulars"
                     label="Particulars"
@@ -214,7 +249,7 @@ const AdjustmentForm = () => {
                   />
                 </div>
 
-                <div className="mt-2 w-full">
+                <div className="w-full">
                   <InputField
                     name="adv_paid"
                     label="Advance Amount"
@@ -223,12 +258,13 @@ const AdjustmentForm = () => {
                   />
                 </div>
 
-                <div className="mt-2 w-full">
-                  <InputField
+                <div className="w-full">
+                  <SelectField
                     name="branch_name"
                     label="Branch Name"
-                    type="text"
-                    required
+                    required={true}
+                    options={officeOptions}
+                    control={control}
                   />
                 </div>
 
@@ -329,9 +365,12 @@ const AdjustmentForm = () => {
 
                 <div className="md:flex justify-between gap-3 mt-2">
                   <div className="w-full">
-                    <InputField
+                    <SelectField
                       name={`items.${index}.vehicle_no`}
                       label="Vehicle Number"
+                      required={true}
+                      options={vehicleOptions}
+                      control={control}
                     />
                   </div>
 
