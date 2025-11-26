@@ -62,19 +62,20 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
   // );
   const totals = filteredLedger.reduce(
   (acc, item) => {
+    const totalRent = toNumber(item.total_rent || 0);
     const demurrage = toNumber(item.d_total || 0);
     const bill = toNumber(item.bill_amount || 0);
     const received = toNumber(item.rec_amount || 0);
 
     // add demurrage total separately
     acc.d_total += demurrage;
-
+acc.total_rent += totalRent;
     // total bill amount includes demurrage
     acc.rent += bill + demurrage;
     acc.rec_amount += received;
     return acc;
   },
-  { rent: 0, rec_amount: 0, d_total: 0 }
+  { rent: 0, rec_amount: 0, d_total: 0, total_rent: 0 }
 );
   // Now calculate due from total trip - advance - pay_amount
 totals.due = toNumber(totals.rent)  - toNumber(totals.rec_amount);
@@ -92,9 +93,9 @@ const exportToExcel = () => {
   let cumulativeDue = dueAmount; // Opening Balance
 
   const rows = filteredLedger.map((item, index) => {
-    // const billAmount = toNumber(item.bill_amount || 0);
+    const totalRent = toNumber(item.total_rent || 0);
     const receivedAmount = toNumber(item.rec_amount || 0);
-    const billAmount = parseFloat(item.bill_amount || 0) + parseFloat(item.d_total || 0);
+    const billAmount = toNumber(item.bill_amount || 0) + toNumber(item.d_total || 0);
 
     cumulativeDue += billAmount;
     cumulativeDue -= receivedAmount;
@@ -107,7 +108,8 @@ const exportToExcel = () => {
       Unload: item.unload_point || "--",
       Vehicle: item.vehicle_no || "--",
       Driver: item.driver_name || "--",
-      Demurrage: item.d_total|| "--",
+      "Total Rent": totalRent || "--",
+      Demurrage: toNumber(item.d_total)|| "--",
       "Bill Amount": billAmount || 0,
       "Received Amount": receivedAmount || 0,
       "Due": cumulativeDue,
@@ -122,7 +124,8 @@ const exportToExcel = () => {
     Load: "",
     Unload: "",
     Vehicle: "",
-    Driver: "Total",    
+    Driver: "Total",  
+    "Total Rent": toNumber(totals.total_rent), 
     Demurrage: toNumber(totals.d_total),
     "Bill Amount": toNumber(totals.rent),
     "Received Amount": toNumber(totals.rec_amount),
@@ -147,13 +150,15 @@ const exportToPDF = () => {
       "Load/Unload",
       "Vehicle",
       "Driver",
+      "Total Rent",
+      "Demurrage",
       "Bill Amount",
       "Received Amount",
       "Due",
     ],
     ...filteredLedger.map((item, index) => {
-      const billAmount = parseFloat(item.bill_amount || 0);
-      const receivedAmount = parseFloat(item.rec_amount || 0);
+      const billAmount = toNumber(item.bill_amount || 0);
+      const receivedAmount = toNumber(item.rec_amount || 0);
       cumulativeDue += billAmount;
       cumulativeDue -= receivedAmount;
 
@@ -164,6 +169,8 @@ const exportToPDF = () => {
         `${item.load_point || "--"} / ${item.unload_point || "--"}`,
         item.vehicle_no || "--",
         item.driver_name || "--",
+        item.total_rent || 0,
+        toNumber(item.d_total) || 0,
         billAmount || 0,
         receivedAmount || 0,
         cumulativeDue,
@@ -176,6 +183,8 @@ const exportToPDF = () => {
       "",
       "",
       "Total",
+      totals.total_rent,
+      totals.d_total,
       totals.rent,
       totals.rec_amount,
       grandDue,
@@ -188,7 +197,7 @@ const exportToPDF = () => {
       {
         table: {
           headerRows: 1,
-          widths: [25, 60, "*", "*", "*", "*", 60, 70, 60],
+          widths: [25, 60, "*", "*", "*", "*", "", "", 60, 70, 60],
           body: tableBody,
         },
         layout: "lightHorizontalLines",
@@ -207,17 +216,38 @@ const exportToPDF = () => {
 
   pdfMake.createPdf(docDefinition).download(`${customerName}-Ledger.pdf`);
 };
+// Print - Table 
   const handlePrint = () => {
-    const printContent = tableRef.current;
-    const printWindow = window.open("", "", "width=900,height=600");
-    printWindow.document.write("<html><head><title>Print Ledger</title></head><body>");
-    printWindow.document.write(printContent.innerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  };
+  const printContent = tableRef.current;
+  const printWindow = window.open("", "", "width=900,height=600");
+
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Print Ledger</title>
+        <style>
+          table, th, td {
+            border: 1px solid black !important;
+            border-collapse: collapse !important;
+          }
+          th, td {
+            padding: 6px;
+            text-align: left;
+          }
+        </style>
+      </head>
+      <body>
+        ${printContent.innerHTML}
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+  printWindow.close();
+};
+
 
   return (
     <div className="md:p-4">
@@ -305,6 +335,9 @@ const exportToPDF = () => {
     <td colSpan={7} className="border border-black px-2 py-1 text-right">
       Total 
     </td>
+    <td className="border border-black px-2 py-1 text-right">
+      ৳{totals.total_rent}
+    </td>
      <td className="border border-black px-2 py-1 text-right">
       ৳{totals.d_total}
     </td>
@@ -326,6 +359,7 @@ const exportToPDF = () => {
                 <th className="border px-2 py-1">Unload</th>
                 <th className="border px-2 py-1">Vehicle</th>
                 <th className="border px-2 py-1">Driver</th>
+                 <th className="border px-2 py-1">Total Rent</th>
                 <th className="border px-2 py-1">Demurrage Amount</th>
             <th className="border px-2 py-1">Bill Amount</th>
                 <th className="border px-2 py-1">Recieved Amount</th>
@@ -343,10 +377,10 @@ const exportToPDF = () => {
   {(() => {
     let cumulativeDue = dueAmount; // Opening balance
     return filteredLedger.map((item, idx) => {
-            const d_total = parseFloat(item.d_total|| 0);
+            const d_total = toNumber(item.d_total|| 0);
       // const billAmount = parseFloat(item.bill_amount || 0);
-      const receivedAmount = parseFloat(item.rec_amount || 0);
-const billAmount = parseFloat(item.bill_amount || 0) + parseFloat(item.d_total || 0);
+      const receivedAmount = toNumber(item.rec_amount || 0);
+const billAmount = toNumber(item.bill_amount || 0) + toNumber(item.d_total || 0);
 
       cumulativeDue += billAmount;
       cumulativeDue -= receivedAmount;
@@ -367,6 +401,9 @@ const billAmount = parseFloat(item.bill_amount || 0) + parseFloat(item.d_total |
           </td>
           <td className="border px-2 py-1">
             {item.driver_name || <span className="flex justify-center items-center">--</span>}
+          </td>
+          <td className="border px-2 py-1">
+            {item.total_rent? item.total_rent : "--"}
           </td>
           <td className="border px-2 py-1">
             {d_total? d_total : "--"}

@@ -47,7 +47,7 @@ export default function AddTripForm() {
       others_cost: "",
       d_day: "",
       d_amount: "",
-      d_total: 0,
+      d_total: "",
       customer: "",
       parking_cost: "",
       night_guard: "",
@@ -122,7 +122,7 @@ export default function AddTripForm() {
     chadaCost,
     foodCost,
     d_day,
-    d_amount,
+    // d_amount,
     additional_cost,
     additional_unload_charge,
     callan_cost,
@@ -140,7 +140,7 @@ export default function AddTripForm() {
     "chada",
     "food_cost",
     "d_day",
-    "d_amount",
+    // "d_amount",
     "additional_cost",
     "additional_unload_charge",
     "callan_cost",
@@ -171,8 +171,8 @@ export default function AddTripForm() {
     setValue("total_exp", totalExp);
      }
     // Calculate damarage total
-    const d_total = (Number(d_day) || 0) * (Number(d_amount) || 0);
-    setValue("d_total", d_total);
+    // const d_total = (Number(d_day) || 0) * (Number(d_amount) || 0);
+    // setValue("d_total", d_total);
   }, [
     driverCommision,
     labourCost,
@@ -186,7 +186,7 @@ export default function AddTripForm() {
     fuelCost,
     othersCost,
     d_day,
-    d_amount,
+    // d_amount,
     additional_cost,
     additional_unload_charge,
     callan_cost,
@@ -773,7 +773,7 @@ export default function AddTripForm() {
              {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
                 <h3 className="text-orange-500 font-medium text-center mb-6">
-                  Demurrage Details
+                  Customer Demurrage
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <InputField
@@ -786,7 +786,7 @@ export default function AddTripForm() {
                       setValue("d_total", days * (Number(d_amount) || 0));
                     }}
                   />
-                  <InputField
+                  {/* <InputField
                     name="d_amount"
                     label="Demurrage Rate/Day"
                     type="number"
@@ -795,12 +795,48 @@ export default function AddTripForm() {
                       setValue("d_amount", rate);
                       setValue("d_total", (Number(d_day) || 0) * rate);
                     }}
-                  />
+                  /> */}
                   <InputField
                     name="d_total"
                     label="Total Demurrage"
                     type="number"
-                    readOnly
+                    // readOnly
+                  />
+                </div>
+              </div>
+            )} 
+
+              {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
+              <div className="border border-gray-300 p-5 rounded-md mt-5">
+                <h3 className="text-orange-500 font-medium text-center mb-6">
+                  Vendor Demurrage 
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <InputField
+                    name="v_d_day"
+                    label="Demurrage Days"
+                    type="number"
+                    onChange={(e) => {
+                      const days = Number(e.target.value) || 0;
+                      setValue("d_day", days);
+                      setValue("d_total", days * (Number(d_amount) || 0));
+                    }}
+                  />
+                  {/* <InputField
+                    name="d_amount"
+                    label="Demurrage Rate/Day"
+                    type="number"
+                    onChange={(e) => {
+                      const rate = Number(e.target.value) || 0;
+                      setValue("d_amount", rate);
+                      setValue("d_total", (Number(d_day) || 0) * rate);
+                    }}
+                  /> */}
+                  <InputField
+                    name="v_d_total"
+                    label="Total Demurrage"
+                    type="number"
+                    // readOnly
                   />
                 </div>
               </div>

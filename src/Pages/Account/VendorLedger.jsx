@@ -147,11 +147,14 @@ const VendorLedger = () => {
   const totals = rowsWithRunningBalance.reduce(
     (acc, item) => {
       acc.rent += toNumber(item.trip_rent || 0);
+      acc.demurrage += toNumber(item.v_d_total || 0);
+      acc.total +=
+        toNumber(item.trip_rent || 0) + toNumber(item.v_d_total || 0);
       acc.advance += toNumber(item.advance || 0);
       acc.pay_amount += toNumber(item.pay_amount || 0);
       return acc;
     },
-    { rent: 0, advance: 0, pay_amount: 0 }
+    { rent: 0, demurrage:0, total:0, advance: 0, pay_amount: 0 }
   );
 
   // The grand total due is the last running balance, or opening balance if no transactions
@@ -175,6 +178,8 @@ const VendorLedger = () => {
         Vehicle: "",
         Driver: "",
         "Trip Rent": "",
+        Demurage: "",
+        Total: "",
         Advance: "",
         "Pay Amount": "",
         Due: openingBalance,
@@ -192,6 +197,11 @@ const VendorLedger = () => {
         Vehicle: item.vehicle_no || "--",
         Driver: item.driver_name || "--",
         "Trip Rent": item.trip_rent ? toNumber(item.trip_rent) : "--",
+        Demurrage: item.v_d_total ? toNumber(item.v_d_total) : "--",
+        Total:
+          item.trip_rent || item.v_d_total
+            ? toNumber(item.trip_rent || 0) + toNumber(item.v_d_total || 0)
+            : "--",
         Advance: item.advance ? toNumber(item.advance) : "--",
         "Pay Amount": item.pay_amount ? toNumber(item.pay_amount) : "--",
         Due: item.running_balance,
@@ -207,6 +217,8 @@ const VendorLedger = () => {
       Vehicle: "",
       Driver: "",
       "Trip Rent": toNumber(totals.rent),
+      Demurrage: toNumber(totals.demurrage),
+      Total: toNumber(totals.total),
       Advance: toNumber(totals.advance),
       "Pay Amount": toNumber(totals.pay_amount),
       Due: grandDue,
@@ -356,7 +368,7 @@ const VendorLedger = () => {
   return (
     <div className="md:p-2">
       <div className="border border-gray-200 md:p-4 rounded-xl">
-        <div className="overflow-x-auto max-w-5xl mx-auto">
+        <div className="overflow-x-auto  mx-auto">
           <div className="md:flex items-center justify-between mb-6">
             <h1 className="text-xl font-bold text-[#11375B] capitalize">
               Vendor Ledger: {selectedVendor || "All Vendors"}
@@ -495,6 +507,8 @@ const VendorLedger = () => {
                     TOTAL:
                   </td>
                   <td className="border px-2 py-1">{totals.rent}</td>
+                  <td className="border px-2 py-1">{totals.demurrage}</td>
+                  <td className="border px-2 py-1">{totals.total}</td>
                   <td className="border px-2 py-1">{totals.advance}</td>
                   <td className="border px-2 py-1">{totals.pay_amount}</td>
                   <td className="border px-2 py-1">
@@ -513,13 +527,15 @@ const VendorLedger = () => {
                 <tr>
                   <th className="border px-2 py-1">SL.</th>
                   <th className="border px-2 py-1">Date</th>
-                  <th className="border px-2 py-1">Trip ID</th>
+                  <th className="border px-2 py-1">Trip No</th>
                   <th className="border px-2 py-1">Vendor</th>
                   <th className="border px-2 py-1">Load</th>
                   <th className="border px-2 py-1">Unload</th>
                   <th className="border px-2 py-1">Vehicle</th>
                   <th className="border px-2 py-1">Driver</th>
                   <th className="border px-2 py-1">Trip Rent</th>
+                  <th className="border px-2 py-1">Demurrage</th>
+                  <th className="border px-2 py-1">Total</th>
                   <th className="border px-2 py-1">Advance</th>
                   <th className="border px-2 py-1">Pay Amount</th>
                   <th className="border px-2 py-1">
@@ -534,6 +550,7 @@ const VendorLedger = () => {
               </thead>
               <tbody>
                 {rowsWithRunningBalance.map((item, idx) => {
+const total = toNumber(item.trip_rent || 0) + toNumber(item.d_total || 0);
                   return (
                     <tr key={idx}>
                       <td className="border px-2 py-1">{idx + 1}</td>
@@ -570,6 +587,12 @@ const VendorLedger = () => {
                       </td>
                       <td className="border px-2 py-1">
                         {item.trip_rent ? toNumber(item.trip_rent) : "--"}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {item.v_d_total ? toNumber(item.v_d_total) : "--"}
+                      </td>
+                      <td className="border px-2 py-1">
+                        {total || "--"}
                       </td>
                       <td className="border px-2 py-1">
                         {item.advance ? toNumber(item.advance) : "--"}
