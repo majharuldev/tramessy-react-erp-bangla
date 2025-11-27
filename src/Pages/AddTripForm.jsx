@@ -73,7 +73,10 @@ export default function AddTripForm() {
       vehicle_category: "",
       vehicle_size: "",
       branch_name: "",
-      trip_id: ""
+      trip_id: "",
+      v_d_day: "",
+      v_d_total: "",
+      trip_type: "",
     },
   });
 
@@ -149,27 +152,27 @@ export default function AddTripForm() {
 
   // Calculate totals
   useEffect(() => {
-     if (selectedTransport === "own_transport") {
-    // Calculate total expenses
-    const totalExp =
-      (Number(driverCommision) || 0) +
-      (Number(labourCost) || 0) +
-      (Number(parkingCost) || 0) +
-      (Number(nightGuardCost) || 0) +
-      (Number(tollCost) || 0) +
-      (Number(feriCost) || 0) +
-      (Number(policeCost) || 0) +
-      (Number(foodCost) || 0) +
-      (Number(chadaCost) || 0) +
-      (Number(fuelCost) || 0) +
-      (Number(additional_cost) || 0) +
-      (Number(additional_unload_charge) || 0) +
-      (Number(callan_cost) || 0) +
-      (Number(depo_cost)|| 0) +
-      (Number(othersCost) || 0);
+    if (selectedTransport === "own_transport") {
+      // Calculate total expenses
+      const totalExp =
+        (Number(driverCommision) || 0) +
+        (Number(labourCost) || 0) +
+        (Number(parkingCost) || 0) +
+        (Number(nightGuardCost) || 0) +
+        (Number(tollCost) || 0) +
+        (Number(feriCost) || 0) +
+        (Number(policeCost) || 0) +
+        (Number(foodCost) || 0) +
+        (Number(chadaCost) || 0) +
+        (Number(fuelCost) || 0) +
+        (Number(additional_cost) || 0) +
+        (Number(additional_unload_charge) || 0) +
+        (Number(callan_cost) || 0) +
+        (Number(depo_cost) || 0) +
+        (Number(othersCost) || 0);
 
-    setValue("total_exp", totalExp);
-     }
+      setValue("total_exp", totalExp);
+    }
     // Calculate damarage total
     // const d_total = (Number(d_day) || 0) * (Number(d_amount) || 0);
     // setValue("d_total", d_total);
@@ -195,8 +198,48 @@ export default function AddTripForm() {
     selectedTransport,
   ]);
 
+  useEffect(() => {
+  const transport = selectedTransport;
+
+  if (transport === "own_transport") {
+    // Own transport: total_exp already computed from expenses
+    const rent = Number(watch("total_rent")) || 0;
+    const dTotal = Number(watch("d_total")) || 0;
+
+    setValue("trip_rent", rent + dTotal);
+  }
+
+  if (transport === "vendor_transport") {
+    // Vendor transport: vehicle_rent = total_exp (vendor rent) + v_d_total (vendor demurrage)
+    const totalExp = Number(watch("total_exp")) || 0;
+    const vDemurrage = Number(watch("v_d_total")) || 0;
+
+    setValue("vehicle_rent", totalExp + vDemurrage);
+
+    // If you also need trip_rent for customer
+    const rent = Number(watch("total_rent")) || 0;  // customer rent
+    const dTotal = Number(watch("d_total")) || 0;   // customer demurrage
+    setValue("trip_rent", rent + dTotal);
+  }
+
+  // Vendor due amount
+  const vendorRent = Number(watch("vehicle_rent")) || 0;
+  const vendorAdvance = Number(watch("advance")) || 0;
+  setValue("due_amount", vendorRent - vendorAdvance);
+
+}, [
+  selectedTransport,
+  watch("total_exp"),
+  watch("v_d_total"),
+  watch("total_rent"),
+  watch("d_total"),
+  watch("advance"),
+  setValue
+]);
+
+
   // Watch vendor transport fields
-  const [vendorRent, vendorAdvance] = watch(["total_exp", "advance"]);
+  const [vendorRent, vendorAdvance] = watch(["vehicle_rent", "advance"]);
 
   useEffect(() => {
     const due = (Number(vendorRent) || 0) - (Number(vendorAdvance) || 0);
@@ -320,7 +363,7 @@ export default function AddTripForm() {
       } catch (error) {
         console.error("Error fetching data:", error);
         toast.error("Failed to load form data");
-      }finally {
+      } finally {
         setLoading(false) // সবশেষে loading বন্ধ
       }
     };
@@ -468,6 +511,8 @@ export default function AddTripForm() {
           data.date = format(parsedDate, "yyyy-MM-dd");
         }
       }
+      delete data.total;
+      delete data.total_v;
 
       const url = id
         ? `${import.meta.env.VITE_BASE_URL}/api/trip/update/${id}`
@@ -770,7 +815,7 @@ export default function AddTripForm() {
             </div>
 
             {/* Demurrage Section — Shared by both Own & Vendor Transport */}
-             {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
+            {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
                 <h3 className="text-orange-500 font-medium text-center mb-6">
                   Customer Demurrage
@@ -800,16 +845,23 @@ export default function AddTripForm() {
                     name="d_total"
                     label="Total Demurrage"
                     type="number"
-                    // readOnly
+                  // readOnly
+                  />
+                  <InputField
+                    name="trip_rent"
+                    
+                    label="Demurrage + total rent"
+                    type="number"
+                    readOnly
                   />
                 </div>
               </div>
-            )} 
+            )}
 
-              {(selectedTransport === "own_transport" || selectedTransport === "vendor_transport") && (
+            {(selectedTransport === "vendor_transport") && (
               <div className="border border-gray-300 p-5 rounded-md mt-5">
                 <h3 className="text-orange-500 font-medium text-center mb-6">
-                  Vendor Demurrage 
+                  Vendor Demurrage
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <InputField
@@ -836,11 +888,17 @@ export default function AddTripForm() {
                     name="v_d_total"
                     label="Total Demurrage"
                     type="number"
-                    // readOnly
+                  // readOnly
+                  />
+                  <InputField
+                    name="total_exp"
+                    label="Vendor Rent"
+                    type="number"
+                  // readOnly
                   />
                 </div>
               </div>
-            )} 
+            )}
 
             {/* Own Transport Expenses Section */}
             {selectedTransport === "own_transport" && (
@@ -874,7 +932,7 @@ export default function AddTripForm() {
                   <InputField name="additional_unload_charge" label="Additional Unload Cost" type="number" />
                   <InputField name="callan_cost" label="Challan Cost" type="number" />
                   <InputField name="depo_cost" label="Depo Cost" type="number" />
-                  
+
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                   <InputField name="total_exp" label="Total Expense" readOnly />
@@ -890,9 +948,9 @@ export default function AddTripForm() {
                   Vendor Payment Details
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <InputField name="total_exp" label="Vendor Rent" type="number" required={!id} />
+                  <InputField name="vehicle_rent"  label="Vendor Rent +Demurrage" type="number" required={!id} readOnly />
                   <InputField name="advance" label="Advance" type="number" required={!id} />
-                  <InputField name="due_amount" readOnly label="Due Amount" type="number" required={!id} />                
+                  <InputField name="due_amount" readOnly label="Due Amount" type="number" required={!id} />
                   <InputField name="remarks" label="Remarks" />
                 </div>
               </div>
