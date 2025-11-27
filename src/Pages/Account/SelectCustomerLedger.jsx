@@ -49,6 +49,9 @@ const SelectCustomerLadger = ({ customer, selectedCustomerName }) => {
       return true;
     }
   });
+  filteredLedger.sort((a, b) => {
+  return new Date(b.bill_date) - new Date(a.bill_date);
+});
 
   // Calculate totals including opening balance
   // const totals = filteredLedger.reduce(
@@ -388,7 +391,7 @@ const billAmount = toNumber(item.bill_amount || 0) + toNumber(item.d_total || 0)
       return (
         <tr key={idx}>
           <td className="border px-2 py-1">{idx + 1 }</td>
-          <td className="border px-2 py-1">{tableFormatDate(item.bill_date)}</td>
+          <td className="border px-2 py-1">{tableFormatDate(item.working_date)}</td>
           <td className="border px-2 py-1">{item.customer_name}</td>
           <td className="border px-2 py-1">
             {item.load_point || <span className="flex justify-center items-center">--</span>}
@@ -403,7 +406,7 @@ const billAmount = toNumber(item.bill_amount || 0) + toNumber(item.d_total || 0)
             {item.driver_name || <span className="flex justify-center items-center">--</span>}
           </td>
           <td className="border px-2 py-1">
-            {item.total_rent? item.total_rent : "--"}
+            {item.bill_amount? item.bill_amount : "--"}
           </td>
           <td className="border px-2 py-1">
             {d_total? d_total : "--"}

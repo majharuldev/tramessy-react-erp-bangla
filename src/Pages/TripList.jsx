@@ -102,54 +102,57 @@ const TripList = () => {
       FeriCost: toNumber(dt.feri_cost),
       TollCost: toNumber(dt.toll_cost),
       NightGaurd: toNumber(dt.night_guard),
-      FoodCost: toNumber(dt.food_cost), 
+      FoodCost: toNumber(dt.food_cost),
       PoliceCost: toNumber(dt.police_cost),
       ChadaCost: toNumber(dt.chada),
       ChalanCost: toNumber(dt.chalan_cost),
       AdditionalUnloadCharge: toNumber(dt.additional_unload_charge),
       OtherCost: toNumber(dt.other_cost),
-      TripCost: toNumber(dt.total_exp),
-      Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0),
+      // TripCost: toNumber(dt.total_exp),
+      // Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0),
+      TripCost: toNumber(dt.total_exp || 0) + toNumber(dt.v_d_total || 0),
+Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(dt.total_exp || 0) + toNumber(dt.v_d_total || 0)),
     }));
 
     // 👉 Total Row Calculation
-  // -------------------------
-  const totalRow = {
-    "SL.": "",
-    Date: "",
-    TripId: "",
-    Customer: "",
-    TransportType: "",
-    VehicleNo: "",
-    Driver: "",
-    Vendor: "",
-    TripType: "TOTAL",
-    AdditionalLoadPoint: "",
-    "Trip & Destination": "",
+    // -------------------------
+    const totalRow = {
+      "SL.": "",
+      Date: "",
+      TripId: "",
+      Customer: "",
+      TransportType: "",
+      VehicleNo: "",
+      Driver: "",
+      Vendor: "",
+      TripType: "TOTAL",
+      AdditionalLoadPoint: "",
+      "Trip & Destination": "",
 
-    TripRent: tableData.reduce((sum, row) => sum + row.TripRent, 0),
-    Demurrage: tableData.reduce((sum, row) => sum + row.Demurrage, 0),
-    DriverAdvance: tableData.reduce((sum, row) => sum + row.DriverAdvance, 0),
-    DriverCommission: tableData.reduce((sum, row) => sum + row.DriverCommission, 0),
-    FuelCost: tableData.reduce((sum, row) => sum + row.FuelCost, 0),
-    DepoCost: tableData.reduce((sum, row) => sum + row.DepoCost, 0),
-    LaborCost: tableData.reduce((sum, row) => sum + row.LaborCost, 0),
-    ParkingCost: tableData.reduce((sum, row) => sum + row.ParkingCost, 0),
-    FeriCost: tableData.reduce((sum, row) => sum + row.FeriCost, 0),
-    TollCost: tableData.reduce((sum, row) => sum + row.TollCost, 0),
-    NightGaurd: tableData.reduce((sum, row) => sum + row.NightGaurd, 0),
-    FoodCost: tableData.reduce((sum, row) => sum + row.FoodCost, 0),
-    PoliceCost: tableData.reduce((sum, row) => sum + row.PoliceCost, 0),
-    ChadaCost: tableData.reduce((sum, row) => sum + row.ChadaCost, 0),
-    ChalanCost: tableData.reduce((sum, row) => sum + row.ChalanCost, 0),
-    AdditionalUnloadCharge: tableData.reduce((sum, row) => sum + row.AdditionalUnloadCharge, 0),
-    OtherCost: tableData.reduce((sum, row) => sum + row.OtherCost, 0),
-    TripCost: tableData.reduce((sum, row) => sum + row.TripCost, 0),
-    Profit: tableData.reduce((sum, row) => sum + row.Profit, 0),
-  };
+      TripRent: tableData.reduce((sum, row) => sum + row.TripRent, 0),
+      Demurrage: tableData.reduce((sum, row) => sum + row.Demurrage, 0),
+      DriverAdvance: tableData.reduce((sum, row) => sum + row.DriverAdvance, 0),
+      DriverCommission: tableData.reduce((sum, row) => sum + row.DriverCommission, 0),
+      FuelCost: tableData.reduce((sum, row) => sum + row.FuelCost, 0),
+      DepoCost: tableData.reduce((sum, row) => sum + row.DepoCost, 0),
+      LaborCost: tableData.reduce((sum, row) => sum + row.LaborCost, 0),
+      ParkingCost: tableData.reduce((sum, row) => sum + row.ParkingCost, 0),
+      FeriCost: tableData.reduce((sum, row) => sum + row.FeriCost, 0),
+      TollCost: tableData.reduce((sum, row) => sum + row.TollCost, 0),
+      NightGaurd: tableData.reduce((sum, row) => sum + row.NightGaurd, 0),
+      FoodCost: tableData.reduce((sum, row) => sum + row.FoodCost, 0),
+      PoliceCost: tableData.reduce((sum, row) => sum + row.PoliceCost, 0),
+      ChadaCost: tableData.reduce((sum, row) => sum + row.ChadaCost, 0),
+      ChalanCost: tableData.reduce((sum, row) => sum + row.ChalanCost, 0),
+      AdditionalUnloadCharge: tableData.reduce((sum, row) => sum + row.AdditionalUnloadCharge, 0),
+      OtherCost: tableData.reduce((sum, row) => sum + row.OtherCost, 0),
+      TripCost: tableData.reduce((sum, row) => sum + row.TripCost, 0),
+      Profit: tableData.reduce((sum, row) => sum + row.Profit, 0),
+      
+    };
 
-  // 👉 add TOTAL row to sheet
-  tableData.push(totalRow);
+    // 👉 add TOTAL row to sheet
+    tableData.push(totalRow);
 
     const worksheet = XLSX.utils.json_to_sheet(tableData);
     const workbook = XLSX.utils.book_new();
@@ -190,8 +193,8 @@ const TripList = () => {
       `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`,
       toNumber(dt.total_rent) || 0,
       toNumber(dt.d_total) || 0,
-      toNumber(dt.total_exp) || 0,
-      (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0),
+      (toNumber(dt.total_exp) || 0) + (toNumber(dt.v_d_total) || 0),
+      (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(dt.total_exp || 0) + toNumber(dt.v_d_total) || 0),
     ]);
 
     autoTable(doc, {
@@ -232,7 +235,7 @@ const TripList = () => {
   `;
 
     filteredTrips.forEach((dt, index) => {
-      const totalProfit = (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - toNumber(dt.total_exp || 0);
+      const totalProfit = (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(dt.total_exp || 0)+ toNumber(dt.v_d_total || 0));
       const tripDestination = `Load: ${dt.load_point || "N/A"} | Unload: ${dt.unload_point || "N/A"}`;
 
       tableHTML += `
@@ -247,7 +250,7 @@ const TripList = () => {
         <td>${tripDestination}</td>
         <td>${dt.total_rent || 0}</td>
         <td>${dt.d_total || 0}</td>
-        <td>${dt.total_exp || 0}</td>
+        <td>${toNumber(dt.total_exp || 0) + toNumber(dt.v_d_total ||0)}</td>
         <td>${totalProfit}</td>
       </tr>
     `;
@@ -361,7 +364,7 @@ const TripList = () => {
       dt.date?.toLowerCase().includes(term) ||
       dt.driver_name?.toLowerCase().includes(term) ||
       dt.driver_mobile?.toLowerCase().includes(term) ||
-      dt.vehicle_no?.toLowerCase().includes(term) 
+      dt.vehicle_no?.toLowerCase().includes(term)
     );
   });
 
@@ -376,11 +379,15 @@ const TripList = () => {
   // Filtered & paginated trips
   const totalTripRent = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_rent || 0), 0);
   const totalDemurrage = currentTrip.reduce((sum, dt) => sum + toNumber(dt.d_total || 0), 0);
-  const totalTripCost = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_exp || 0), 0);
+  // const totalTripCost = currentTrip.reduce((sum, dt) => sum + toNumber(dt.total_exp || 0), 0);
+  const totalTripCost = (currentTrip || []).reduce(
+  (sum, dt) => sum + Number(dt.total_exp || 0) + Number(dt.v_d_total || 0),
+  0
+);
   const totalProfit = currentTrip.reduce((sum, dt) => {
     const rent = toNumber(dt.total_rent || 0);
     const demurrage = toNumber(dt.d_total || 0);
-    const exp = toNumber(dt.total_exp || 0);
+    const exp = toNumber(dt.total_exp || 0) + toNumber(dt.v_d_total || 0);
     return sum + (rent + demurrage - exp);
   }, 0);
 
@@ -552,7 +559,7 @@ const TripList = () => {
                 <th className="p-2">Vendor</th>
                 <th className="p-2">Trip&Destination</th>
                 <th className="p-2">TripRent</th>
-                <th className="p-2">Demurrage</th>
+                <th className="p-2">C.Demurrage</th>
                 <th className="p-2">TripCost</th>
                 <th className="p-2">Profit</th>
                 <th className="p-2 action_column">Action</th>
@@ -569,7 +576,8 @@ const TripList = () => {
                   : (currentTrip?.map((dt, index) => {
                     const totalRent = toNumber(dt.total_rent || 0);
                     const demurrage = toNumber(dt.d_total || 0);
-                    const totalExpenses = toNumber(dt.total_exp || 0);
+                    const vendorDemurrage = toNumber(dt.v_d_total || 0);
+                    const totalExpenses = toNumber(dt.total_exp || 0) + toNumber(dt.v_d_total || 0);
                     const totalProfit = (totalRent + demurrage) - totalExpenses;
                     return (
                       <tr
@@ -602,7 +610,12 @@ const TripList = () => {
 
                         <td className="p-2">{dt.total_rent}</td>
                         <td className="p-2">{dt.d_total}</td>
-                        <td className="p-2">{dt.total_exp}</td>
+                        <td className="p-2">
+                          {dt.transport_type === "vendor_transport"
+                            ? totalExpenses 
+                            : toNumber(dt.total_exp) // own transport: just total_exp
+                          }
+                        </td>
                         {/* <td className="p-2">
                       {parseFloat(dt.total_rent || 0) -
                         parseFloat(dt.total_exp || 0)}
@@ -621,7 +634,7 @@ const TripList = () => {
                             >
                               <FaEye className="text-[12px]" />
                             </button>
-                           {isAdmin && <button
+                            {isAdmin && <button
                               onClick={() => {
                                 setselectedTripId(dt.id);
                                 setIsOpen(true);
@@ -771,7 +784,7 @@ const TripList = () => {
                   <p className="w-48">Depo Cost</p> <p>{selectedTrip.depo_cost ? selectedTrip.depo_cost : 0}</p>
                 </li>
               </ul>
-               <ul className="flex border-b border-r border-l border-gray-300">
+              <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Food Cost</p> <p>{selectedTrip.food_cost ? selectedTrip.food_cost : 0}</p>
                 </li>
@@ -796,7 +809,7 @@ const TripList = () => {
                   <p>{selectedTrip.others_cost ? selectedTrip.others_cost : 0}</p>
                 </li>
               </ul>
-               <ul className="flex border-b border-r border-l border-gray-300">
+              <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Night Guard</p>{" "}
                   <p>{selectedTrip.night_guard ? selectedTrip.night_guard : 0}</p>
@@ -840,7 +853,7 @@ const TripList = () => {
                   <p>{selectedTrip.due_amount ? selectedTrip.due_amount : "N/A"}</p>
                 </li>
               </ul>
-              
+
               <ul className="flex border-b border-r border-l border-gray-300">
                 <li className="w-[428px] flex text-primary text-sm font-semibold px-3 py-2 border-r border-gray-300">
                   <p className="w-48">Additional Unload Point</p> <p>{selectedTrip.additional_unload ? selectedTrip.additional_unload : 0}</p>

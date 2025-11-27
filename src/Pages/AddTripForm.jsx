@@ -895,6 +895,7 @@ export default function AddTripForm() {
                     label="Vendor Rent"
                     type="number"
                   // readOnly
+                  required={!id}
                   />
                 </div>
               </div>
