@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
 const OverViewCard = () => {
   const [tripCost, setTripCost] = useState(0);
   const [tripCommission, setTripCommission] = useState(0);
@@ -13,6 +14,7 @@ const OverViewCard = () => {
   const [totalReceiveAmount, setTotalReceiveAmount] = useState(0);
   const today = dayjs().format("YYYY-MM-DD");
   const [todayTripCount, setTodayTripCount] = useState(0);
+  const {t} = useTranslation();
   // daily trip
   useEffect(() => {
     axios
@@ -161,22 +163,22 @@ const OverViewCard = () => {
         {/* daily trip */}
         <div className="bg-white rounded-xl shadow-md p-5 border border-gray-200 cursor-pointer">
           <h3 className="text-lg font-bold text-primary border-b border-gray-200 pb-2 mb-4">
-            Daily Trip
+            {t("dailyTrip")}
           </h3>
           <div className="text-gray-700 text-sm space-y-2">
             <div className="flex justify-between font-semibold">
-              <span>Today Trip</span>-<span> {todayTripCount}</span>
+              <span>{t("todayTrip")}</span>-<span> {todayTripCount}</span>
             </div>
           </div>
         </div>
         {/* Sales */}
         <div className="bg-white rounded-xl shadow-md p-5 border border-gray-200 cursor-pointer">
           <h3 className="text-lg font-bold text-primary border-b border-gray-200 pb-2 mb-4">
-            Daily Sales
+            {t("dailySales")}
           </h3>
           <div className="text-gray-700 text-sm space-y-2">
             <div className="flex justify-between font-semibold">
-              <span>Total Sale</span>-
+              <span>{t("todaySales")}</span>-
               <span>{dailySales.toLocaleString()} TK</span>
             </div>
           </div>
@@ -184,11 +186,11 @@ const OverViewCard = () => {
         {/* Daily cash dispatch */}
         <div className="bg-white rounded-xl shadow-md p-5 border border-gray-200 cursor-pointer">
           <h3 className="text-lg font-bold text-primary border-b border-gray-200 pb-2 mb-4">
-            Daily Cash Dispatch
+            {t("dailyCashDispatch")}
           </h3>
           <div className="text-gray-700 text-sm space-y-2">
             <div className="flex justify-between font-semibold">
-              <span>Total Dispatch</span>-
+              <span>{t("totalDispatch")}</span>-
               <span>{totalDispatch.toLocaleString()} TK</span>
             </div>
           </div>
@@ -198,11 +200,11 @@ const OverViewCard = () => {
         {/* Daily receive amount */}
         <div className="col-span-1 bg-white rounded-xl shadow-md p-5 border border-gray-200 cursor-pointer">
           <h3 className="text-lg font-bold text-primary border-b border-gray-200 pb-2 mb-4">
-            Daily Receive Amount
+            {t("dailyReceiveAmount")}
           </h3>
           <div className="text-gray-700 text-sm space-y-2">
             <div className="flex justify-between font-semibold">
-              <span>Receive Amount</span>-
+              <span>{t("receiveAmount")}</span>-
               <span>{totalReceiveAmount.toLocaleString()} TK</span>
             </div>
           </div>
@@ -210,34 +212,34 @@ const OverViewCard = () => {
         {/* daily expense */}
         <div className="col-span-2 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg p-6 border border-gray-200">
           <h3 className="text-xl font-bold text-primary border-b border-gray-300 pb-3 mb-4">
-            📋 Daily Expense Summary
+            📋 {t("dailyExpenseSummary")}
           </h3>
 
           <div className="text-sm text-gray-700">
             <div className="grid grid-cols-5 gap-3 font-semibold py-2 px-3 bg-gray-100 rounded-md">
-              <div>Expense Type</div>
-              <div className="text-center">Commission</div>
-              <div className="text-center">Labor</div>
-              <div className="text-right">Others</div>
-              <div className="text-right">Total</div>
+              <div>{t("expenseType")}</div>
+              <div className="text-center">{t("commission")}</div>
+              <div className="text-center">{t("labor")}</div>
+              <div className="text-right">{t("others")}</div>
+              <div className="text-right">{t("Total")}</div>
             </div>
 
             <div className="grid grid-cols-5 gap-3 py-2 px-3 items-center hover:bg-gray-50 transition">
-              <div className="font-medium text-primary">Trip Cost</div>
-              <div className="text-center">{tripCommission.toFixed(2)} TK</div>
-              <div className="text-center">{tripLabor.toFixed(2)} TK</div>
-              <div className="text-right">{tripOtherCost.toFixed(2)} TK</div>
-              <div className="text-right">{tripCost.toFixed(2)} TK</div>
+              <div className="font-medium text-primary">{t("tripCost")}</div>
+              <div className="text-center">{tripCommission} TK</div>
+              <div className="text-center">{tripLabor} TK</div>
+              <div className="text-right">{tripOtherCost} TK</div>
+              <div className="text-right">{tripCost} TK</div>
             </div>
 
             <div className="border-t border-gray-200 pt-2 space-y-2">
               <div className="flex justify-between font-medium">
-                <span>🧾 Other Expenses (Purchase)</span>
-                <span>{otherExpense.toFixed(2)} TK</span>
+                <span>🧾 {t("otherExpenses")}</span>
+                <span>{otherExpense} TK</span>
               </div>
 
               <div className="flex justify-between font-bold text-base text-primary border-t border-dashed border-gray-300 pt-3 mt-2">
-                <span>💰 Total Expense</span>
+                <span>💰 {t("totalExpense")}</span>
                 <span>{totalTodayExpense.toFixed(2)} TK</span>
               </div>
             </div>

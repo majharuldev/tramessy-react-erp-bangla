@@ -20,7 +20,9 @@ import { tableFormatDate } from "../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
 import toNumber from "../hooks/toNumber";
 import useAdmin from "../hooks/useAdmin";
+import { useTranslation } from "react-i18next";
 const TripList = () => {
+  const {t} = useTranslation()
   const [trip, setTrip] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
@@ -75,7 +77,7 @@ const TripList = () => {
         setLoading(false);
       });
   }, []);
-  if (loading) return <p className="text-center mt-16">Loading trip...</p>;
+  if (loading) return <p className="text-center mt-16">{t("Loading")} {t("Trip")}...</p>;
 
   // Excel Export
   const exportTripsToExcel = () => {
@@ -399,18 +401,18 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
             <FaTruck className="text-[#11375B] text-2xl" />
-            Trip Records
+            {t("Trip Records")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
-              className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="border border-primary text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button>
             <Link to="/tramessy/AddTripForm">
-              <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Trip
+              <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <FaPlus /> {t("Trip")}
               </button>
             </Link>
           </div>
@@ -422,24 +424,24 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
               onClick={exportTripsToExcel}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             <button
               onClick={exportTripsToPDF}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              PDF
+              {t("PDF")}
             </button>
             <button
               onClick={printTripsTable}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/* search */}
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            {/* <span className="text-primary font-semibold pr-3">{t("search")}: </span> */}
             <input
               value={searchTerm}
               onChange={(e) => {
@@ -447,7 +449,7 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
                 setCurrentPage(1);
               }}
               type="text"
-              placeholder="Search..."
+              placeholder={`${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -506,7 +508,7 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
               }}
               className=" flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
             >
-              <option value="">Select Customer</option>
+              <option value="">{t("Customer")} {t("Select")}</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.customer_name}>
                   {c.customer_name}
@@ -523,12 +525,12 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
               }}
               className="flex-1 min-w-0 p-2 border border-gray-300 rounded text-sm appearance-none outline-none"
             >
-              <option value="">All Transport</option>
+              <option value="">{t("All")} {t("Transport")}</option>
               <option value="own_transport">Own Transport</option>
               <option value="vendor_transport">Vendor Transport</option>
             </select>
 
-            <div className="md:w-28 flex-shrink-0">
+            <div className="md:w-32 flex-shrink-0">
               <button
                 onClick={() => {
                   setStartDate(null);
@@ -539,7 +541,7 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
                 }}
                 className="w-full bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-2 py-2 rounded-md shadow flex items-center justify-center gap-2 transition-all duration-300"
               >
-                <IoIosRemoveCircle /> Clear
+                <IoIosRemoveCircle /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -550,19 +552,19 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
           <table className="min-w-full text-sm text-left">
             <thead className="bg-primary text-white capitalize text-xs">
               <tr>
-                <th className="p-2">SL.</th>
-                <th className="p-2">Date</th>
-                <th className="p-2">TripNo</th>
-                <th className="p-2">Customer</th>
-                <th className="p-2">TransportType</th>
-                <th className="p-2">VehicleNo</th>
-                <th className="p-2">Vendor</th>
-                <th className="p-2">Trip&Destination</th>
-                <th className="p-2">TripRent</th>
-                <th className="p-2">C.Demurrage</th>
-                <th className="p-2">TripCost</th>
-                <th className="p-2">Profit</th>
-                <th className="p-2 action_column">Action</th>
+                <th className="p-2">{t("sl")}</th>
+                <th className="p-2">{t("Date")}</th>
+                <th className="p-2">{t("TripNo")}</th>
+                <th className="p-2">{t("Customer")}</th>
+                <th className="p-2">{t("TransportType")}</th>
+                <th className="p-2">{t("vehicleNo")}</th>
+                <th className="p-2">{t("Vendor")}</th>
+                <th className="p-2">{t("Trip")}{t("&")}{t("Destination")}</th>
+                <th className="p-2">{t("TripRent")}</th>
+                <th className="p-2">{t("C.Demurrage")}</th>
+                <th className="p-2">{t("TripCost")}</th>
+                <th className="p-2">{t("Profit")}</th>
+                <th className="p-2 action_column">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-primary">
@@ -650,7 +652,7 @@ Profit: (toNumber(dt.total_rent || 0) + toNumber(dt.d_total || 0)) - (toNumber(d
             </tbody>
             <tfoot className="bg-gray-100 font-bold text-sm">
               <tr>
-                <td className="p-2 text-center" colSpan="8">Total</td>
+                <td className="p-2 text-center" colSpan="8">{t("Total")}</td>
                 <td className="p-2">{totalTripRent}</td>
                 <td className="p-2">{totalDemurrage}</td>
                 <td className="p-2">{totalTripCost}</td>

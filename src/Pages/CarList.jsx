@@ -12,7 +12,9 @@ import autoTable from "jspdf-autotable";
 import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import Pagination from "../components/Shared/Pagination";
 import useAdmin from "../hooks/useAdmin";
+import { useTranslation } from "react-i18next";
 const CarList = () => {
+  const {t} = useTranslation();
   const [vehicles, setVehicle] = useState([]);
   const [loading, setLoading] = useState(true);
   // get single car info by id
@@ -71,7 +73,7 @@ const CarList = () => {
       });
     }
   };
-  if (loading) return <p className="text-center mt-16">Loading vehicle...</p>;
+  if (loading) return <p className="text-center mt-16">{t("Loading")} {t("vehicle")}...</p>;
   const csvData = vehicles.map((dt, index) => ({
     index: index + 1,
     driver_name: dt.driver_name,
@@ -243,12 +245,12 @@ const CarList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
             <FaTruck className="text-[#11375B] text-2xl" />
-            Vehicle List
+            {t("vehicles")} {t("info")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <Link to="/tramessy/AddCarForm">
               <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Vehicle
+                <FaPlus /> {t("vehicle")}
               </button>
             </Link>
           </div>
@@ -260,24 +262,24 @@ const CarList = () => {
               onClick={exportExcel}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              Excel
+             {t("Excel")}
             </button>
             <button
               onClick={exportPDF}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              PDF
+              {t("PDF")}
             </button>
             <button
               onClick={printTable}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/* search */}
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            <span className="text-primary font-semibold pr-3">{t("search")}: </span>
             <input
               type="text"
               value={searchTerm}
@@ -285,7 +287,7 @@ const CarList = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search Vehicle..."
+              placeholder={`${t("vehicle")} ${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -308,16 +310,16 @@ const CarList = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-primary text-white capitalize text-xs">
               <tr>
-                <th className="p-2">#</th>
-                <th className="p-2">Driver Name</th>
-                <th className="p-2">Vehicle Name</th>
-                <th className="p-2">Vehicle Category</th>
-                <th className="p-2">Vehicle size</th>
-                <th className="p-2">Vehicle No</th>
+                <th className="p-2">{("sl")}</th>
+                <th className="p-2">{t("driver")} {t("name")}</th>
+                <th className="p-2">{t("vehicle")} {t("name")}</th>
+                <th className="p-2">{t("vehicle")} {t("category")}</th>
+                <th className="p-2">{t("vehicle")} {t("size")}</th>
+                <th className="p-2">{t("vehicleNo")}</th>
                 {/* <th className="px-2 py-3">Trip</th> */}
                 {/* <th className="px-2 py-3">Registration No</th> */}
-                <th className="p-2">Status</th>
-                <th className="p-2 action_column">Action</th>
+                <th className="p-2">{t("Status")}</th>
+                <th className="p-2 action_column">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-primary ">
@@ -325,7 +327,7 @@ const CarList = () => {
                 currentVehicles.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="text-center p-4 text-gray-500">
-                    No vehicles found
+                    {t("No vehicles found")}
                   </td>
                   </tr>
                 )

@@ -20,8 +20,10 @@ import { PiUsersFour } from "react-icons/pi";
 import { RiLuggageCartLine, RiSecurePaymentLine } from "react-icons/ri";
 import { HiCurrencyBangladeshi } from "react-icons/hi2";
 import { VscDebugConsole } from "react-icons/vsc";
+import { useTranslation } from "react-i18next";
 
 const Sidebar = () => {
+  const {t} = useTranslation();
   const [openMenu, setOpenMenu] = useState({
     fleet: false,
     business: false,
@@ -78,7 +80,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 font-semibold"
               >
                 <FaBars />
-                <span className="ps-2">Dashboard</span>
+                <span className="ps-2">{t("dashboard")}</span>
               </Link>
             </li>
             <>
@@ -92,7 +94,7 @@ const Sidebar = () => {
                 >
                   <span className="flex items-center gap-2">
                     <FaCarRear />
-                    <span>Fleet Management</span>
+                    <span>{t("FleetManagement")}</span>
                   </span>
                   <span
                     className={`transform transition-transform duration-900 ${
@@ -118,7 +120,7 @@ const Sidebar = () => {
                             : "text-gray-500 hover:text-primary"
                         }`}
                       >
-                        <span>Vehicle List</span>
+                        <span>{t("vehicles")} {t("info")}</span>
                       </Link>
                     </li>
                     <li>
@@ -130,7 +132,7 @@ const Sidebar = () => {
                             : "text-gray-500 hover:text-primary"
                         }`}
                       >
-                        <span>Trip List</span>
+                        <span>{t("Trip")} {t("info")}</span>
                       </Link>
                     </li>
                     {/* <li>
@@ -163,7 +165,7 @@ const Sidebar = () => {
                 >
                   <span className="flex items-center gap-2">
                     <FaUsers />
-                    <span>Vendor Management</span>
+                    <span>{t("Vendor")} {t("Management")}</span>
                   </span>
                   <span
                     className={`transform transition-transform duration-900 ${
@@ -189,7 +191,7 @@ const Sidebar = () => {
                             : "text-gray-500 hover:text-primary"
                         }`}
                       >
-                        <span>All Vendor List</span>
+                        <span> {t("Vendor")} {t("info")}</span>
                       </Link>
                     </li>
                     <li>

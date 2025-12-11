@@ -15,8 +15,10 @@ import Pagination from "../components/Shared/Pagination";
 import { tableFormatDate } from "../components/Shared/formatDate";
 import DatePicker from "react-datepicker";
 import useAdmin from "../hooks/useAdmin";
+import { useTranslation } from "react-i18next";
 
 const VendorList = () => {
+  const {t} = useTranslation()
   const [vendor, setVendor] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -240,47 +242,47 @@ const VendorList = () => {
         <div className="md:flex items-center justify-between mb-6">
           <h1 className="text-xl font-extrabold text-[#11375B] flex items-center gap-3">
             <FaUsers className="text-[#11375B] text-2xl" />
-            All vender information
+            {t("All")} {t("Vendor")} {t("Information")}
           </h1>
           <div className="mt-3 md:mt-0 flex gap-2">
             <button
               onClick={() => setShowFilter((prev) => !prev)}
-              className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="border border-primary hover:to-blue-900 text-primary px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
             >
-              <FaFilter /> Filter
+              <FaFilter /> {t("Filter")}
             </button>
             <Link to="/tramessy/AddVendorForm">
-              <button className="bg-gradient-to-r from-[#11375B] to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FaPlus /> Add Vendor
+              <button className="bg-primary text-white px-4 py-1 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer">
+                <FaPlus /> {t("Add Vendor")}
               </button>
             </Link>
           </div>
         </div>
         {/* export */}
         <div className="md:flex justify-between items-center">
-          <div className="flex gap-1 md:gap-3 text-primary font-semibold rounded-md">
+          <div className="flex gap-1 md:gap-3 text-primary font-medium rounded-md">
             <button
               onClick={exportExcel}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              Excel
+              {t("Excel")}
             </button>
             <button
               onClick={exportPDF}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              PDF
+              {t("PDF")}
             </button>
             <button
               onClick={printTable}
               className="py-2 px-5 hover:bg-primary bg-gray-200 hover:text-white rounded-md transition-all duration-300 cursor-pointer"
             >
-              Print
+              {t("Print")}
             </button>
           </div>
           {/*  */}
           <div className="mt-3 md:mt-0">
-            <span className="text-primary font-semibold pr-3">Search: </span>
+            {/* <span className="text-primary font-semibold pr-3">Search: </span> */}
             <input
               type="text"
               value={searchTerm}
@@ -288,7 +290,7 @@ const VendorList = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search..."
+              placeholder={`${t("search")}...`}
               className="border border-gray-300 rounded-md outline-none text-xs py-2 ps-2 pr-5"
             />
             {/*  Clear button */}
@@ -347,7 +349,7 @@ const VendorList = () => {
                 }}
                 className="bg-primary text-white px-4 py-1 md:py-0 rounded-md shadow-lg flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
               >
-                <FaFilter /> Clear
+                <FaFilter /> {t("Clear")}
               </button>
             </div>
           </div>
@@ -357,14 +359,14 @@ const VendorList = () => {
           <table className="min-w-full text-sm text-left">
             <thead className="bg-primary text-white capitalize text-xs">
               <tr>
-                <th className="p-2">#</th>
-                <th className="p-2">Date</th>
-                <th className="p-2">Name</th>
-                <th className="p-2">Mobile</th>
-                <th className="p-2">RentCate</th>
-                <th className="p-2">Work Area</th>
-                <th className="p-2">Status</th>
-                <th className="p-2 action_column">Action</th>
+                <th className="p-2">{t("sl")}</th>
+                <th className="p-2">{t("Date")}</th>
+                <th className="p-2">{t("Name")}</th>
+                <th className="p-2">{t("Mobile")}</th>
+                <th className="p-2">{t("RentCategory")}</th>
+                <th className="p-2">{t("Work Area")}</th>
+                <th className="p-2">{t("Status")}</th>
+                <th className="p-2 action_column">{t("Action")}</th>
               </tr>
             </thead>
             <tbody className="text-primary ">

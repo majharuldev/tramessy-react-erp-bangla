@@ -3,13 +3,16 @@ import { FaBars } from "react-icons/fa6";
 import avatar from "../../assets/man-noimage.png";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../providers/AuthProvider";
-import logo from "../../assets/tramessy.png";
+// import logo from "../../assets/tramessy.png";
+import LanguageSwitcher from "../LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 const Header = ({ setMobileSidebarOpen }) => {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
    const dropdownRef = useRef(null);
+    const { t } = useTranslation();
 
   // handle signout
   const handleSignout = () => {
@@ -54,10 +57,10 @@ const Header = ({ setMobileSidebarOpen }) => {
         </h3>
         <div>
           <h1 className="text-xl font-bold text-primary">
-            Transport Management Software
+            {t("headerTitle")}
           </h1>
           <p className="text-xs text-gray-600">
-            Smart solutions in a changing world
+            {t("headerSubtitle")}
           </p>
         </div>
         {/* <Link to="/tramessy" className="font-semibold text-primary">
@@ -76,7 +79,9 @@ const Header = ({ setMobileSidebarOpen }) => {
             <FaMagnifyingGlass />
           </div>
         </div> */}
-
+        <div>
+          <LanguageSwitcher/>
+        </div>
       {/* Admin Dropdown */}
       <div className="relative bg-white p-2 rounded-md flex gap-2 items-center" ref={dropdownRef}>
         <div
@@ -106,7 +111,7 @@ const Header = ({ setMobileSidebarOpen }) => {
                 onClick={handleSignout}
                 className="text-red-500 font-medium hover:underline cursor-pointer"
               >
-                Logout
+                {t("logout")}
               </button>
             </p>
           </div>

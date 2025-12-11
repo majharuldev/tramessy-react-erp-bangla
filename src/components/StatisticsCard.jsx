@@ -1,10 +1,12 @@
 import axios from "axios";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { HiOutlineBellAlert } from "react-icons/hi2";
 
 const StatisticsCard = () => {
   const [expiringDocs, setExpiringDocs] = useState([]);
+  const {t} = useTranslation();
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -52,17 +54,17 @@ const StatisticsCard = () => {
     <div className="">
       <div className="bg-white rounded-xl shadow-md p-4 border border-gray-200">
         <h3 className="text-xl font-bold text-primary border-b border-gray-200 pb-2 mb-4">
-          Document Reminder
+          {t("documentReminder")}
         </h3>
         {expiringDocs.length > 0 ? (
           <div className="overflow-x-auto max-h-56 overflow-y-auto hide-scrollbar">
             <table className="min-w-full text-sm text-left border border-gray-200">
               <thead className="bg-gray-100 text-primary">
                 <tr>
-                  <th className="p-2">SL.</th>
-                  <th className="p-2">Vehicle Number</th>
-                  <th className="p-2">Document</th>
-                  <th className="p-2">Remaining</th>
+                  <th className="p-2">{t("sl")}</th>
+                  <th className="p-2">{t("vehicleNo")}</th>
+                  <th className="p-2">{t("document")}</th>
+                  <th className="p-2">{t("remaining")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -93,7 +95,7 @@ const StatisticsCard = () => {
             <span className="text-9xl flex justify-center">
               <HiOutlineBellAlert />
             </span>
-            <p className="text-lg">No documents expiring soon.</p>
+            <p className="text-lg">{t("noDocumentsExpiringSoon.")}</p>
           </div>
         )}
       </div>
